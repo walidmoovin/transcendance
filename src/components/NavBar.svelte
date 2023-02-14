@@ -8,18 +8,28 @@
     { text: "Profile", url: "/Profile" }
   ];
   export let clickProfile;
+  export let clickHistory;
 </script>
 
 <nav class="navigation-bar">
   <ul>
     {#each links as link}
-      {#if link.text === "Profile"}
-        <li>
-          <button on:click={clickProfile}>
-            <img src="img/profileicon.png" alt="profile icon">
-          </button>
-        </li>
-        {:else}
+      {#if link.text === "Profile" || link.text === "History"}
+        {#if link.text === "Profile"}
+          <li>
+            <button on:click={clickProfile}>
+              <img src="img/profileicon.png" alt="profile icon">
+            </button>
+          </li>
+        {/if}
+        {#if link.text === "History"}
+          <li>
+            <button on:click={clickHistory}>
+              <p>History</p>
+            </button>
+          </li>
+        {/if}
+      {:else}
         <li>
           <a href={link.url}>{link.text}</a>
         </li>
