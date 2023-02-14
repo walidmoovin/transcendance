@@ -1,0 +1,64 @@
+<script>
+    export let username = '';
+    export let wins = 0;
+    export let losses = 0;
+    export let is2faEnabled = false;
+    function toggle2fa() {
+        is2faEnabled = !is2faEnabled;
+    }
+</script>
+
+<div class="overlay">
+    <div class="profile">
+        <div class="profile-header">
+        <img class="profile-img" src="img/profileicon.png" alt="Profile Icon">
+        <h3>{username}</h3>
+        </div>
+        <div class="profile-body">
+        <p>Wins: {wins}</p>
+        <p>Losses: {losses}</p>
+        <div class="two-factor-auth">
+            <input type="checkbox" id="2fa-toggle" bind:checked={is2faEnabled} on:change={toggle2fa}>
+            <label for="2fa-toggle">Enable 2fa</label>
+        </div>
+        </div>
+    </div>
+</div>
+  
+<style>
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 1rem;
+        width: 300px;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+    }
+
+    .profile-img {
+        width: 50px;
+        height: 50px;
+        margin-right: 1rem;
+    }
+
+    .two-factor-auth {
+        margin-top: 1rem;
+    }
+</style>
