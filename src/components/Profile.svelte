@@ -8,7 +8,7 @@
     export let is2faEnabled = false;
     async function handleSubmit (event) {
         event.preventDefault();
-        // const res = await fetch('', {
+        // const response = await fetch('', {
         //     method: 'POST',
         //     headers: {
         //         'Content-Type': 'application/json'
@@ -17,7 +17,7 @@
         //         username
         //     })
         // });
-        // if (res.ok) {
+        // if (response.ok) {
         //     console.log('username updated');
         // }
         // else {

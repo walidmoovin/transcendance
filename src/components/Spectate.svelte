@@ -7,6 +7,7 @@
     <div class="spectate" on:click|stopPropagation on:keydown|stopPropagation>
         <div>
             {#if spectate.length > 0}
+                <h2>Monkey spectating</h2>
                 {#each spectate.slice(0, 10) as spectate}
                     <li>
                         <span>{spectate.player1} VS {spectate.player2}</span>
@@ -41,4 +42,5 @@
         padding: 1rem;
         width: 300px;
     }
+
 </style>

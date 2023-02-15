@@ -6,12 +6,16 @@
     <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
         <div>
             {#if matches.length > 0}
+                <h2>Last 10 monkey games</h2>
                 {#each matches.slice(0, 10) as match}
                     <li>
-                        <span>{match.winner} vs {match.loser}</span>
-                        <span>{match.winner} won 1-0</span>
-                        <span>points won : {match.points}</span>
-                        <span>rank #{match.rank}</span>
+                        <span>{match.winner} 1  -  0 {match.loser}</span>
+                        {#if match.points > 0}
+                            <span>+{match.points}</span>
+                        {:else}
+                            <span>{match.points}</span>
+                        {/if}
+                        <span>MP | rank #{match.rank}</span>
                     </li>
                 {/each}
             {:else}

@@ -1,11 +1,31 @@
 <script>
     export let friends = [];
+    async function addFriend(event) {
+        event.preventDefault();
+        const usernameInput = event.target.querySelector('input[type="text"]');
+        const username = usernameInput.value;
+        // const response = await fetch('', {
+        //     method: 'POST',
+        //     headers: {
+        //     'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({ username })
+        // });
+        // if (response.ok) {
+        //     console.log('Friend added successfully');
+        // } else {
+        //     console.log('Failed to add friend');
+        // }
+        // usernameInput.value = '';
+        alert('Trying to add friend' + username);
+    }
 </script>
 
 <div class="overlay">
     <div class="friends" on:click|stopPropagation on:keydown|stopPropagation>
         <div>
             {#if friends.length > 0}
+                <h2>Monkey friends</h2>
                 {#each friends.slice(0, 10) as friends}
                     <li>
                         <span>{friends.username} is {friends.status}</span>
@@ -14,6 +34,13 @@
             {:else}
                 <p>No friends to display</p>
             {/if}
+            <div>
+                <h3>Add a friend</h3>
+                <form on:submit={addFriend}>
+                    <input type="text" />
+                    <button type="submit">Add</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

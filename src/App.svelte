@@ -14,10 +14,10 @@
 	  isHistoryOpen = true;
 	}
 	let matches = [
+		{winner : "Alice", loser : "Bob", points : "-5", rank : "22"},
 		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
 		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
-		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
-		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
+		{winner : "Alice", loser : "Bob", points : "7", rank : "23"},
 		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
 		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
 	]
