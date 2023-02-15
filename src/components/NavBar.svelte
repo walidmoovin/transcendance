@@ -5,16 +5,25 @@
     { text: "Spectate", url: "/Spectate"},
     { text: "Chat", url: "/Chat"},
     { text: "History", url: "/History"},
+    { text: "Friends", url: "/Friends"},
     { text: "Profile", url: "/Profile" }
   ];
-  export let clickProfile;
-  export let clickHistory;
+  export let clickProfile = () => {};
+  export let clickHistory = () => {};
+  export let clickFriends = () => {};
 </script>
 
 <nav class="navigation-bar">
   <ul>
     {#each links as link}
-      {#if link.text === "Profile" || link.text === "History"}
+      {#if link.text === "Profile" || link.text === "History" || link.text === "Friends"}
+        {#if link.text === "Friends"}
+          <li>
+            <button on:click={clickFriends}>
+              <p>Friends</p>
+            </button>
+          </li>
+        {/if}
         {#if link.text === "Profile"}
           <li>
             <button on:click={clickProfile}>

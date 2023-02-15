@@ -2,6 +2,7 @@
 	import Navbar from './components/NavBar.svelte';
 	import Profile from './components/Profile.svelte';
 	import MatchHistory from './components/MatchHistory.svelte';
+	import Friends from './components/Friends.svelte';
 	let isProfileOpen = false; 
 	function clickProfile() {
 	  isProfileOpen = true;
@@ -11,12 +12,34 @@
 	  isHistoryOpen = true;
 	}
 	let matches = [
-		{winner : "Alice", loser : "Bob"},
+		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
+		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
+		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
+		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
+		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
+		{winner : "Alice", loser : "Bob", points : "10", rank : "24"},
+	]
+	let isFriendOpen = false;
+	function clickFriends() {
+	  isFriendOpen = true;
+	}
+	let friends = [
+		{username : "Alice", status : "online"},
+		{username : "Bob", status : "online"},
+		{username : "Charlie", status : "offline"},
+		{username : "Dave", status : "offline"},
+		{username : "Eve", status : "online"},
+		{username : "Frank", status : "online"},
 	]
 </script>
 
 <main>
-	<Navbar clickProfile={clickProfile} clickHistory={clickHistory} />
+	<Navbar clickProfile={clickProfile} clickHistory={clickHistory} clickFriends={clickFriends} />
+	{#if isFriendOpen}
+	  <div on:click={() => isFriendOpen = false} on:keydown={() => isFriendOpen = false}>
+		<Friends friends={friends} />
+	  </div>
+	{/if}
 	{#if isHistoryOpen}
 	  <div on:click={() => isHistoryOpen = false} on:keydown={() => isHistoryOpen = false}>
 		<MatchHistory matches={matches} />

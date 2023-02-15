@@ -1,21 +1,18 @@
 <script>
-    export let matches = [];
+    export let friends = [];
 </script>
 
 <div class="overlay">
     <div class="history">
         <div>
-            {#if matches.length > 0}
-                {#each matches.slice(0, 10) as match}
+            {#if friends.length > 0}
+                {#each friends.slice(0, 10) as friends}
                     <li>
-                        <span>{match.winner} vs {match.loser}</span>
-                        <span>{match.winner} won 1-0</span>
-                        <span>points won : {match.points}</span>
-                        <span>rank #{match.rank}</span>
+                        <span>{friends.username} is {friends.status}</span>
                     </li>
                 {/each}
             {:else}
-                <p>No matches to display</p>
+                <p>No friends to display</p>
             {/if}
         </div>
     </div>
