@@ -1,36 +1,71 @@
 <script>
     export let username = '';
+    export let realname = '';
     export let wins = 0;
     export let losses = 0;
     export let elo = 0;
     export let rank = -1;
     export let is2faEnabled = false;
-    function toggle2fa() {
-        is2faEnabled = !is2faEnabled;
+    async function handleSubmit (event) {
+        event.preventDefault();
+        // const res = await fetch('', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         username
+        //     })
+        // });
+        // if (res.ok) {
+        //     console.log('username updated');
+        // }
+        // else {
+        //     console.log('username update failed');
+        // }
+        alert('Trying to update username to ' + username);
+    }
+    async function handleAvatarUpload (event) {
+        event.preventDefault();
+        alert('Trying to upload avatar');
+    }
+    async function handle2fa (event) {
+        event.preventDefault();
+        alert('Trying to ' + (is2faEnabled ? 'disable' : 'enable') + ' 2FA');
     }
 </script>
 
 <div class="overlay">
     <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
         <div class="profile-header">
-        <img class="profile-img" src="img/profileicon.png" alt="Profile Icon">
-        <h3>{username}</h3>
-        <button>Upload avatar</button>
+            <img class="profile-img" src="img/profileicon.png" alt="Profile Icon">
+            <h3>{realname}</h3>
+            <form on:submit={handleAvatarUpload}>
+                <button type="submit">Upload Avatar</button>
+            </form>
         </div>
         <div class="profile-body">
-        <p>Wins: {wins}</p>
-        <p>Losses: {losses}</p>
-        <p>Winrate: {wins / (wins + losses) * 100}%</p>
-        <p>Elo : {elo}</p>
-        <p>Rank: {rank}</p>
-        <div class="two-factor-auth">
-            <button on:click={toggle2fa}>
-            {#if is2faEnabled}
-                Disable 2FA
-            {:else}
-                Enable 2FA
-            {/if}
-        </div>
+            <form on:submit={handleSubmit}>
+                <div class="username">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" bind:value={username} />
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+            <p>Wins: {wins}</p>
+            <p>Losses: {losses}</p>
+            <p>Winrate: {wins / (wins + losses) * 100}%</p>
+            <p>Elo : {elo}</p>
+            <p>Rank: {rank}</p>
+            <form class="two-factor-auth" on:submit={handle2fa}>
+                <button type="submit">
+                    {#if is2faEnabled}
+                        Disable 2FA
+                    {:else}
+                        Enable 2FA
+                    {/if}
+                </button>
+            </form>
         </div>
     </div>
 </div>

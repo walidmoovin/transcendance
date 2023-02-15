@@ -30,7 +30,7 @@
 		{username : "Bob", status : "online"},
 		{username : "Charlie", status : "offline"},
 		{username : "Dave", status : "offline"},
-		{username : "Eve", status : "online"},
+		{username : "Eve", status : "in a game"},
 		{username : "Frank", status : "online"},
 	]
 	let isSpectateOpen = false;
