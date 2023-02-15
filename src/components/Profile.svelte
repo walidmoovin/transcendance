@@ -2,6 +2,8 @@
     export let username = '';
     export let wins = 0;
     export let losses = 0;
+    export let elo = 0;
+    export let rank = -1;
     export let is2faEnabled = false;
     function toggle2fa() {
         is2faEnabled = !is2faEnabled;
@@ -13,13 +15,21 @@
         <div class="profile-header">
         <img class="profile-img" src="img/profileicon.png" alt="Profile Icon">
         <h3>{username}</h3>
+        <button>Upload avatar</button>
         </div>
         <div class="profile-body">
         <p>Wins: {wins}</p>
         <p>Losses: {losses}</p>
+        <p>Winrate: {wins / (wins + losses) * 100}%</p>
+        <p>Elo : {elo}</p>
+        <p>Rank: {rank}</p>
         <div class="two-factor-auth">
-            <input type="checkbox" id="2fa-toggle" bind:checked={is2faEnabled} on:change={toggle2fa}>
-            <label for="2fa-toggle">Enable 2fa</label>
+            <button on:click={toggle2fa}>
+            {#if is2faEnabled}
+                Disable 2FA
+            {:else}
+                Enable 2FA
+            {/if}
         </div>
         </div>
     </div>

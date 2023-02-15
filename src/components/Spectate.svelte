@@ -1,18 +1,20 @@
 <script>
-    export let friends = [];
+    export let spectate = [];
+    export let watch = () => {};
 </script>
 
 <div class="overlay">
-    <div class="friends">
+    <div class="spectate">
         <div>
-            {#if friends.length > 0}
-                {#each friends.slice(0, 10) as friends}
+            {#if spectate.length > 0}
+                {#each spectate.slice(0, 10) as spectate}
                     <li>
-                        <span>{friends.username} is {friends.status}</span>
+                        <span>{spectate.player1} VS {spectate.player2}</span>
+                        <button on:click={() => watch(spectate.id)}>Spectate</button>
                     </li>
                 {/each}
             {:else}
-                <p>No friends to display</p>
+                <p>No matches to spectate</p>
             {/if}
         </div>
     </div>
@@ -32,7 +34,7 @@
         align-items: center;
     }
 
-    .friends {
+    .spectate {
         background-color: #fff;
         border: 1px solid #ccc;
         border-radius: 5px;

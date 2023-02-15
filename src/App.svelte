@@ -3,6 +3,7 @@
 	import Profile from './components/Profile.svelte';
 	import MatchHistory from './components/MatchHistory.svelte';
 	import Friends from './components/Friends.svelte';
+	import Spectate from './components/Spectate.svelte';
 	let isProfileOpen = false; 
 	function clickProfile() {
 	  isProfileOpen = true;
@@ -31,10 +32,27 @@
 		{username : "Eve", status : "online"},
 		{username : "Frank", status : "online"},
 	]
+	let isSpectateOpen = false;
+	function clickSpectate() {
+	  isSpectateOpen = true;
+	}
+	let spectate = [
+		{player1 : "Alice", player2 : "Bob", id : "1"},
+		{player1 : "Alice", player2 : "Bob", id : "4"},
+		{player1 : "Alice", player2 : "Bob", id : "6"},
+		{player1 : "Alice", player2 : "Bob", id : "8"},
+		{player1 : "Alice", player2 : "Bob", id : "2"},
+		{player1 : "Alice", player2 : "Bob", id : "3"},
+	]
 </script>
 
 <main>
-	<Navbar clickProfile={clickProfile} clickHistory={clickHistory} clickFriends={clickFriends} />
+	<Navbar clickProfile={clickProfile} clickHistory={clickHistory} clickFriends={clickFriends} clickSpectate={clickSpectate} />
+	{#if isSpectateOpen}
+	  <div on:click={() => isSpectateOpen = false} on:keydown={() => isSpectateOpen = false}>
+		<Spectate spectate={spectate} />
+	  </div>
+	{/if}
 	{#if isFriendOpen}
 	  <div on:click={() => isFriendOpen = false} on:keydown={() => isFriendOpen = false}>
 		<Friends friends={friends} />
@@ -47,7 +65,7 @@
 	{/if}
 	{#if isProfileOpen}
 	  <div on:click={() => isProfileOpen = false} on:keydown={() => isProfileOpen = false}>
-		<Profile username="Alice" wins={10} losses={5} is2faEnabled={false} />
+		<Profile username="Alice" wins={10} losses={5} elo={256} rank={23} is2faEnabled={false} />
 	  </div>
 	{/if}
 </main>

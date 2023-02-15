@@ -11,12 +11,20 @@
   export let clickProfile = () => {};
   export let clickHistory = () => {};
   export let clickFriends = () => {};
+  export let clickSpectate = () => {};
 </script>
 
 <nav class="navigation-bar">
   <ul>
     {#each links as link}
-      {#if link.text === "Profile" || link.text === "History" || link.text === "Friends"}
+      {#if link.text === "Profile" || link.text === "History" || link.text === "Friends" || link.text === "Spectate"}
+        {#if link.text === "Spectate"}
+          <li>
+            <button on:click={clickSpectate}>
+              <p>Spectate</p>
+            </button>
+          </li>
+        {/if}
         {#if link.text === "Friends"}
           <li>
             <button on:click={clickFriends}>
