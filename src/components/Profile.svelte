@@ -11,7 +11,7 @@
 </script>
 
 <div class="overlay">
-    <div class="profile">
+    <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
         <div class="profile-header">
         <img class="profile-img" src="img/profileicon.png" alt="Profile Icon">
         <h3>{username}</h3>

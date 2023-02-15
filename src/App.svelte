@@ -4,6 +4,7 @@
 	import MatchHistory from './components/MatchHistory.svelte';
 	import Friends from './components/Friends.svelte';
 	import Spectate from './components/Spectate.svelte';
+	import Play from './components/Play.svelte';
 	let isProfileOpen = false; 
 	function clickProfile() {
 	  isProfileOpen = true;
@@ -68,6 +69,7 @@
 		<Profile username="Alice" wins={10} losses={5} elo={256} rank={23} is2faEnabled={false} />
 	  </div>
 	{/if}
+	<Play />
 </main>
 
 <style>

@@ -4,7 +4,7 @@
 </script>
 
 <div class="overlay">
-    <div class="spectate">
+    <div class="spectate" on:click|stopPropagation on:keydown|stopPropagation>
         <div>
             {#if spectate.length > 0}
                 {#each spectate.slice(0, 10) as spectate}

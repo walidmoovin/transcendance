@@ -1,12 +1,11 @@
 <script lang="ts">
   export let links = [
-    { text: "Home", url: "/" },
-    { text: "Play", url: "/Play" },
-    { text: "Spectate", url: "/Spectate"},
-    { text: "Chat", url: "/Chat"},
-    { text: "History", url: "/History"},
-    { text: "Friends", url: "/Friends"},
-    { text: "Profile", url: "/Profile" }
+    { text: "Home" , url : "img/pong.png" },
+    { text: "Spectate" },
+    { text: "Chat" },
+    { text: "History" },
+    { text: "Friends" },
+    { text: "Profile" }
   ];
   export let clickProfile = () => {};
   export let clickHistory = () => {};
@@ -17,38 +16,39 @@
 <nav class="navigation-bar">
   <ul>
     {#each links as link}
-      {#if link.text === "Profile" || link.text === "History" || link.text === "Friends" || link.text === "Spectate"}
-        {#if link.text === "Spectate"}
-          <li>
-            <button on:click={clickSpectate}>
-              <p>Spectate</p>
-            </button>
-          </li>
-        {/if}
-        {#if link.text === "Friends"}
-          <li>
-            <button on:click={clickFriends}>
-              <p>Friends</p>
-            </button>
-          </li>
-        {/if}
-        {#if link.text === "Profile"}
-          <li>
-            <button on:click={clickProfile}>
-              <img src="img/profileicon.png" alt="profile icon">
-            </button>
-          </li>
-        {/if}
-        {#if link.text === "History"}
-          <li>
-            <button on:click={clickHistory}>
-              <p>History</p>
-            </button>
-          </li>
-        {/if}
-      {:else}
+      {#if link.text === "Spectate"}
         <li>
-          <a href={link.url}>{link.text}</a>
+          <button on:click={clickSpectate}>
+            <p>Spectate</p>
+          </button>
+        </li>
+      {/if}
+      {#if link.text === "Friends"}
+        <li>
+          <button on:click={clickFriends}>
+            <p>Friends</p>
+          </button>
+        </li>
+      {/if}
+      {#if link.text === "Profile"}
+        <li>
+          <button on:click={clickProfile}>
+            <img src="img/profileicon.png" alt="profile icon">
+          </button>
+        </li>
+      {/if}
+      {#if link.text === "History"}
+        <li>
+          <button on:click={clickHistory}>
+            <p>History</p>
+          </button>
+        </li>
+      {/if}
+      {#if link.text === "Home"}
+        <li>
+          <a href="/">
+            <img src="img/pong.png" alt="home-icon">
+          </a>
         </li>
       {/if}
     {/each}
@@ -76,14 +76,13 @@
     margin: 0 1rem;
   }
 
-  .navigation-bar a {
-    text-decoration: none;
-    color: #333;
-  }
-
   .navigation-bar img {
     width: 2rem;
     height: 2rem;
+  }
+
+  .navigation-bar button {
+    border: none;
   }
 
   @media (max-width: 768px) {

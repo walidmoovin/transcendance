@@ -3,7 +3,7 @@
 </script>
 
 <div class="overlay">
-    <div class="friends">
+    <div class="friends" on:click|stopPropagation on:keydown|stopPropagation>
         <div>
             {#if friends.length > 0}
                 {#each friends.slice(0, 10) as friends}

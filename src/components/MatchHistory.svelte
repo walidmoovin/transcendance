@@ -3,7 +3,7 @@
 </script>
 
 <div class="overlay">
-    <div class="history">
+    <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
         <div>
             {#if matches.length > 0}
                 {#each matches.slice(0, 10) as match}
