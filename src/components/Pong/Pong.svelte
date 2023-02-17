@@ -6,28 +6,22 @@
 	const FPS = 144;
 	const SERVER_URL = 'ws://localhost:3001';
 
-	const socket: WebSocket = new WebSocket(SERVER_URL);
-	socket.onopen = () => {
-		console.log('Connected to game server!');
-		socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
-	};
-	let canvas: HTMLCanvasElement;
-	let context: CanvasRenderingContext2D;
+	let socket: WebSocket;
 
 	//Get canvas and its context
 	window.onload = () => {
-		canvas = document.getElementById('pong_canvas') as HTMLCanvasElement;
+		const canvas: HTMLCanvasElement = document.getElementById('pong_canvas') as HTMLCanvasElement;
 		if (canvas) {
-			context = canvas.getContext('2d') as CanvasRenderingContext2D;
+			const context: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
 			if (context) {
-				setupGame();
+				setupSocket(canvas, context);
 			}
 		}
 	};
 
-	function setupGame() {
+	function setupSocket(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
+		socket = new WebSocket(SERVER_URL);
 		const game = new Game(canvas, context);
-
 		socket.onmessage = function (e) {
 			const event_json = JSON.parse(e.data);
 			const event = event_json.event;
@@ -44,21 +38,18 @@
 				}, 1000 / FPS);
 				console.log('Game loaded!');
 			} else {
-				console.log('Received unknown event from server:');
-				console.log(event_json);
+				console.log('Unknown event from server: ' + event);
 			}
+		};
+		socket.onopen = () => {
+			console.log('Connected to game server!');
+			socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
 		};
 	}
 </script>
 
 <div>
-	<button
-		on:click={() => {
-			socket.send(formatWebsocketData(GAME_EVENTS.START_GAME));
-		}}
-	>
-		Start game
-	</button>
+	<button on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.START_GAME))}>Start game</button>
 	<br />
 	<br />
 	<canvas id="pong_canvas" />
