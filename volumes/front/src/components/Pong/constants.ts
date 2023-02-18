@@ -2,13 +2,17 @@ import { Point } from './utils';
 
 export const GAME_EVENTS = {
 	START_GAME: 'START_GAME',
+	READY: 'READY',
 	GAME_TICK: 'GAME_TICK',
 	PLAYER_MOVE: 'PLAYER_MOVE',
-	GET_GAME_INFO: 'GET_GAME_INFO'
+	GET_GAME_INFO: 'GET_GAME_INFO',
+	CREATE_GAME: 'CREATE_GAME',
+	REGISTER_PLAYER: 'REGISTER_PLAYER'
 };
 
 export interface GameInfo extends GameInfoConstants {
 	yourPaddleIndex: number;
+	gameId: string;
 }
 export interface GameInfoConstants {
 	mapSize: Point;
@@ -30,3 +34,4 @@ export interface GameUpdate {
 	ballPosition: Point;
 	scores: number[];
 }
+

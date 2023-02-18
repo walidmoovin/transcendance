@@ -13,6 +13,7 @@ export class Game {
 	ball: Ball;
 	players: Player[];
 	my_paddle: Paddle;
+	id: string;
 
 	constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
 		this.canvas = canvas;
@@ -34,6 +35,7 @@ export class Game {
 		);
 		this.players = [new Player(paddle1), new Player(paddle2)];
 		this.my_paddle = this.players[data.yourPaddleIndex].paddle;
+		this.id = data.gameId;
 	}
 
 	start(socket: WebSocket) {
