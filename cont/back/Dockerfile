@@ -1,6 +1,8 @@
 FROM alpine:3.15
 
-RUN apk update && apk upgrade && apk add --no-cache npm \
+RUN apk update && apk upgrade && apk add npm \
   && npm install -g @nestjs/cli
 
-WORKDIR /var/html/
+WORKDIR /var/www/html
+ENTRYPOINT npm install && npm run build && npm run start
+

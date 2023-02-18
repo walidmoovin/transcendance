@@ -9,7 +9,6 @@
 
 	let socket: WebSocket;
 
-onMount(async () => {
 	//Get canvas and its context
 	window.onload = () => {
 		const canvas: HTMLCanvasElement = document.getElementById('pong_canvas') as HTMLCanvasElement;
@@ -20,7 +19,6 @@ onMount(async () => {
 			}
 		}
 	};
-})
 	function setupSocket(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
 		socket = new WebSocket(SERVER_URL);
 		const game = new Game(canvas, context);
