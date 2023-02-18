@@ -1,5 +1,23 @@
-node_modules
-package-lock.json
-yarn.lock
+*
 
-public
+!.gitignore
+!LICENCE
+!README.md
+
+!Makefile
+!docker-compose.yml
+!.env
+
+!cont/
+!cont/front
+!cont/back
+!cont/front/*
+!cont/back/*
+
+
+!volumes/
+!volumes/front
+!volumes/back
+!volumes/front/*
+!volumes/back/*
+

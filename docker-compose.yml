@@ -1,0 +1,31 @@
+version: '3.8'
+
+networks:
+  transcendence:
+
+services:
+  front:
+    container_name: front
+    build: cont/front/
+    env_file: .env
+    depends_on: [postgres, back]
+    ports: [80:80]
+    volumes: [./volumes/front:/var/www/html]
+    networks: [transcendence]
+    restart: always
+  back:
+    container_name: back
+    build: cont/back/
+    env_file: .env
+    depends_on: [postgres]
+    ports: [3030:3030]
+    networks: [transcendence]
+    volumes: [./volumes/back:/var/www/html]
+    restart: always
+  postgres:
+    container_name: postgres
+    image: postgres
+    ports: [5432:5432]
+    restart: always
+    env_file: .env
+    
