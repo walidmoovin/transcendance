@@ -1,0 +1,22 @@
+NAME = transcendence
+USER = gavaniwast
+
+all: clean start
+
+start:
+	sudo BACK_RUN=start docker compose -f docker-compose.yml up --build
+
+debug:
+	sudo BUILDKIT_PROGRESS=plain BACK_RUN=start:debug docker compose -f docker-compose.yml up --build
+
+stop:
+	sudo docker compose -f docker-compose.yml down
+
+clean: stop
+	sudo docker system prune -f
+
+fclean: stop
+	rm -rf volumes/*/node_modules
+	sudo docker system prune -af --volumes
+
+re: fclean start

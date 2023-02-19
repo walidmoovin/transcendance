@@ -6,23 +6,23 @@ networks:
 services:
   front:
     container_name: front
-    build: cont/front/
+    build: front/
     env_file: .env
     depends_on: [postgres, back]
     ports: [80:80]
-    volumes: [./volumes/front:/var/www/html]
+    volumes: [./front/volume:/var/www/html]
     networks: [transcendence]
     restart: always
   back:
     container_name: back
-    build: cont/back/
+    build: back/
     env_file: .env
     environment:
       - RUN=${BACK_RUN}
     depends_on: [postgres]
     ports: [3001:3001]
     networks: [transcendence]
-    volumes: [./volumes/back:/var/www/html]
+    volumes: [./back/volume:/var/www/html]
     restart: always
   postgres:
     container_name: postgres
