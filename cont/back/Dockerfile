@@ -4,5 +4,5 @@ RUN apk update && apk upgrade && apk add npm \
   && npm install -g @nestjs/cli
 
 WORKDIR /var/www/html
-ENTRYPOINT npm install && npm run build && npm run start
+ENTRYPOINT npm install && npm run build && npm run $RUN
 

@@ -17,6 +17,8 @@ services:
     container_name: back
     build: cont/back/
     env_file: .env
+    environment:
+      - RUN=${BACK_RUN}
     depends_on: [postgres]
     ports: [3001:3001]
     networks: [transcendence]

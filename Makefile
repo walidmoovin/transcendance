@@ -13,18 +13,18 @@ $(CERT):
 	mv $(NAME).pem volumes/ssl
 
 start: $(CERT)
-	sudo docker compose -f docker-compose.yml up --build
+	BACK_RUN=start docker compose -f docker-compose.yml up --build
 
 debug: $(CERT)
-	sudo BUILDKIT_PROGRESS=plain docker compose -f docker-compose.yml up --build
+	BUILDKIT_PROGRESS=plain BACK_RUN=start:debug docker compose -f docker-compose.yml up --build
 
 stop:
-	sudo docker compose -f docker-compose.yml down
+	docker compose -f docker-compose.yml down
 
 clean: stop
-	sudo docker system prune -f
+	docker system prune -f
 
 fclean: stop
-	sudo docker system prune -af --volumes
+	docker system prune -af --volumes
 
 re: fclean start
