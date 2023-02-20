@@ -16,7 +16,7 @@ clean: stop
 	docker system prune -f
 
 fclean: stop
-	rm -rf volumes/*/node_modules
+	rm -rf */volumes/node_modules
 	docker system prune -af --volumes
 
 re: fclean start
