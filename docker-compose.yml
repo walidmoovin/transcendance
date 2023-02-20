@@ -8,6 +8,8 @@ services:
     container_name: front
     build: front/
     env_file: .env
+    environment:
+      - NODE_ENV=${NODE_ENV}
     depends_on: [postgres, back]
     ports: [80:80]
     volumes: [./front/volume:/var/www/html]
@@ -18,7 +20,7 @@ services:
     build: back/
     env_file: .env
     environment:
-      - RUN=${BACK_RUN}
+      - NODE_ENV=${NODE_ENV}
     depends_on: [postgres]
     ports: [3001:3001]
     networks: [transcendence]
