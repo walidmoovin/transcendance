@@ -9,6 +9,7 @@
 	import type { SpectateType } from './components/Spectate.svelte';
 	import Play from './components/Play.svelte';
 	import Pong from './components/Pong/Pong.svelte';
+	import Chat from './components/Chat.svelte'
 
 	let isProfileOpen = false;
 	function clickProfile() {
@@ -76,6 +77,7 @@
 	{/if}
 	<Play />
 	<Pong />
+	<Chat />
 </main>
 
 <style>
