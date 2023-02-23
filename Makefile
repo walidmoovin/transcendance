@@ -9,8 +9,10 @@ prod:
 dev:
 	NODE_ENV="development" docker compose -f docker-compose.yml up --build
 
-lint:
-	NODE_ENV="beautify" docker compose -f docker-compose.yml up --build
+check:
+	NODE_ENV="check" docker compose -f docker-compose.yml run back --build
+	NODE_ENV="check" docker compose -f docker-compose.yml run front --build
+	docker compose -f docker-compose.yml down
 	
 debug:
 	NODE_ENV="debug" BUILDKIT_PROGRESS=plain docker compose -f docker-compose.yml up --build
@@ -26,3 +28,5 @@ fclean: stop
 	docker system prune -af --volumes
 
 re: fclean dev
+
+.PHONY: all prod dev check debug stop clean fclean re 
