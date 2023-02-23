@@ -11,6 +11,6 @@ ENTRYPOINT npm install; \
 	elif [[ $NODE_ENV == "debug"  ]]; then \
     npm run dev; \
   elif [[ $NODE_ENV == "check" ]]; then \
-    npm run check; echo "=== FINISH ==="\
+    npm run format && npm run check; echo "=== FINISH ==="\
   else echo "Nothing to do for that NODE_ENV context."; \
   fi;
