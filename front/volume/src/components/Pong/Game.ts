@@ -40,7 +40,8 @@ export class Game {
       data.paddleSize
     );
     this.players = [new Player(paddle1), new Player(paddle2)];
-    this.my_paddle = this.players[data.yourPaddleIndex].paddle;
+    if (data.yourPaddleIndex != -1)
+      this.my_paddle = this.players[data.yourPaddleIndex].paddle;
     this.id = data.gameId;
   }
 

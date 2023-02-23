@@ -3,57 +3,69 @@ import { type GameInfo } from './game/constants'
 import { Game } from './game/Game'
 import { type Point } from './game/utils'
 
-export class Pong {
-  private playerUUIDToGameIndex = new Map<string, number>()
+export class Games {
+  private readonly playerNameToGameIndex = new Map<string, number>()
   private readonly games = new Array<Game>()
 
   newGame (sockets: WebSocket[], uuids: string[], names: string[]) {
     this.games.push(new Game(sockets, uuids, names))
-    this.playerUUIDToGameIndex[uuids[0]] = this.games.length - 1
-    this.playerUUIDToGameIndex[uuids[1]] = this.games.length - 1
+    this.playerNameToGameIndex.set(names[0], this.games.length - 1)
+    this.playerNameToGameIndex.set(names[1], this.games.length - 1)
     console.log(`Created game ${names[0]} vs ${names[1]}`)
   }
 
-  removePlayer (uuid: string) {
-    this.playerGame(uuid).removePlayer(uuid)
+  removePlayer (name: string) {
+    this.playerGame(name).removePlayer(name)
   }
 
-  ready (uuid: string) {
-    if (this.isInAGame(uuid)) {
-      this.playerGame(uuid).ready(uuid)
+  ready (name: string) {
+    if (this.isInAGame(name)) {
+      this.playerGame(name).ready(name)
     }
   }
 
   stopGame (uuid: string) {
-    if (this.isInAGame(uuid)) {
-      this.playerGame(uuid).stop()
-      delete this.playerUUIDToGameIndex[uuid]
-      delete this.games[this.playerUUIDToGameIndex[uuid]]
+    // if (this.isInAGame(uuid)) {
+    //   this.playerGame(uuid).stop()
+    //   delete this.playerNameToGameIndex[uuid]
+    //   delete this.games[this.playerNameToGameIndex[uuid]]
+    // }
+  }
+
+  getGameInfo (name: string): GameInfo {
+    if (this.isInAGame(name)) {
+      return this.playerGame(name).getGameInfo(name)
     }
   }
 
-  getGameInfo (uuid: string): GameInfo {
-    if (this.isInAGame(uuid)) {
-      return this.playerGame(uuid).getGameInfo(uuid)
+  movePlayer (name: string, position: Point) {
+    if (this.isInAGame(name)) {
+      this.playerGame(name).movePaddle(name, position)
     }
   }
 
-  movePlayer (uuid: string, position: Point) {
-    if (this.isInAGame(uuid)) {
-      this.playerGame(uuid).movePaddle(uuid, position)
+  isInAGame (name: string): boolean {
+    return this.playerNameToGameIndex.get(name) !== undefined
+  }
+
+  playerGame (name: string): Game {
+    if (this.isInAGame(name)) {
+      return this.games[this.playerNameToGameIndex.get(name)]
     }
   }
 
-  isInAGame (uuid: string): boolean {
-    if (this.playerUUIDToGameIndex[uuid] === undefined) {
-      return false
-    }
-    return true
-  }
-
-  playerGame (uuid: string): Game {
-    if (this.isInAGame(uuid)) {
-      return this.games[this.playerUUIDToGameIndex[uuid]]
+  spectateGame (
+    nameToSpectate: string,
+    socket: WebSocket,
+    uuid: string,
+    name: string
+  ) {
+    if (this.isInAGame(nameToSpectate)) {
+      this.playerNameToGameIndex.set(
+        name,
+        this.playerNameToGameIndex.get(nameToSpectate)
+      )
+      this.playerGame(nameToSpectate).addSpectator(socket, uuid, name)
     }
   }
 }

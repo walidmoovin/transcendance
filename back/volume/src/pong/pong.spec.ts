@@ -1,15 +1,15 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Pong } from './pong'
+import { Games } from './pong'
 
 describe('Pong', () => {
-  let provider: Pong
+  let provider: Games
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [Pong]
+      providers: [Games]
     }).compile()
 
-    provider = module.get<Pong>(Pong)
+    provider = module.get<Games>(Games)
   })
 
   it('should be defined', () => {

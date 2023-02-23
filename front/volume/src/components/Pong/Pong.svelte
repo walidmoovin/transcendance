@@ -7,9 +7,11 @@
   const SERVER_URL = "ws://localhost:3001";
 
   let connected: boolean = false;
+  let loggedIn: boolean = false;
   let socket: WebSocket;
   let username: string = "John";
   let otherUsername: string = "Garfield";
+  let spectateUsername: string = "Garfield";
 
   //Get canvas and its context
   window.onload = () => {
@@ -66,13 +68,30 @@
     socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
   }
 
-  function connectToServer() {
+  function spectate() {
+    socket.send(
+      formatWebsocketData(GAME_EVENTS.SPECTATE, {
+        playerToSpectate: spectateUsername,
+      })
+    );
+  }
+
+  function logIn() {
     socket.send(
       formatWebsocketData(GAME_EVENTS.REGISTER_PLAYER, { playerName: username })
     );
+    loggedIn = true;
     setInterval(() => {
       updateGameInfo();
     }, 1000);
+  }
+
+  function createGame() {
+    socket.send(
+      formatWebsocketData(GAME_EVENTS.CREATE_GAME, {
+        playerNames: [username, otherUsername],
+      })
+    );
   }
 </script>
 
@@ -81,28 +100,24 @@
     Your name:
     <input bind:value={username} />
     <br />
-    <button on:click={connectToServer}> Connect </button>
+    <button on:click={logIn}> Log in </button>
     <br />
     Other player name:
-    <input bind:value={otherUsername} />
+    <input bind:value={otherUsername} disabled={!loggedIn} />
     <br />
-    <button
-      on:click={() => {
-        socket.send(
-          formatWebsocketData(GAME_EVENTS.CREATE_GAME, {
-            playerNames: [username, otherUsername],
-          })
-        );
-        updateGameInfo();
-      }}
-    >
+    <button on:click={createGame} disabled={!loggedIn}>
       Create game vs {otherUsername}
     </button>
     <br />
-    <button on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.READY))}
-      >Ready</button
+    <button
+      on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.READY))}
+      disabled={!loggedIn}>Ready</button
     >
     <br />
+    <input bind:value={spectateUsername} disabled={!loggedIn} />
+    <button on:click={spectate} disabled={!loggedIn}
+      >Spectate {spectateUsername}</button
+    >
     <br />
   {:else}
     Connecting to game server...

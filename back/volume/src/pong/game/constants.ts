@@ -7,7 +7,8 @@ export const GAME_EVENTS = {
   PLAYER_MOVE: 'PLAYER_MOVE',
   GET_GAME_INFO: 'GET_GAME_INFO',
   CREATE_GAME: 'CREATE_GAME',
-  REGISTER_PLAYER: 'REGISTER_PLAYER'
+  REGISTER_PLAYER: 'REGISTER_PLAYER',
+  SPECTATE: 'SPECTATE'
 }
 
 export interface GameInfo extends GameInfoConstants {
@@ -26,7 +27,7 @@ export const gameInfoConstants: GameInfoConstants = {
   paddleSize: new Point(6, 50),
   playerXOffset: 50,
   ballSize: new Point(20, 20),
-  winScore: 2
+  winScore: 9999
 }
 
 export interface GameUpdate {

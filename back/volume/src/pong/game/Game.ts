@@ -9,6 +9,7 @@ import {
   GAME_EVENTS
 } from './constants'
 import { randomUUID } from 'crypto'
+import { Spectator } from './Spectator'
 
 const GAME_TICKS = 30
 
@@ -47,6 +48,7 @@ export class Game {
   timer: NodeJS.Timer
   ball: Ball
   players: Player[] = []
+  spectators: Spectator[] = []
   playing: boolean
 
   constructor (sockets: WebSocket[], uuids: string[], names: string[]) {
@@ -63,13 +65,18 @@ export class Game {
     }
   }
 
-  getGameInfo (uuid: string): GameInfo {
-    const yourPaddleIndex = this.players.findIndex((p) => p.uuid == uuid)
+  getGameInfo (name: string): GameInfo {
+    const yourPaddleIndex = this.players.findIndex((p) => p.name == name)
     return {
       ...gameInfoConstants,
       yourPaddleIndex,
       gameId: this.id
     }
+  }
+
+  addSpectator (socket: WebSocket, uuid: string, name: string) {
+    this.spectators.push(new Spectator(socket, uuid, name))
+    console.log(`Added spectator ${name}`)
   }
 
   private addPlayer (socket: WebSocket, uuid: string, name: string) {
@@ -88,8 +95,8 @@ export class Game {
     )
   }
 
-  removePlayer (uuid: string) {
-    const player_index = this.players.findIndex((p) => p.uuid == uuid)
+  removePlayer (name: string) {
+    const player_index = this.players.findIndex((p) => p.name == name)
     if (player_index != -1) {
       this.players.splice(player_index, 1)
       if (this.players.length < 2) {
@@ -98,8 +105,8 @@ export class Game {
     }
   }
 
-  ready (uuid: string) {
-    const player_index = this.players.findIndex((p) => p.uuid == uuid)
+  ready (name: string) {
+    const player_index = this.players.findIndex((p) => p.name == name)
     if (player_index != -1) {
       this.players[player_index].ready = true
       console.log(`${this.players[player_index].name} is ready!`)
@@ -140,8 +147,8 @@ export class Game {
     }
   }
 
-  movePaddle (uuid: string, position: Point) {
-    const playerIndex = this.players.findIndex((p) => p.uuid == uuid)
+  movePaddle (name: string, position: Point) {
+    const playerIndex = this.players.findIndex((p) => p.name == name)
 
     if (this.timer && playerIndex != -1) {
       this.players[playerIndex].paddle.move(position.y)
@@ -151,6 +158,9 @@ export class Game {
   broadcastGame (data: string) {
     this.players.forEach((p) => {
       p.socket.send(data)
+    })
+    this.spectators.forEach((s) => {
+      s.socket.send(data)
     })
   }
 

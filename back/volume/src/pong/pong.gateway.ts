@@ -8,11 +8,11 @@ import {
   WebSocketGateway
 } from '@nestjs/websockets'
 import { randomUUID } from 'crypto'
-import { Pong } from './pong'
+import { Games } from './pong'
 import { formatWebsocketData, Point } from './game/utils'
 import { GAME_EVENTS } from './game/constants'
-import { PlayerNamesDto } from './dtos/PlayerNamesDto';
-import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { PlayerNamesDto } from './dtos/PlayerNamesDto'
+import { UsePipes, ValidationPipe } from '@nestjs/common'
 
 interface WebSocketWithId extends WebSocket {
   id: string
@@ -20,7 +20,7 @@ interface WebSocketWithId extends WebSocket {
 
 @WebSocketGateway()
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  private readonly pong: Pong = new Pong()
+  private readonly games: Games = new Games()
   private readonly socketToPlayerName = new Map<WebSocketWithId, string>()
 
   handleConnection (client: WebSocketWithId) {
@@ -32,10 +32,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @ConnectedSocket()
     client: WebSocketWithId
   ) {
-    if (this.pong.isInAGame(client.id)) {
+    const name: string = this.socketToPlayerName.get(client)
+    if (this.games.isInAGame(name)) {
       console.log(`Disconnected ${this.socketToPlayerName.get(client)}`)
-      if (this.pong.playerGame(client.id).isPlaying()) {
-        this.pong.playerGame(client.id).stop()
+      if (this.games.playerGame(name).isPlaying()) {
+        this.games.playerGame(name).stop()
       }
       this.socketToPlayerName.delete(client)
     }
@@ -53,12 +54,15 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(GAME_EVENTS.GET_GAME_INFO)
   getPlayerCount (@ConnectedSocket() client: WebSocketWithId) {
-    client.send(
-      formatWebsocketData(
-        GAME_EVENTS.GET_GAME_INFO,
-        this.pong.getGameInfo(client.id)
+    const name: string = this.socketToPlayerName.get(client)
+    if (name) {
+      client.send(
+        formatWebsocketData(
+          GAME_EVENTS.GET_GAME_INFO,
+          this.games.getGameInfo(name)
+        )
       )
-    )
+    }
   }
 
   @SubscribeMessage(GAME_EVENTS.PLAYER_MOVE)
@@ -67,47 +71,66 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client: WebSocketWithId,
     @MessageBody('position') position: Point
   ) {
-    this.pong.movePlayer(client.id, position)
+    const name: string = this.socketToPlayerName.get(client)
+    this.games.movePlayer(name, position)
   }
 
-	@UsePipes(new ValidationPipe({ whitelist: true }))
-	@SubscribeMessage(GAME_EVENTS.CREATE_GAME)
-	createGame(
-		@ConnectedSocket()
-		client: WebSocketWithId,
-		@MessageBody() playerNames: PlayerNamesDto
-	) {
-		console.log(playerNames);
-		const allPlayerNames: Array<string> = Array.from(this.socketToPlayerName.values());
-		if (allPlayerNames && allPlayerNames.length >= 2) {
-			const player1Socket: WebSocketWithId = Array.from(this.socketToPlayerName.keys()).find(
-				(key) => this.socketToPlayerName.get(key) === playerNames[0]
-			);
-			const player2Socket: WebSocketWithId = Array.from(this.socketToPlayerName.keys()).find(
-				(key) => this.socketToPlayerName.get(key) === playerNames[1]
-			);
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @SubscribeMessage(GAME_EVENTS.CREATE_GAME)
+  createGame (
+  @ConnectedSocket()
+    client: WebSocketWithId,
+    @MessageBody() playerNamesDto: PlayerNamesDto
+  ) {
+    if (this.socketToPlayerName.size >= 2) {
+      const player1Socket: WebSocketWithId = Array.from(
+        this.socketToPlayerName.keys()
+      ).find(
+        (key) =>
+          this.socketToPlayerName.get(key) === playerNamesDto.playerNames[0]
+      )
+      const player2Socket: WebSocketWithId = Array.from(
+        this.socketToPlayerName.keys()
+      ).find(
+        (key) =>
+          this.socketToPlayerName.get(key) === playerNamesDto.playerNames[1]
+      )
 
-			if (
-				player1Socket &&
-				player2Socket &&
-				(client.id === player1Socket.id || client.id === player2Socket.id) &&
-				player1Socket.id !== player2Socket.id
-			) {
-				this.pong.newGame(
-					[player1Socket, player2Socket],
-					[player1Socket.id, player2Socket.id],
-					playerNames.playerNames
-				);
-			}
-		}
-		return { event: GAME_EVENTS.CREATE_GAME };
-	}
+      if (
+        player1Socket &&
+        player2Socket &&
+        (client.id === player1Socket.id || client.id === player2Socket.id) &&
+        player1Socket.id !== player2Socket.id
+      ) {
+        this.games.newGame(
+          [player1Socket, player2Socket],
+          [player1Socket.id, player2Socket.id],
+          playerNamesDto.playerNames
+        )
+      }
+    }
+  }
 
   @SubscribeMessage(GAME_EVENTS.READY)
   ready (
   @ConnectedSocket()
     client: WebSocketWithId
   ) {
-    this.pong.ready(client.id)
+    const name: string = this.socketToPlayerName.get(client)
+    if (name) {
+      this.games.ready(name)
+    }
+  }
+
+  @SubscribeMessage(GAME_EVENTS.SPECTATE)
+  spectate (
+  @ConnectedSocket()
+    client: WebSocketWithId,
+    @MessageBody('playerToSpectate') playerToSpectate: string
+  ) {
+    const name: string = this.socketToPlayerName.get(client)
+    if (name) {
+      this.games.spectateGame(playerToSpectate, client, client.id, name)
+    }
   }
 }
