@@ -11,6 +11,8 @@ import { randomUUID } from 'crypto';
 import { Pong } from './pong';
 import { formatWebsocketData, Point } from './game/utils';
 import { GAME_EVENTS } from './game/constants';
+import { PlayerNamesDto } from './dtos/PlayerNamesDto';
+import { UsePipes, ValidationPipe } from '@nestjs/common';
 
 interface WebSocketWithId extends WebSocket {
 	id: string;
@@ -63,14 +65,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		this.pong.movePlayer(client.id, position);
 	}
 
+	@UsePipes(new ValidationPipe({ whitelist: true }))
 	@SubscribeMessage(GAME_EVENTS.CREATE_GAME)
 	createGame(
 		@ConnectedSocket()
 		client: WebSocketWithId,
-		@MessageBody('playerNames') playerNames: string[]
+		@MessageBody() playerNames: PlayerNamesDto
 	) {
+		console.log(playerNames);
 		const allPlayerNames: Array<string> = Array.from(this.socketToPlayerName.values());
-		if (playerNames && playerNames.length === 2 && allPlayerNames && allPlayerNames.length >= 2) {
+		if (allPlayerNames && allPlayerNames.length >= 2) {
 			const player1Socket: WebSocketWithId = Array.from(this.socketToPlayerName.keys()).find(
 				(key) => this.socketToPlayerName.get(key) === playerNames[0]
 			);
@@ -84,9 +88,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				(client.id === player1Socket.id || client.id === player2Socket.id) &&
 				player1Socket.id !== player2Socket.id
 			) {
-				this.pong.newGame([player1Socket, player2Socket], [player1Socket.id, player2Socket.id], playerNames);
+				this.pong.newGame(
+					[player1Socket, player2Socket],
+					[player1Socket.id, player2Socket.id],
+					playerNames.playerNames
+				);
 			}
 		}
+		return { event: GAME_EVENTS.CREATE_GAME };
 	}
 
 	@SubscribeMessage(GAME_EVENTS.READY)
