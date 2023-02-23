@@ -1,13 +1,21 @@
 NAME = transcendence
 USER = gavaniwast
 
-all: clean start
+all: clean dev
 
-start:
-	BACK_RUN=start docker compose -f docker-compose.yml up --build
+prod:
+	NODE_ENV="production" docker compose -f docker-compose.yml up --build
 
+dev:
+	NODE_ENV="development" docker compose -f docker-compose.yml up --build
+
+check:
+	NODE_ENV="check" docker compose -f docker-compose.yml run back --build
+	NODE_ENV="check" docker compose -f docker-compose.yml run front --build
+	docker compose -f docker-compose.yml down
+	
 debug:
-	BUILDKIT_PROGRESS=plain BACK_RUN=start:debug docker compose -f docker-compose.yml up --build
+	NODE_ENV="debug" BUILDKIT_PROGRESS=plain docker compose -f docker-compose.yml up --build
 
 stop:
 	docker compose -f docker-compose.yml down
@@ -16,7 +24,9 @@ clean: stop
 	docker system prune -f
 
 fclean: stop
-	rm -rf */volumes/node_modules
+	rm -rf */volume/node_modules
 	docker system prune -af --volumes
 
-re: fclean start
+re: fclean dev
+
+.PHONY: all prod dev check debug stop clean fclean re 

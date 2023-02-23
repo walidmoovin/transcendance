@@ -6,5 +6,8 @@ export default defineConfig({
   plugins: [svelte()],
   server: {
     port: 80
-  }
+  },
+  preview: {
+    port: 80
+  },
 })

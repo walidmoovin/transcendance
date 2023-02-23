@@ -1,6 +1,19 @@
 # Transcendence
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)[![js-standard-style](https://cdn.rawgit.com/standard/standard/master/badge.svg)](http://standardjs.com)
+
+
+## Instructions:
+
+If you not use rootless docker, either rename Makesudo as Makefile or call `make` with `-f Makesudo`.
+### Rules:
+- prod: build and lauch client and server on builded resources.
+- dev: launch client and server without build using nest and vite. 
+- check: format and lint back and check front.
+- debug: launch back with debug flags.
+
 
 ## Dependencies:
+
 ### Front:
 - [@svelte/vite-plugin-svelte](https://www.npmjs.com/package/@sveltejs/vite-plugin-svelte)
 - [@tsconfig/svelte](https://www.npmjs.com/package/@tsconfig/svelte)

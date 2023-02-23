@@ -4,5 +4,14 @@ RUN apk update && apk upgrade && apk add npm \
   && npm install -g @nestjs/cli
 
 WORKDIR /var/www/html
-ENTRYPOINT npm install && npm run build && npm run $RUN
-
+ENTRYPOINT npm install; \
+  if [[ $NODE_ENV == "production" ]]; then \
+    npm run build && npm run start:prod; \
+  elif [[ $NODE_ENV == "debug" ]]; then \
+    npm run start:debug; \
+  elif [[ $NODE_ENV == "check" ]]; then \
+    npm run format && npm run lint; echo "=== FINISH ==="; \
+  elif [[ $NODE_ENV == "development" ]]; then \
+    npm run dev; \
+  else echo "NODE_ENV value isn't known."; \
+  fi;
