@@ -6,7 +6,9 @@ WORKDIR /var/www/html
 ENTRYPOINT npm install; \
   if [[ $NODE_ENV == "production" ]]; then \
     npm run build && npm run preview; \
-	elif [[ $NODE_ENV == "development" || $NODE_ENV == "debug" ]]; then \
+	elif [[ $NODE_ENV == "development" ]]; then \
     npm run dev; \
-  else echo "NODE_ENV value isn't known."; \
+	elif [[ $NODE_ENV == "debug"  ]]; then \
+    npm run check && npm run dev; \
+  else echo "Nothing to do for that NODE_ENV context."; \
   fi;

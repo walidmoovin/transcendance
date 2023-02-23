@@ -8,7 +8,9 @@ ENTRYPOINT npm install; \
   if [[ $NODE_ENV == "production" ]]; then \
     npm run build && npm run start:prod; \
   elif [[ $NODE_ENV == "debug" ]]; then \
-    npm run test:debug; \
+    npm run start:debug; \
+  elif [[ $NODE_ENV == "beautify" ]]; then \
+    npm run format && npm run lint; \
   elif [[ $NODE_ENV == "development" ]]; then \
     npm run dev; \
   else echo "NODE_ENV value isn't known."; \

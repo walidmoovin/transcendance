@@ -9,6 +9,9 @@ prod:
 dev:
 	NODE_ENV="development" docker compose -f docker-compose.yml up --build
 
+lint:
+	NODE_ENV="beautify" docker compose -f docker-compose.yml up --build
+	
 debug:
 	NODE_ENV="debug" BUILDKIT_PROGRESS=plain docker compose -f docker-compose.yml up --build
 

@@ -14,7 +14,7 @@ services:
     ports: [80:80]
     volumes: [./front/volume:/var/www/html]
     networks: [transcendence]
-    restart: always
+    restart: on-failure
   back:
     container_name: back
     build: back/
@@ -25,7 +25,7 @@ services:
     ports: [3001:3001]
     networks: [transcendence]
     volumes: [./back/volume:/var/www/html]
-    restart: always
+    restart: on-failure
   postgres:
     container_name: postgres
     image: postgres
