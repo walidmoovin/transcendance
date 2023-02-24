@@ -16,22 +16,23 @@ export class Ball {
     this.rect = new Rect(spawn, size)
     this.speed = speed
     this.spawn = spawn.clone()
+    this.indexPlayerScored = -1
   }
 
   getIndexPlayerScored (): number {
     return this.indexPlayerScored
   }
 
-  update (canvas_rect: Rect, paddles: Paddle[]) {
-    if (!canvas_rect.contains_x(this.rect)) {
+  update (canvasRect: Rect, paddles: Paddle[]): void {
+    if (!canvasRect.contains_x(this.rect)) {
       this.indexPlayerScored = this.score()
     } else {
       this.indexPlayerScored = -1
-      this.move(canvas_rect, paddles)
+      this.move(canvasRect, paddles)
     }
   }
 
-  move (canvas_rect: Rect, paddles: Paddle[]) {
+  move (canvasRect: Rect, paddles: Paddle[]): void {
     for (const paddle of paddles) {
       if (paddle.rect.collides(this.rect)) {
         if (this.speed.x < 0) {
@@ -44,22 +45,22 @@ export class Ball {
         break
       }
     }
-    if (!canvas_rect.contains_y(this.rect)) this.speed.y = this.speed.y * -1
+    if (!canvasRect.contains_y(this.rect)) this.speed.y = this.speed.y * -1
     this.rect.center.add_inplace(this.speed)
   }
 
   // A player scored: return his index and reposition the ball
   score (): number {
-    let index_player_scored: number
+    let indexPlayerScored: number
     if (this.rect.center.x <= this.spawn.x) {
-      index_player_scored = 1
+      indexPlayerScored = 1
     } else {
-      index_player_scored = 0
+      indexPlayerScored = 0
     }
 
     this.rect.center = this.spawn.clone()
     this.speed.x = this.speed.x * -1
 
-    return index_player_scored
+    return indexPlayerScored
   }
 }

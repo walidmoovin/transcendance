@@ -15,18 +15,18 @@ export class Paddle {
     this.mapSize = gameSize
   }
 
-  draw (context: CanvasRenderingContext2D) {
+  draw (context: CanvasRenderingContext2D): void {
     this.rect.draw(context, this.color)
   }
 
-  move (new_y: number) {
+  move (newY: number): void {
     const offset: number = this.rect.size.y / 2
-    if (new_y - offset < 0) {
+    if (newY - offset < 0) {
       this.rect.center.y = offset
-    } else if (new_y + offset > this.mapSize.y) {
+    } else if (newY + offset > this.mapSize.y) {
       this.rect.center.y = this.mapSize.y - offset
     } else {
-      this.rect.center.y = new_y
+      this.rect.center.y = newY
     }
   }
 }

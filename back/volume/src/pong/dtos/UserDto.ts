@@ -1,12 +1,12 @@
-import { ArrayMaxSize, ArrayMinSize, IsString } from 'class-validator'
+import { IsString } from 'class-validator'
 
 export class UserDto {
   @IsString()
-    username: string
+    username!: string
 
   @IsString()
-    avatar: string
+    avatar!: string
 
   @IsString()
-    status: string
+    status!: string
 }

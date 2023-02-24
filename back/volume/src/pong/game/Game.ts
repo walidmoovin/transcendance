@@ -13,20 +13,20 @@ import { Spectator } from './Spectator'
 
 const GAME_TICKS = 30
 
-function gameLoop (game: Game) {
-  const canvas_rect = new Rect(
+function gameLoop (game: Game): void {
+  const canvasRect = new Rect(
     new Point(gameInfoConstants.mapSize.x / 2, gameInfoConstants.mapSize.y / 2),
     new Point(gameInfoConstants.mapSize.x, gameInfoConstants.mapSize.y)
   )
   game.ball.update(
-    canvas_rect,
+    canvasRect,
     game.players.map((p) => p.paddle)
   )
-  const index_player_scored: number = game.ball.getIndexPlayerScored()
-  if (index_player_scored != -1) {
-    game.players[index_player_scored].score += 1
-    if (game.players[index_player_scored].score >= gameInfoConstants.winScore) {
-      console.log(`${game.players[index_player_scored].name} won!`)
+  const indexPlayerScored: number = game.ball.getIndexPlayerScored()
+  if (indexPlayerScored !== -1) {
+    game.players[indexPlayerScored].score += 1
+    if (game.players[indexPlayerScored].score >= gameInfoConstants.winScore) {
+      console.log(`${game.players[indexPlayerScored].name} won!`)
       game.stop()
     }
   }
@@ -45,7 +45,7 @@ function gameLoop (game: Game) {
 
 export class Game {
   id: string
-  timer: NodeJS.Timer
+  timer: NodeJS.Timer | null
   ball: Ball
   players: Player[] = []
   spectators: Spectator[] = []
@@ -54,6 +54,7 @@ export class Game {
   constructor (sockets: WebSocket[], uuids: string[], names: string[]) {
     this.id = randomUUID()
     this.timer = null
+    this.playing = false
     this.ball = new Ball(
       new Point(
         gameInfoConstants.mapSize.x / 2,
@@ -66,7 +67,7 @@ export class Game {
   }
 
   getGameInfo (name: string): GameInfo {
-    const yourPaddleIndex = this.players.findIndex((p) => p.name == name)
+    const yourPaddleIndex = this.players.findIndex((p) => p.name === name)
     return {
       ...gameInfoConstants,
       yourPaddleIndex,
@@ -74,17 +75,17 @@ export class Game {
     }
   }
 
-  addSpectator (socket: WebSocket, uuid: string, name: string) {
+  addSpectator (socket: WebSocket, uuid: string, name: string): void {
     this.spectators.push(new Spectator(socket, uuid, name))
     console.log(`Added spectator ${name}`)
   }
 
-  private addPlayer (socket: WebSocket, uuid: string, name: string) {
+  private addPlayer (socket: WebSocket, uuid: string, name: string): void {
     let paddleCoords = new Point(
       gameInfoConstants.playerXOffset,
       gameInfoConstants.mapSize.y / 2
     )
-    if (this.players.length == 1) {
+    if (this.players.length === 1) {
       paddleCoords = new Point(
         gameInfoConstants.mapSize.x - gameInfoConstants.playerXOffset,
         gameInfoConstants.mapSize.y / 2
@@ -95,21 +96,21 @@ export class Game {
     )
   }
 
-  removePlayer (name: string) {
-    const player_index = this.players.findIndex((p) => p.name == name)
-    if (player_index != -1) {
-      this.players.splice(player_index, 1)
+  removePlayer (name: string): void {
+    const playerIndex: number = this.players.findIndex((p) => p.name === name)
+    if (playerIndex !== -1) {
+      this.players.splice(playerIndex, 1)
       if (this.players.length < 2) {
         this.stop()
       }
     }
   }
 
-  ready (name: string) {
-    const player_index = this.players.findIndex((p) => p.name == name)
-    if (player_index != -1) {
-      this.players[player_index].ready = true
-      console.log(`${this.players[player_index].name} is ready!`)
+  ready (name: string): void {
+    const playerIndex: number = this.players.findIndex((p) => p.name === name)
+    if (playerIndex !== -1) {
+      this.players[playerIndex].ready = true
+      console.log(`${this.players[playerIndex].name} is ready!`)
       if (this.players.every((p) => p.ready)) {
         this.start()
       }
@@ -117,7 +118,7 @@ export class Game {
   }
 
   private start (): boolean {
-    if (!this.timer && this.players.length == 2) {
+    if (this.timer === null && this.players.length === 2) {
       this.ball = new Ball(
         new Point(
           gameInfoConstants.mapSize.x / 2,
@@ -137,8 +138,8 @@ export class Game {
     return false
   }
 
-  stop () {
-    if (this.timer) {
+  stop (): void {
+    if (this.timer !== null) {
       clearInterval(this.timer)
       this.timer = null
       this.players = []
@@ -147,15 +148,15 @@ export class Game {
     }
   }
 
-  movePaddle (name: string, position: Point) {
-    const playerIndex = this.players.findIndex((p) => p.name == name)
+  movePaddle (name: string | undefined, position: Point): void {
+    const playerIndex: number = this.players.findIndex((p) => p.name === name)
 
-    if (this.timer && playerIndex != -1) {
+    if (this.timer !== null && playerIndex !== -1) {
       this.players[playerIndex].paddle.move(position.y)
     }
   }
 
-  broadcastGame (data: string) {
+  broadcastGame (data: string): void {
     this.players.forEach((p) => {
       p.socket.send(data)
     })

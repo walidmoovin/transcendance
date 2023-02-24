@@ -22,13 +22,14 @@ export class Player {
     this.socket = socket
     this.uuid = uuid
     this.name = name
+    this.ready = false
     this.paddle = new Paddle(paddleCoords, mapSize)
     this.paddleCoords = paddleCoords
     this.mapSize = mapSize
     this.score = 0
   }
 
-  newGame () {
+  newGame (): void {
     this.score = 0
     this.paddle = new Paddle(this.paddleCoords, this.mapSize)
   }
