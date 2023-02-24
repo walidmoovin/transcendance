@@ -11,6 +11,9 @@ If you not use rootless docker, either rename Makesudo as Makefile or call `make
 - check: format and lint back and check front.
 - debug: launch back with debug flags.
 
+### Setting:
+rename .env_sample to .env and customize it to your needs and credentials.
+
 
 ## Dependencies:
 
