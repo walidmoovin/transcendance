@@ -1,20 +1,8 @@
 <script lang="ts">
-  // import { navigate } from 'svelte-routing';
-
-  // function handleMatchmakingClick() {
-  //   navigate('/matchmaking');
-  // }
-
-  // function handlePlayWithFriendClick() {
-  //   navigate('/play-with-friend');
-  // }
 </script>
 
-<!-- dr -->
 <main>
   <h1>Choose a gamemode</h1>
-  <!-- <button on:click={handleMatchmakingClick}>Matchmaking</button>
-    <button on:click={handlePlayWithFriendClick}>Play with a friend</button> -->
   <button>Matchmaking</button>
   <button>Play with a friend</button>
 </main>

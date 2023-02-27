@@ -9,12 +9,18 @@
   import type { SpectateType } from "./components/Spectate.svelte";
   import Play from "./components/Play.svelte";
   import Pong from "./components/Pong/Pong.svelte";
-  import Chat from "./components/Chat.svelte";
+  import Chat2 from "./components/Chat2.svelte";
+  import type { chatMessagesType } from "./components/Chat2.svelte";
+
+  // PROFILE
 
   let isProfileOpen = false;
   function clickProfile() {
     isProfileOpen = true;
   }
+
+  // HISTORY
+
   let isHistoryOpen = false;
   function clickHistory() {
     isHistoryOpen = true;
@@ -27,6 +33,9 @@
     { winner: "Alice", loser: "Bob", points: 10, rank: "24" },
     { winner: "Alice", loser: "Bob", points: 10, rank: "24" },
   ];
+
+  // FRIENDS
+
   let isFriendOpen = false;
   function clickFriends() {
     isFriendOpen = true;
@@ -39,6 +48,8 @@
     { username: "Eve", status: "in a game" },
     { username: "Frank", status: "online" },
   ];
+
+  // SPECTATE
   let isSpectateOpen = false;
   function clickSpectate() {
     isSpectateOpen = true;
@@ -51,10 +62,32 @@
     { player1: "Alice", player2: "Bob", id: "2" },
     { player1: "Alice", player2: "Bob", id: "3" },
   ];
+
+  // CHAT
+  let isChatOpen = false;
+  function clickChat() {
+    isChatOpen = true;
+  }
+  let chatMessages: Array<chatMessagesType> = [
+    { name: "Alice", text: "Bob" },
+    { name: "Alice", text: "Bob" },
+    { name: "Alice", text: "Bob" },
+    { name: "Alice", text: "Bob" },
+    { name: "Alice", text: "Bob" },
+    { name: "Alice", text: "Bob" },
+  ];
 </script>
 
 <main>
-  <Navbar {clickProfile} {clickHistory} {clickFriends} {clickSpectate} />
+  <Navbar {clickProfile} {clickHistory} {clickFriends} {clickSpectate} {clickChat} />
+  {#if isChatOpen}
+    <div
+      on:click={() => (isChatOpen = false)}
+      on:keydown={() => (isChatOpen = false)}
+    >
+      <Chat2 {chatMessages} />
+    </div>
+  {/if}
   {#if isSpectateOpen}
     <div
       on:click={() => (isSpectateOpen = false)}
@@ -96,7 +129,6 @@
   {/if}
   <Play />
   <Pong />
-  <Chat />
 </main>
 
 <style>

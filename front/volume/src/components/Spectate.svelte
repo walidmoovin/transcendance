@@ -8,7 +8,7 @@
 
 <script lang="ts">
   export let spectate: Array<SpectateType> = [];
-  export let watch = () => {};
+  export let watch = (id: string) => {};
 </script>
 
 <div class="overlay">
