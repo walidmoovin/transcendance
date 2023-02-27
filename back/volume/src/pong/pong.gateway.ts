@@ -8,10 +8,10 @@ import {
   WebSocketGateway
 } from '@nestjs/websockets'
 import { randomUUID } from 'crypto'
-import { Games } from './pong'
-import { formatWebsocketData, Point } from './game/utils'
+import { Games } from './game/Games'
+import { formatWebsocketData, Point, Rect } from './game/utils'
 import { GAME_EVENTS } from './game/constants'
-import { PlayerNamesDto } from './dtos/PlayerNamesDto'
+import { GameCreationDto } from './dtos/GameCreationDto'
 import { UsePipes, ValidationPipe } from '@nestjs/common'
 import { type Game } from './game/Game'
 
@@ -82,20 +82,27 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   createGame (
     @ConnectedSocket()
       client: WebSocketWithId,
-      @MessageBody() playerNamesDto: PlayerNamesDto
+      @MessageBody() gameCreationDto: GameCreationDto
   ): void {
+    gameCreationDto.map.walls = gameCreationDto.map.walls.map((wall) => {
+      return new Rect(
+        new Point(wall.center.x, wall.center.y),
+        new Point(wall.size.x, wall.size.y)
+      )
+    })
+
     if (this.socketToPlayerName.size >= 2) {
       const player1Socket: WebSocketWithId | undefined = Array.from(
         this.socketToPlayerName.keys()
       ).find(
         (key) =>
-          this.socketToPlayerName.get(key) === playerNamesDto.playerNames[0]
+          this.socketToPlayerName.get(key) === gameCreationDto.playerNames[0]
       )
       const player2Socket: WebSocketWithId | undefined = Array.from(
         this.socketToPlayerName.keys()
       ).find(
         (key) =>
-          this.socketToPlayerName.get(key) === playerNamesDto.playerNames[1]
+          this.socketToPlayerName.get(key) === gameCreationDto.playerNames[1]
       )
 
       if (
@@ -107,7 +114,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.games.newGame(
           [player1Socket, player2Socket],
           [player1Socket.id, player2Socket.id],
-          playerNamesDto.playerNames
+          gameCreationDto
         )
       }
     }

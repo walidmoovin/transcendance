@@ -1,5 +1,5 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Games } from './pong'
+import { Games } from './game/Games'
 
 describe('Pong', () => {
   let provider: Games

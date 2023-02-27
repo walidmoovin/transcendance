@@ -3,7 +3,7 @@ import { GAME_EVENTS } from "./constants";
 import type { GameInfo, GameUpdate } from "./constants";
 import { Paddle } from "./Paddle";
 import { Player } from "./Player";
-import { formatWebsocketData, Point } from "./utils";
+import { formatWebsocketData, Point, Rect } from "./utils";
 
 const BG_COLOR = "black";
 
@@ -14,12 +14,14 @@ export class Game {
   players: Player[];
   my_paddle: Paddle;
   id: string;
+  walls: Rect[];
 
   constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
     this.canvas = canvas;
     this.context = context;
     this.players = [];
     this.my_paddle = null;
+    this.walls = [];
   }
 
   setInfo(data: GameInfo) {
@@ -43,6 +45,13 @@ export class Game {
     if (data.yourPaddleIndex != -1)
       this.my_paddle = this.players[data.yourPaddleIndex].paddle;
     this.id = data.gameId;
+    this.walls = data.walls.map(
+      (w) =>
+        new Rect(
+          new Point(w.center.x, w.center.y),
+          new Point(w.size.x, w.size.y)
+        )
+    );
   }
 
   start(socket: WebSocket) {
@@ -76,6 +85,7 @@ export class Game {
     this.context.fillStyle = BG_COLOR;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+    this.walls.forEach((w) => w.draw(this.context, "white"));
     this.players.forEach((p) => p.draw(this.context));
     this.ball.draw(this.context);
 

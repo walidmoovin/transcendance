@@ -10,17 +10,20 @@ import {
 } from './constants'
 import { randomUUID } from 'crypto'
 import { Spectator } from './Spectator'
+import { type Map } from './Map'
 
 const GAME_TICKS = 30
 
 function gameLoop (game: Game): void {
-  const canvasRect = new Rect(
-    new Point(gameInfoConstants.mapSize.x / 2, gameInfoConstants.mapSize.y / 2),
-    new Point(gameInfoConstants.mapSize.x, gameInfoConstants.mapSize.y)
+  const canvasRect: Rect = new Rect(
+    new Point(game.map.size.x / 2, game.map.size.y / 2),
+    new Point(game.map.size.x, game.map.size.y)
   )
+
   game.ball.update(
     canvasRect,
-    game.players.map((p) => p.paddle)
+    game.players.map((p) => p.paddle),
+    game.map
   )
   const indexPlayerScored: number = game.ball.getIndexPlayerScored()
   if (indexPlayerScored !== -1) {
@@ -46,21 +49,23 @@ function gameLoop (game: Game): void {
 export class Game {
   id: string
   timer: NodeJS.Timer | null
+  map: Map
   ball: Ball
   players: Player[] = []
   spectators: Spectator[] = []
   playing: boolean
 
-  constructor (sockets: WebSocket[], uuids: string[], names: string[]) {
+  constructor (
+    sockets: WebSocket[],
+    uuids: string[],
+    names: string[],
+    map: Map
+  ) {
     this.id = randomUUID()
     this.timer = null
     this.playing = false
-    this.ball = new Ball(
-      new Point(
-        gameInfoConstants.mapSize.x / 2,
-        gameInfoConstants.mapSize.y / 2
-      )
-    )
+    this.map = map
+    this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
     for (let i = 0; i < uuids.length; i++) {
       this.addPlayer(sockets[i], uuids[i], names[i])
     }
@@ -70,8 +75,10 @@ export class Game {
     const yourPaddleIndex = this.players.findIndex((p) => p.name === name)
     return {
       ...gameInfoConstants,
+      mapSize: this.map.size,
       yourPaddleIndex,
-      gameId: this.id
+      gameId: this.id,
+      walls: this.map.walls
     }
   }
 
@@ -83,16 +90,16 @@ export class Game {
   private addPlayer (socket: WebSocket, uuid: string, name: string): void {
     let paddleCoords = new Point(
       gameInfoConstants.playerXOffset,
-      gameInfoConstants.mapSize.y / 2
+      this.map.size.y / 2
     )
     if (this.players.length === 1) {
       paddleCoords = new Point(
-        gameInfoConstants.mapSize.x - gameInfoConstants.playerXOffset,
-        gameInfoConstants.mapSize.y / 2
+        this.map.size.x - gameInfoConstants.playerXOffset,
+        this.map.size.y / 2
       )
     }
     this.players.push(
-      new Player(socket, uuid, name, paddleCoords, gameInfoConstants.mapSize)
+      new Player(socket, uuid, name, paddleCoords, this.map.size)
     )
   }
 
@@ -119,12 +126,7 @@ export class Game {
 
   private start (): boolean {
     if (this.timer === null && this.players.length === 2) {
-      this.ball = new Ball(
-        new Point(
-          gameInfoConstants.mapSize.x / 2,
-          gameInfoConstants.mapSize.y / 2
-        )
-      )
+      this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
       this.players.forEach((p) => {
         p.newGame()
       })

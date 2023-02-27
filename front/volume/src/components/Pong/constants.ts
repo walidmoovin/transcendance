@@ -1,4 +1,4 @@
-import { Point } from "./utils";
+import { Point, Rect } from "./utils";
 
 export const GAME_EVENTS = {
   START_GAME: "START_GAME",
@@ -14,6 +14,7 @@ export const GAME_EVENTS = {
 export interface GameInfo extends GameInfoConstants {
   yourPaddleIndex: number;
   gameId: string;
+  walls: Rect[];
 }
 export interface GameInfoConstants {
   mapSize: Point;

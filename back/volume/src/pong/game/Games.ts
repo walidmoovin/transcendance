@@ -1,18 +1,28 @@
 import { type WebSocket } from 'ws'
-import { type GameInfo } from './game/constants'
-import { Game } from './game/Game'
-import { type Point } from './game/utils'
-import { gameInfoConstants } from './game/constants'
+import { type GameInfo } from './constants'
+import { Game } from './Game'
+import { Point } from './utils'
+import { gameInfoConstants } from './constants'
+import { type Map as GameMap } from './Map'
+import { type GameCreationDto } from '../dtos/GameCreationDto'
 
 export class Games {
   private readonly playerNameToGameIndex = new Map<string, number>()
   private readonly games = new Array<Game>()
 
-  newGame (sockets: WebSocket[], uuids: string[], names: string[]): void {
-    this.games.push(new Game(sockets, uuids, names))
-    this.playerNameToGameIndex.set(names[0], this.games.length - 1)
-    this.playerNameToGameIndex.set(names[1], this.games.length - 1)
-    console.log(`Created game ${names[0]} vs ${names[1]}`)
+  newGame (
+    sockets: WebSocket[],
+    uuids: string[],
+    gameCreationDto: GameCreationDto
+  ): void {
+    const names: string[] = gameCreationDto.playerNames
+    const map: GameMap = gameCreationDto.map
+    if (!this.isInAGame(names[0]) && !this.isInAGame(names[1])) {
+      this.games.push(new Game(sockets, uuids, names, map))
+      this.playerNameToGameIndex.set(names[0], this.games.length - 1)
+      this.playerNameToGameIndex.set(names[1], this.games.length - 1)
+      console.log(`Created game ${names[0]} vs ${names[1]}`)
+    }
   }
 
   removePlayer (name: string): void {
@@ -45,7 +55,9 @@ export class Games {
     return {
       ...gameInfoConstants,
       yourPaddleIndex: 0,
-      gameId: ''
+      gameId: '',
+      mapSize: new Point(0, 0),
+      walls: []
     }
   }
 

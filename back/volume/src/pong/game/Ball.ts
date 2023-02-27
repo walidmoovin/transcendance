@@ -1,6 +1,7 @@
 import { gameInfoConstants } from './constants'
 import { type Paddle } from './Paddle'
 import { Point, Rect } from './utils'
+import { type Map } from './Map'
 
 export class Ball {
   rect: Rect
@@ -23,16 +24,16 @@ export class Ball {
     return this.indexPlayerScored
   }
 
-  update (canvasRect: Rect, paddles: Paddle[]): void {
+  update (canvasRect: Rect, paddles: Paddle[], map: Map): void {
     if (!canvasRect.contains_x(this.rect)) {
-      this.indexPlayerScored = this.score()
+      this.indexPlayerScored = this.playerScored()
     } else {
       this.indexPlayerScored = -1
-      this.move(canvasRect, paddles)
+      this.move(canvasRect, paddles, map)
     }
   }
 
-  move (canvasRect: Rect, paddles: Paddle[]): void {
+  move (canvasRect: Rect, paddles: Paddle[], map: Map): void {
     for (const paddle of paddles) {
       if (paddle.rect.collides(this.rect)) {
         if (this.speed.x < 0) {
@@ -45,12 +46,20 @@ export class Ball {
         break
       }
     }
+
+    for (const wall of map.walls) {
+      if (wall.collides(this.rect)) {
+        this.speed.x = this.speed.x * -1
+        this.speed.y = this.speed.y * -1
+        break
+      }
+    }
+
     if (!canvasRect.contains_y(this.rect)) this.speed.y = this.speed.y * -1
     this.rect.center.add_inplace(this.speed)
   }
 
-  // A player scored: return his index and reposition the ball
-  score (): number {
+  playerScored (): number {
     let indexPlayerScored: number
     if (this.rect.center.x <= this.spawn.x) {
       indexPlayerScored = 1

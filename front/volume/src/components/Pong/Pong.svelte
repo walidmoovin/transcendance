@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { GAME_EVENTS } from "./constants";
+  import { gameInfoConstants, GAME_EVENTS } from "./constants";
+  import type { GameCreationDto } from "./dtos/GameCreationDto";
   import { Game } from "./Game";
-  import { formatWebsocketData } from "./utils";
+  import MapCustomization from "./MapCustomization.svelte";
+  import { formatWebsocketData, Point } from "./utils";
+  import { Map } from "./Map";
 
   const FPS = 144;
   const SERVER_URL = "ws://localhost:3001";
@@ -12,6 +15,10 @@
   let username: string = "John";
   let otherUsername: string = "Garfield";
   let spectateUsername: string = "Garfield";
+  let map: Map = new Map(
+    new Point(gameInfoConstants.mapSize.x, gameInfoConstants.mapSize.y),
+    []
+  );
 
   //Get canvas and its context
   window.onload = () => {
@@ -87,40 +94,43 @@
   }
 
   function createGame() {
-    socket.send(
-      formatWebsocketData(GAME_EVENTS.CREATE_GAME, {
-        playerNames: [username, otherUsername],
-      })
-    );
+    const gameCreationDto: GameCreationDto = {
+      playerNames: [username, otherUsername],
+      map,
+    };
+    socket.send(formatWebsocketData(GAME_EVENTS.CREATE_GAME, gameCreationDto));
   }
 </script>
 
 <div>
-  {#if connected}
-    Your name:
-    <input bind:value={username} />
-    <br />
-    <button on:click={logIn}> Log in </button>
-    <br />
-    Other player name:
-    <input bind:value={otherUsername} disabled={!loggedIn} />
-    <br />
-    <button on:click={createGame} disabled={!loggedIn}>
-      Create game vs {otherUsername}
-    </button>
-    <br />
-    <button
-      on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.READY))}
-      disabled={!loggedIn}>Ready</button
-    >
-    <br />
-    <input bind:value={spectateUsername} disabled={!loggedIn} />
-    <button on:click={spectate} disabled={!loggedIn}
-      >Spectate {spectateUsername}</button
-    >
-    <br />
-  {:else}
-    Connecting to game server...
-  {/if}
-  <canvas id="pong_canvas" />
+  <div>
+    {#if connected}
+      Your name:
+      <input bind:value={username} />
+      <br />
+      <button on:click={logIn}> Log in </button>
+      <br />
+      Other player name:
+      <input bind:value={otherUsername} disabled={!loggedIn} />
+      <br />
+      <button on:click={createGame} disabled={!loggedIn}>
+        Create game vs {otherUsername}
+      </button>
+      <br />
+      <button
+        on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.READY))}
+        disabled={!loggedIn}>Ready</button
+      >
+      <br />
+      <input bind:value={spectateUsername} disabled={!loggedIn} />
+      <button on:click={spectate} disabled={!loggedIn}
+        >Spectate {spectateUsername}</button
+      >
+      <br />
+    {:else}
+      Connecting to game server...
+    {/if}
+    <canvas id="pong_canvas" />
+  </div>
+  <MapCustomization {map} />
 </div>
