@@ -11,6 +11,7 @@
   export let clickHistory = () => {};
   export let clickFriends = () => {};
   export let clickSpectate = () => {};
+  export let clickChat = () => {};
 </script>
 
 <nav class="navigation-bar">
@@ -20,6 +21,13 @@
         <li>
           <button on:click={clickSpectate}>
             <p>Spectate</p>
+          </button>
+        </li>
+      {/if}
+      {#if link.text === "Chat"}
+        <li>
+          <button on:click={clickChat}>
+            <p>Chat</p>
           </button>
         </li>
       {/if}
