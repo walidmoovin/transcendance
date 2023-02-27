@@ -33,4 +33,15 @@ services:
     networks: [transcendence]
     restart: always
     env_file: .env
-    
+  pgadmin:
+    links:
+    - postgres:postgres
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    ports:
+    - "8080:80"
+    volumes:
+    - /data/pgadmin:/root/.pgadmin
+    env_file:
+    - .env
+    networks: [transcendence]

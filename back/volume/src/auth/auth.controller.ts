@@ -10,7 +10,7 @@ export class AuthController {
 
   @Get('42/return')
   @UseGuards(FtOauthGuard)
-  @Redirect('http://localhost:5000/')
+  @Redirect('http://localhost:80/')
   ftAuthCallback (
   @Res({ passthrough: true }) response: Response,
     @Req() request: Request

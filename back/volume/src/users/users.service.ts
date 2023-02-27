@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
@@ -10,45 +9,44 @@ import { type CreateUserDto, type UpdateUserDto } from './user.dto'
 
 @Injectable()
 export class UsersService {
-  constructor (
+  constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>
-  ) {}
+  ) { }
 
-  async getAllUsers (): Promise<User[]> {
+  async getAllUsers(): Promise<User[]> {
     return await this.usersRepository.find({})
   }
 
-  async getOneUser (username: string): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ username })
+  async getOneUser(username: string): Promise<User | null> {
+    const user = await this.usersRepository.findOneBy({ username: username })
+    if (user) return user
+    throw new NotFoundException(`User with username: ${username} not found`)
   }
 
-  async getOneUser42 (id_42: number): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ id_42 })
+  async getOneUser42(id_42: number): Promise<User | null> {
+    const user = await this.usersRepository.findOneBy({ id_42: id_42 })
+    if (user) return user;
+    throw new NotFoundException(`User with id_42: ${id_42} not found`)
   }
 
-  async create (newUser: CreateUserDto) {
+  async create(userData: CreateUserDto) {
     try {
-      const user = new User()
-      user.id_42 = newUser.id_42
-      user.avatar = newUser.avatar
-      user.username = newUser.username
-      return await this.usersRepository.save(user)
+      const newUser= this.usersRepository.create(userData)
+      return await this.usersRepository.save(newUser)
     } catch (err) {
       throw new Error(`Error creating ${err} user ${err.message}`)
     }
   }
 
-  async findOne (id: number) {
-    const user = await this.usersRepository.findOneBy({ id })
-    if (user == null) {
-      throw new NotFoundException(`User #${id} not found`)
-    }
-    return user
+  async findOne(id: number) {
+    const user = await this.usersRepository.findOneBy({ id: id })
+    if (user) return user;
+    throw new NotFoundException(`User #${id} not found`)
   }
 
-  async update (id: number, changes: UpdateUserDto) {
-    const user = await this.findOne(id)
-    await this.usersRepository.merge(user, changes)
-    return await this.usersRepository.save(user)
+  async update(id: number, changes: UpdateUserDto) {
+    const updatedUser = await this.findOne(id)
+    this.usersRepository.merge(updatedUser, changes)
+    return await this.usersRepository.save(updatedUser)
   }
 }

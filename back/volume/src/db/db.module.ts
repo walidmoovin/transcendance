@@ -5,16 +5,6 @@ import * as Joi from 'joi'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      validationSchema: Joi.object({
-        POSTGRES_HOST: Joi.string().required(),
-        POSTGRES_PORT: Joi.number().required(),
-        POSTGRES_USER: Joi.string().required(),
-        POSTGRES_PASSWORD: Joi.string().required(),
-        POSTGRES_DB: Joi.string().required(),
-        BACK_PORT: Joi.number(),
-      })
-    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -26,7 +16,7 @@ import * as Joi from 'joi'
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
         jwt_secret: configService.get<string>('JWT_SECRET'),
-        entities: [__dirname + '/../**/*.entity.ts'],
+        autoLoadEntities: true,
         synchronize: true
       })
     }),
