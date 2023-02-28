@@ -1,11 +1,15 @@
 import {
   IsString,
+  IsNumber,
   IsNotEmpty,
   IsEmail,
   Length,
   IsPositive,
   IsOptional
 } from 'class-validator'
+
+import { ApiProperty } from '@nestjs/swagger'
+import { Express } from 'express'
 
 export class CreateUserDto {
   @IsPositive()
@@ -15,10 +19,6 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   readonly username: string
-
-  @IsString()
-  @IsNotEmpty()
-  readonly avatar: string
 }
 
 export class UpdateUserDto {
@@ -30,10 +30,11 @@ export class UpdateUserDto {
   @IsNotEmpty()
   readonly username: string
 
-  @IsString()
-  @IsNotEmpty()
-  readonly avatar: string
-
   @IsOptional()
   readonly status: string
+}
+
+export class AvatarUploadDto {
+  @ApiProperty({ type: 'string', format: 'binary' })
+    file: Express.Multer.File
 }

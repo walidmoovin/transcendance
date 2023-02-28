@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { Strategy, Profile, VerifyCallback } from 'passport-42'
+import { Strategy, type Profile, type VerifyCallback } from 'passport-42'
 import { UsersService } from 'src/users/users.service'
 import { User } from 'src/users/user.entity'
+import { get } from 'https'
+import { createWriteStream } from 'fs'
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
@@ -34,8 +36,12 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       const newUser = new User()
       newUser.id_42 = profile.id as number
       newUser.username = profile.displayName as string
-      newUser.avatar = profile._json.image.versions.small as string
+      newUser.avatar = id_42 + '.jpg'
       this.usersService.create(newUser)
+      const file = createWriteStream('avatars/' + id_42 + '.jpg')
+      get(profile._json.image.versions.small, function (response) {
+        response.pipe(file)
+      })
     }
     return cb(null, profile)
   }

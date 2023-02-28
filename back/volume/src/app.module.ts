@@ -28,7 +28,7 @@ import { UsersModule } from './users/users.module'
     ChatModule,
     DbModule,
     PongModule,
-    UsersModule,
-  ],
+    UsersModule
+  ]
 })
-export class AppModule { }
+export class AppModule {}

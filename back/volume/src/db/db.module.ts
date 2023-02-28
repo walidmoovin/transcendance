@@ -19,8 +19,7 @@ import * as Joi from 'joi'
         autoLoadEntities: true,
         synchronize: true
       })
-    }),
+    })
   ]
 })
-
-export class DbModule { }
+export class DbModule {}

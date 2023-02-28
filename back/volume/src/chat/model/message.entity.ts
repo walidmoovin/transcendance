@@ -1,4 +1,4 @@
-import { User } from 'src/users/user.entity';
+import { User } from 'src/users/user.entity'
 import {
   Column,
   CreateDateColumn,
@@ -6,26 +6,28 @@ import {
   JoinColumn,
   JoinTable,
   ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Channel } from './channel.entity';
+  PrimaryGeneratedColumn
+} from 'typeorm'
+import { Channel } from './channel.entity'
 
 @Entity()
 export class Message {
   @PrimaryGeneratedColumn()
-  id: number;
+    id: number
 
   @Column()
-  text: string;
+    text: string
 
   @ManyToOne(() => User, (author: User) => author.messages)
   @JoinColumn()
-  author: User;
+    author: User
 
   @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
   @JoinTable()
-  channel: Channel;
+    channel: Channel
 
   @CreateDateColumn()
-  created_at: Date;
+    created_at: Date
 }
+
+export default Message

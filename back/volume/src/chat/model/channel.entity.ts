@@ -1,4 +1,4 @@
-import { User } from 'src/users/user.entity';
+import { User } from 'src/users/user.entity'
 import {
   BeforeInsert,
   Column,
@@ -6,44 +6,46 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Message } from './message.entity';
-import * as bcrypt from 'bcrypt';
+  PrimaryGeneratedColumn
+} from 'typeorm'
+import { Message } from './message.entity'
+import * as bcrypt from 'bcrypt'
 
 @Entity()
 export class Channel {
   @PrimaryGeneratedColumn()
-  id: number;
+    id: number
 
   @Column()
-  name: string;
+    name: string
 
   @ManyToMany(() => User)
   @JoinTable()
-  owners: User[];
+    owners: User[]
 
   @ManyToMany(() => User)
   @JoinTable()
-  users: User[];
+    users: User[]
 
   @OneToMany(() => Message, (message: Message) => message.channel)
-  messages: Message[];
+    messages: Message[]
 
-  @OneToMany(() => User, (user: User) => user.id) //refuse connection
-  banned: User[];
+  @OneToMany(() => User, (user: User) => user.id) // refuse connection
+    banned: User[]
 
-  @OneToMany(() => User, (user: User) => user.id) //refuse post
-  muted: User[];
+  @OneToMany(() => User, (user: User) => user.id) // refuse post
+    muted: User[]
 
   @Column({ select: false })
-  password: string;
+    password: string
 
   @BeforeInsert()
-  async hashPassword() {
+  async hashPassword () {
     this.password = await bcrypt.hash(
       this.password,
-      Number(process.env.HASH_SALT),
-    );
+      Number(process.env.HASH_SALT)
+    )
   }
 }
+
+export default Channel

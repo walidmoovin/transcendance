@@ -1,39 +1,44 @@
 import {
-  Column,
   Entity,
-  ManyToMany,
-  OneToMany,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Message } from 'src/chat/model/message.entity';
-import { Channel } from 'src/chat/model/channel.entity';
+  Column,
+  OneToOne,
+  OneToMany,
+  ManyToMany,
+  JoinColumn
+} from 'typeorm'
+
+import Message from 'src/chat/model/message.entity'
+import Channel from 'src/chat/model/channel.entity'
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @Column({ unique: true })
+    id_42: number
 
   @Column({ unique: true })
-  id_42: number;
-
-  @Column({ unique: true })
-  username: string;
-
-  @Column({ default: '' })
-  avatar: string;
+    username: string
 
   @Column({ default: 'online' })
-  status: string;
+    status: string
+
+  @Column({ name: 'avatar' })
+  public avatar?: string
 
   @OneToMany(() => Message, (message: Message) => message.author)
-  messages: Message[];
+    messages: Message[]
 
   @ManyToMany(() => Channel, (channel: Channel) => channel.users)
-  rooms: Channel[];
+    rooms: Channel[]
 
-  @OneToMany(() => User, (user) => user.id) //filter messages
-  blocked: User[];
+  @ManyToMany(() => User)
+    blocked: User[]
 
-  //@Column({ default: { wr: -1, place: -1 } })
-  //rank: { wr: number; place: number };
+  @ManyToMany(() => User)
+    friends: User[]
+
+  // @Column({ default: { wr: -1, place: -1 } })
+  // rank: { wr: number; place: number };
 }
+
+export default User
