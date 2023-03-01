@@ -30,6 +30,8 @@ services:
     container_name: postgres
     image: postgres
     ports: [5432:5432]
+    volumes:
+    - /data/postgres:/data/postgres
     networks: [transcendence]
     restart: always
     env_file: .env
@@ -42,6 +44,13 @@ services:
     - "8080:80"
     volumes:
     - /data/pgadmin:/root/.pgadmin
-    env_file:
-    - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'usr@usr.com'
+      PGADMIN_DEFAULT_PASSWORD: 'pw'
+      GUNICORN_ACCESS_LOGFILE: '/dev/null'
+      PGADMIN_CONFIG_UPGRADE_CHECK_ENABLED: 'False'
+    depends_on:
+      - postgres
     networks: [transcendence]
+    logging:
+      driver: none

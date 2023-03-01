@@ -20,7 +20,13 @@ export class UsersService {
   }
 
   async findUser(ftId: number): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ ftId })
+    return await this.usersRepository.findOne({
+      where: { ftId },
+      relations: {
+        friends: true,
+        followers: true,
+      }
+    });
   }
 
   async create(userData: UserDto) {
@@ -47,27 +53,26 @@ export class UsersService {
   }
 
   async addAvatar(ftId: number, filename: string) {
-    await this.usersRepository.update(ftId, {
+    return await this.usersRepository.update(ftId, {
       avatar: filename
     })
   }
 
   async invit(ftId: number, targetFtId: number) {
-    const user = await this.usersRepository.findOne({
-      where: { ftId },
-      relations: { friends: true, followers: true },
-    });
-    const target = await this.usersRepository.findOne({
-      where: { ftId: targetFtId },
-      relations: { friends: true, followers: true },
-    });
-    const id = user.followers.findIndex((follower) => follower.ftId == ftId)
+    const user = await this.findUser(ftId);
+    const target = await this.findUser(targetFtId);
+    if (!target) {
+      return new NotFoundException(`Error: user id ${targetFtId} isn't in our db.`)
+    }
+    const id = user.followers.findIndex((follower) => follower.ftId === targetFtId)
     if (id != -1) {
+      console.log(`Friend relation complete between ${user.username} and ${target.username}`);
       user.friends.push(target);
       target.friends.push(user);
       user.followers.slice(id, 1);
       this.usersRepository.save(user);
     } else {
+      console.log(`You asked ${target.username} to be your friend.`);
       target.followers.push(user);
     }
     this.usersRepository.save(target);

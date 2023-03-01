@@ -39,10 +39,11 @@ export class User {
 
   @ManyToMany(() => User)
   @JoinTable()
-    followers: User[]
-  
-  @ManyToMany(() => User, (user) => user.friends)
-    friends: User[]
+    followers: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable()
+    friends: User[];
 
   // @Column({ default: { wr: -1, place: -1 } })
   // rank: { wr: number; place: number };

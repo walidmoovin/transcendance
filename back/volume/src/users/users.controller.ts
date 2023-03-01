@@ -8,7 +8,6 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  Req,
   Res,
   StreamableFile,
   BadRequestException
@@ -56,9 +55,9 @@ export class UsersController {
   @UseGuards(AuthenticatedGuard)
   followUser(
     @FtUser() profile: Profile,
-    @Param('id, ParseIntPipe') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    this.usersService.invit(profile.id, id);
+    return this.usersService.invit(profile.id, id);
   }
 
   @Post('avatar')
@@ -86,7 +85,7 @@ export class UsersController {
     @FtUser() profile: Profile,
     @UploadedFile() file: Express.Multer.File
   ) {
-    await this.usersService.addAvatar(profile.id, file.filename)
+    return await this.usersService.addAvatar(profile.id, file.filename)
   }
 
   @Get('avatar')
