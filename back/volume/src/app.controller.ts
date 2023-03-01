@@ -1,14 +1,14 @@
 import { Controller, Get, Redirect, Req, UseGuards } from '@nestjs/common'
-import { User } from 'src/auth/42.decorator'
-import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
-import { Profile } from 'passport-42'
 import { Request } from 'express'
+import { Profile } from 'passport-42'
+import { FtUser } from './auth/42.decorator'
+import { AuthenticatedGuard } from './auth/42-auth.guard'
 
 @Controller()
-export class ApiController {
+export class AppController {
   @Get('profile')
   @UseGuards(AuthenticatedGuard)
-  profile (@User() user: Profile) {
+  profile (@FtUser() user: Profile) {
     return { user }
   }
 

@@ -19,36 +19,50 @@ import { diskStorage } from 'multer'
 
 import { type User } from './user.entity'
 import { UsersService } from './users.service'
-import { CreateUserDto, UpdateUserDto, AvatarUploadDto } from './user.dto'
+import { UserDto, AvatarUploadDto } from './user.dto'
 
-import RequestWithUser from 'src/auth/requestWithUser.interface'
-import { FtOauthGuard } from 'src/auth/42-auth.guard'
+import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
+import { FtUser } from 'src/auth/42.decorator'
+import { Profile } from 'passport-42'
+
 import { ApiBody, ApiConsumes } from '@nestjs/swagger'
-
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { createReadStream } from 'fs'
 import { join } from 'path'
 
 @Controller('users')
 export class UsersController {
-  constructor (private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get()
-  async getAllUsers (): Promise<User[]> {
+  async getAllUsers(): Promise<User[]> {
     return await this.usersService.getAllUsers()
   }
 
   @Post()
-  async create (@Body() payload: CreateUserDto) {
-    return await this.usersService.create(payload)
+  @UseGuards(AuthenticatedGuard)
+  async create(
+    @Body() payload: UserDto,
+    @FtUser() profile: Profile) {
+    const user = await this.usersService.getOneUser42(profile.id);
+    if (user) {
+      return await this.usersService.update(user.id, payload)
+    } else {
+      return await this.usersService.create(payload)
+    }
   }
 
-  @Post(':id')
-  update (@Param('id', ParseIntPipe) id: number, @Body() user: UpdateUserDto) {
-    this.usersService.update(id, user)
+  @Post("follow/:target")
+  @UseGuards(AuthenticatedGuard)
+  followUser(
+    @FtUser() profile: Profile,
+    @Param('target, ParseIntPipe') target: number,
+  ) {
+    this.usersService.follow(profile.id, target);
   }
 
-  @Post(':id/avatar')
+  @Post('avatar')
+  @UseGuards(AuthenticatedGuard)
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: diskStorage({
@@ -68,19 +82,19 @@ export class UsersController {
     description: 'A new avatar for the user',
     type: AvatarUploadDto
   })
-  async addAvatar (
-  @Param('id', ParseIntPipe) id: number,
+  async addAvatar(
+    @FtUser() profile: Profile,
     @UploadedFile() file: Express.Multer.File
   ) {
-    await this.usersService.addAvatar(id, file.filename)
+    await this.usersService.addAvatar(profile.id, file.filename)
   }
 
-  @Get(':id/avatar')
-  async getAvatar (
-  @Param('id', ParseIntPipe) id: number,
+  @Get('avatar')
+  async getAvatar(
+    @FtUser() profile: Profile,
     @Res({ passthrough: true }) response: Response
   ) {
-    const user = await this.usersService.findOne(id)
+    const user = await this.usersService.getOneUser42(profile.id)
     const filename = user.avatar
     const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({

@@ -1,9 +1,6 @@
 import {
   IsString,
-  IsNumber,
   IsNotEmpty,
-  IsEmail,
-  Length,
   IsPositive,
   IsOptional
 } from 'class-validator'
@@ -11,17 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger'
 import { Express } from 'express'
 
-export class CreateUserDto {
-  @IsPositive()
-  @IsNotEmpty()
-  readonly id_42: number
-
-  @IsString()
-  @IsNotEmpty()
-  readonly username: string
-}
-
-export class UpdateUserDto {
+export class UserDto {
   @IsPositive()
   @IsNotEmpty()
   readonly id_42: number

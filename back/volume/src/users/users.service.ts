@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
-import { type CreateUserDto, type UpdateUserDto } from './user.dto'
+import { UserDto } from './user.dto'
 import { type Channel } from 'src/chat/model/channel.entity'
 
 @Injectable()
@@ -23,7 +23,7 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ id_42 })
   }
 
-  async create (userData: CreateUserDto) {
+  async create (userData: UserDto) {
     try {
       const newUser = this.usersRepository.create(userData)
       return await this.usersRepository.save(newUser)
@@ -46,7 +46,7 @@ export class UsersService {
       .getMany()
   }
 
-  async update (id: number, changes: UpdateUserDto) {
+  async update (id: number, changes: UserDto) {
     const updatedUser = await this.findOne(id)
     this.usersRepository.merge(updatedUser, changes)
     return await this.usersRepository.save(updatedUser)
@@ -56,5 +56,10 @@ export class UsersService {
     await this.usersRepository.update(userId, {
       avatar: filename
     })
+  }
+
+  async follow(userFtId: number, targetFtId: number) {
+    const user = await this.getOneUser42(userFtId);
+    const target = await this.getOneUser42(targetFtId);
   }
 }

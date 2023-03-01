@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import * as Joi from 'joi'
 
-import { ApiModule } from './api/api.module'
+import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
 import { ChatModule } from './chat/chat.module'
 import { DbModule } from './db/db.module'
@@ -23,12 +23,12 @@ import { UsersModule } from './users/users.module'
         JWT_EXPIRATION_TIME: Joi.string().required()
       })
     }),
-    ApiModule,
     AuthModule,
     ChatModule,
     DbModule,
     PongModule,
     UsersModule
-  ]
+  ],
+  controllers: [AppController]
 })
-export class AppModule {}
+export class AppModule { }

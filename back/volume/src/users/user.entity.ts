@@ -2,10 +2,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToOne,
   OneToMany,
   ManyToMany,
-  JoinColumn
+  JoinTable
 } from 'typeorm'
 
 import Message from 'src/chat/model/message.entity'
@@ -13,6 +12,9 @@ import Channel from 'src/chat/model/channel.entity'
 
 @Entity()
 export class User {
+  @PrimaryGeneratedColumn()
+    id: number;
+
   @Column({ unique: true })
     id_42: number
 
@@ -32,9 +34,17 @@ export class User {
     rooms: Channel[]
 
   @ManyToMany(() => User)
+  @JoinTable()
     blocked: User[]
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, (user) => user.following)
+  @JoinTable()
+    followers: User[]
+  
+  @ManyToMany(() => User, (user) => user.followers)
+    following: User[]
+
+  @ManyToMany(() => User, (user) => user.friends)
     friends: User[]
 
   // @Column({ default: { wr: -1, place: -1 } })
