@@ -11,7 +11,7 @@ import { Express } from 'express'
 export class UserDto {
   @IsPositive()
   @IsNotEmpty()
-  readonly id_42: number
+  readonly ftId: number
 
   @IsString()
   @IsNotEmpty()

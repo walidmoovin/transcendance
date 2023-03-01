@@ -30,15 +30,15 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
   ): Promise<any> {
     request.session.accessToken = accessToken
     console.log('accessToken', accessToken, 'refreshToken', refreshToken)
-    const id_42 = profile.id as number
+    const ftId = profile.id as number
     console.log(profile)
-    if ((await this.usersService.getOneUser42(id_42)) === null) {
+    if ((await this.usersService.findUser(ftId)) === null) {
       const newUser = new User()
-      newUser.id_42 = profile.id as number
+      newUser.ftId = profile.id as number
       newUser.username = profile.displayName as string
-      newUser.avatar = id_42 + '.jpg'
+      newUser.avatar = ftId + '.jpg'
       this.usersService.create(newUser)
-      const file = createWriteStream('avatars/' + id_42 + '.jpg')
+      const file = createWriteStream('avatars/' + ftId + '.jpg')
       get(profile._json.image.versions.small, function (response) {
         response.pipe(file)
       })

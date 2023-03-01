@@ -7,23 +7,23 @@ import { type Channel } from 'src/chat/model/channel.entity'
 
 @Injectable()
 export class UsersService {
-  constructor (
+  constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>
-  ) {}
+  ) { }
 
-  async getAllUsers (): Promise<User[]> {
+  async findUsers(): Promise<User[]> {
     return await this.usersRepository.find({})
   }
 
-  async getOneUser (username: string): Promise<User | null> {
+  async findUserByName(username: string): Promise<User | null> {
     return await this.usersRepository.findOneBy({ username })
   }
 
-  async getOneUser42 (id_42: number): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ id_42 })
+  async findUser(ftId: number): Promise<User | null> {
+    return await this.usersRepository.findOneBy({ ftId })
   }
 
-  async create (userData: UserDto) {
+  async create(userData: UserDto) {
     try {
       const newUser = this.usersRepository.create(userData)
       return await this.usersRepository.save(newUser)
@@ -32,13 +32,7 @@ export class UsersService {
     }
   }
 
-  async findOne (id: number) {
-    const user = await this.usersRepository.findOneBy({ id })
-    if (user) return user
-    throw new NotFoundException(`User #${id} not found`)
-  }
-
-  async findOnlineInChannel (channel: Channel): Promise<User[]> {
+  async findOnlineInChannel(channel: Channel): Promise<User[]> {
     return await this.usersRepository
       .createQueryBuilder('user')
       .where('user.channel = :chan', { chan: channel })
@@ -46,20 +40,36 @@ export class UsersService {
       .getMany()
   }
 
-  async update (id: number, changes: UserDto) {
-    const updatedUser = await this.findOne(id)
+  async update(ftId: number, changes: UserDto) {
+    const updatedUser = await this.findUser(ftId)
     this.usersRepository.merge(updatedUser, changes)
     return await this.usersRepository.save(updatedUser)
   }
 
-  async addAvatar (userId: number, filename: string) {
-    await this.usersRepository.update(userId, {
+  async addAvatar(ftId: number, filename: string) {
+    await this.usersRepository.update(ftId, {
       avatar: filename
     })
   }
 
-  async follow(userFtId: number, targetFtId: number) {
-    const user = await this.getOneUser42(userFtId);
-    const target = await this.getOneUser42(targetFtId);
+  async invit(ftId: number, targetFtId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { ftId },
+      relations: { friends: true, followers: true },
+    });
+    const target = await this.usersRepository.findOne({
+      where: { ftId: targetFtId },
+      relations: { friends: true, followers: true },
+    });
+    const id = user.followers.findIndex((follower) => follower.ftId == ftId)
+    if (id != -1) {
+      user.friends.push(target);
+      target.friends.push(user);
+      user.followers.slice(id, 1);
+      this.usersRepository.save(user);
+    } else {
+      target.followers.push(user);
+    }
+    this.usersRepository.save(target);
   }
 }

@@ -36,7 +36,7 @@ export class UsersController {
 
   @Get()
   async getAllUsers(): Promise<User[]> {
-    return await this.usersService.getAllUsers()
+    return await this.usersService.findUsers()
   }
 
   @Post()
@@ -44,7 +44,7 @@ export class UsersController {
   async create(
     @Body() payload: UserDto,
     @FtUser() profile: Profile) {
-    const user = await this.usersService.getOneUser42(profile.id);
+    const user = await this.usersService.findUser(profile.id);
     if (user) {
       return await this.usersService.update(user.id, payload)
     } else {
@@ -52,13 +52,13 @@ export class UsersController {
     }
   }
 
-  @Post("follow/:target")
+  @Post("invit/:id")
   @UseGuards(AuthenticatedGuard)
   followUser(
     @FtUser() profile: Profile,
-    @Param('target, ParseIntPipe') target: number,
+    @Param('id, ParseIntPipe') id: number,
   ) {
-    this.usersService.follow(profile.id, target);
+    this.usersService.invit(profile.id, id);
   }
 
   @Post('avatar')
@@ -94,7 +94,7 @@ export class UsersController {
     @FtUser() profile: Profile,
     @Res({ passthrough: true }) response: Response
   ) {
-    const user = await this.usersService.getOneUser42(profile.id)
+    const user = await this.usersService.findUser(profile.id)
     const filename = user.avatar
     const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({

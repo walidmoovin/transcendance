@@ -11,11 +11,13 @@ export class UpdateChannelDto extends PartialType(CreateChannelDto) {
 
   messages: [Message]
 
-  owners: [number] // user id
+  owners: [number] // ftId
+  
+  admins: [number]
 
-  banned: [number] // user id
+  banned: [number] // ftId
 
-  muted: [number] // user id
+  muted: [number] // ftId
 
   @IsString()
     password: string

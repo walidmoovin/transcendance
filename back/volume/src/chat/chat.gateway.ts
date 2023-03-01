@@ -36,7 +36,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection (socket: Socket) {
     try {
-      const user: User = await this.userService.findOne(socket.data.user.id)
+      const user: User = await this.userService.findUser(socket.data.user.ftId)
       if (!user) {
         socket.emit('Error', new UnauthorizedException())
         // socket.disconnect();
@@ -64,7 +64,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): Promise<Channel> {
     const channel = new Channel()
     channel.name = channeldto.name
-    const owner = await this.userService.findOne(channeldto.owner)
+    const owner = await this.userService.findUser(channeldto.owner)
     channel.owners.push(owner)
     channel.password = channeldto.password
     /// ...///

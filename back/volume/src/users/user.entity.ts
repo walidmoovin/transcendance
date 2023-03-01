@@ -16,7 +16,7 @@ export class User {
     id: number;
 
   @Column({ unique: true })
-    id_42: number
+    ftId: number
 
   @Column({ unique: true })
     username: string
@@ -37,13 +37,10 @@ export class User {
   @JoinTable()
     blocked: User[]
 
-  @ManyToMany(() => User, (user) => user.following)
+  @ManyToMany(() => User)
   @JoinTable()
     followers: User[]
   
-  @ManyToMany(() => User, (user) => user.followers)
-    following: User[]
-
   @ManyToMany(() => User, (user) => user.friends)
     friends: User[]
 
