@@ -15,7 +15,7 @@
         name: "You",
         text: newText,
       };
-      chatMessages = [...chatMessages.slice(-5 + 1), newMessage];
+      chatMessages = [...chatMessages.slice(-7 + 1), newMessage];
       newText = "";
     }
     // TODO: save to database

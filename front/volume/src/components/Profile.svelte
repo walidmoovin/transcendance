@@ -27,7 +27,23 @@
   }
   async function handleAvatarUpload(event: Event) {
     event.preventDefault();
-    alert("Trying to upload avatar");
+    const fileInput = document.getElementById('avatar-input') as HTMLInputElement;
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const response = await fetch('http://localhost:3001/avatar', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   }
   async function handle2fa(event: Event) {
     event.preventDefault();
@@ -40,8 +56,10 @@
     <div class="profile-header">
       <img class="profile-img" src="img/profileicon.png" alt="Profile Icon" />
       <h3>{realname}</h3>
-      <form on:submit={handleAvatarUpload}>
-        <button type="submit">Upload Avatar</button>
+      <form>
+        <label for="avatar-input">Choose avatar:</label>
+        <input type="file" id="avatar-input" accept="image/*">
+        <button type="submit" id="upload-button" on:click={handleAvatarUpload}>Upload</button>
       </form>
     </div>
     <div class="profile-body">
@@ -89,7 +107,7 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 1rem;
-    width: 300px;
+    width: 375px;
   }
 
   .profile-header {

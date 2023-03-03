@@ -11,7 +11,6 @@
   export let clickHistory = () => {};
   export let clickFriends = () => {};
   export let clickSpectate = () => {};
-  export let clickChat = () => {};
   export let clickChannels = () => {};
 </script>
 
