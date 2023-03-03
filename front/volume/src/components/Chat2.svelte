@@ -6,20 +6,16 @@
 </script>
 
 <script lang="ts">
-	const sendMessage = () => {
-		if (newText !== '')
-		{
-			const newMessage = {
-				name: 'You',
-				text: newText
-			};
-			chatMessages = [
-				...chatMessages,
-				newMessage
-			];
-			newText = '';
-		}
-	}
+  const sendMessage = () => {
+    if (newText !== "") {
+      const newMessage = {
+        name: "You",
+        text: newText,
+      };
+      chatMessages = [...chatMessages, newMessage];
+      newText = "";
+    }
+  };
   export let chatMessages: Array<chatMessagesType> = [];
   let newText = "";
 </script>

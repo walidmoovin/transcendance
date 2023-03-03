@@ -1,4 +1,4 @@
-import { Point, type Rect } from './utils'
+import { Point } from './utils'
 
 export const GAME_EVENTS = {
   START_GAME: 'START_GAME',
@@ -11,28 +11,8 @@ export const GAME_EVENTS = {
   SPECTATE: 'SPECTATE'
 }
 
-export interface GameInfo extends GameInfoConstants {
-  yourPaddleIndex: number
-  gameId: string
-  walls: Rect[]
-}
-export interface GameInfoConstants {
-  mapSize: Point
-  paddleSize: Point
-  playerXOffset: number
-  ballSize: Point
-  winScore: number
-}
-export const gameInfoConstants: GameInfoConstants = {
-  mapSize: new Point(600, 400),
-  paddleSize: new Point(6, 50),
-  playerXOffset: 50,
-  ballSize: new Point(20, 20),
-  winScore: 9999
-}
-
-export interface GameUpdate {
-  paddlesPositions: Point[]
-  ballPosition: Point
-  scores: number[]
-}
+export const DEFAULT_MAP_SIZE = new Point(600, 400)
+export const DEFAULT_PADDLE_SIZE = new Point(6, 50)
+export const DEFAULT_BALL_SIZE = new Point(20, 20)
+export const DEFAULT_PLAYER_X_OFFSET = 50
+export const DEFAULT_WIN_SCORE = 5

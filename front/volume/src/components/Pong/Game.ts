@@ -1,6 +1,7 @@
 import { Ball } from "./Ball";
 import { GAME_EVENTS } from "./constants";
-import type { GameInfo, GameUpdate } from "./constants";
+import type { GameInfo } from "./dtos/GameInfo";
+import type { GameUpdate } from "./dtos/GameUpdate";
 import { Paddle } from "./Paddle";
 import { Player } from "./Player";
 import { formatWebsocketData, Point, Rect } from "./utils";
@@ -58,11 +59,8 @@ export class Game {
     if (this.my_paddle) {
       this.canvas.addEventListener("mousemove", (e) => {
         this.my_paddle.move(e);
-        socket.send(
-          formatWebsocketData(GAME_EVENTS.PLAYER_MOVE, {
-            position: this.my_paddle.rect.center,
-          })
-        );
+        const data: Point = this.my_paddle.rect.center;
+        socket.send(formatWebsocketData(GAME_EVENTS.PLAYER_MOVE, data));
       });
       console.log("Game started!");
     }

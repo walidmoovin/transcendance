@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { Point, Rect } from "./utils";
   import type { Map } from "./Map";
-  import { gameInfoConstants } from "./constants";
+  import { DEFAULT_BALL_SIZE } from "./constants";
 
   export let map: Map;
   let canvas: HTMLCanvasElement;
@@ -48,14 +48,12 @@
       new Point(e.offsetX, e.offsetY),
       new Point(wallWidth, wallHeight)
     );
-    const ballSpawn = new Rect(
+    const ballSpawnArea = new Rect(
       new Point(map.size.x / 2, map.size.y / 2),
-      new Point(
-        gameInfoConstants.ballSize.x * 5,
-        gameInfoConstants.ballSize.y * 5
-      )
+      new Point(DEFAULT_BALL_SIZE.x * 5, DEFAULT_BALL_SIZE.y * 5)
     );
-    if (map.walls.length < 5 && !wall.collides(ballSpawn)) map.walls.push(wall);
+    if (map.walls.length < 5 && !wall.collides(ballSpawnArea))
+      map.walls.push(wall);
   }
 
   function removeWall(e: MouseEvent) {

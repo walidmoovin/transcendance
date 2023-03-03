@@ -1,7 +1,7 @@
-import { gameInfoConstants } from './constants'
 import { type Paddle } from './Paddle'
 import { Point, Rect } from './utils'
-import { type Map } from './Map'
+import { type MapDtoValidated } from '../dtos/MapDtoValidated'
+import { DEFAULT_BALL_SIZE } from './constants'
 
 export class Ball {
   rect: Rect
@@ -11,7 +11,7 @@ export class Ball {
 
   constructor (
     spawn: Point,
-    size: Point = gameInfoConstants.ballSize,
+    size: Point = DEFAULT_BALL_SIZE,
     speed: Point = new Point(10, 2)
   ) {
     this.rect = new Rect(spawn, size)
@@ -24,7 +24,7 @@ export class Ball {
     return this.indexPlayerScored
   }
 
-  update (canvasRect: Rect, paddles: Paddle[], map: Map): void {
+  update (canvasRect: Rect, paddles: Paddle[], map: MapDtoValidated): void {
     if (!canvasRect.contains_x(this.rect)) {
       this.indexPlayerScored = this.playerScored()
     } else {
@@ -33,7 +33,7 @@ export class Ball {
     }
   }
 
-  move (canvasRect: Rect, paddles: Paddle[], map: Map): void {
+  move (canvasRect: Rect, paddles: Paddle[], map: MapDtoValidated): void {
     for (const paddle of paddles) {
       if (paddle.rect.collides(this.rect)) {
         if (this.speed.x < 0) {
@@ -49,8 +49,12 @@ export class Ball {
 
     for (const wall of map.walls) {
       if (wall.collides(this.rect)) {
+        if (this.speed.x < 0) {
+          this.rect.center.x = wall.center.x + wall.size.x
+        } else this.rect.center.x = wall.center.x - wall.size.x
         this.speed.x = this.speed.x * -1
-        this.speed.y = this.speed.y * -1
+        this.speed.y =
+          ((this.rect.center.y - wall.center.y) / wall.size.y) * 20
         break
       }
     }

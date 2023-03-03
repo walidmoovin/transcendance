@@ -1,4 +1,4 @@
-import { gameInfoConstants } from './constants'
+import { DEFAULT_PADDLE_SIZE } from './constants'
 import { type Point, Rect } from './utils'
 
 export class Paddle {
@@ -9,7 +9,7 @@ export class Paddle {
   constructor (
     spawn: Point,
     gameSize: Point,
-    size: Point = gameInfoConstants.paddleSize
+    size: Point = DEFAULT_PADDLE_SIZE
   ) {
     this.rect = new Rect(spawn, size)
     this.mapSize = gameSize

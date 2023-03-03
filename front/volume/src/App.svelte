@@ -79,7 +79,13 @@
 </script>
 
 <main>
-  <Navbar {clickProfile} {clickHistory} {clickFriends} {clickSpectate} {clickChat} />
+  <Navbar
+    {clickProfile}
+    {clickHistory}
+    {clickFriends}
+    {clickSpectate}
+    {clickChat}
+  />
   {#if isChatOpen}
     <div
       on:click={() => (isChatOpen = false)}

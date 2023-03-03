@@ -1,10 +1,15 @@
 import { type WebSocket } from 'ws'
-import { type GameInfo } from './constants'
 import { Game } from './Game'
 import { Point } from './utils'
-import { gameInfoConstants } from './constants'
-import { type Map as GameMap } from './Map'
-import { type GameCreationDto } from '../dtos/GameCreationDto'
+import { type MapDtoValidated as GameMap } from '../dtos/MapDtoValidated'
+import { type GameCreationDtoValidated } from '../dtos/GameCreationDtoValidated'
+import { type GameInfo } from '../dtos/GameInfo'
+import {
+  DEFAULT_BALL_SIZE,
+  DEFAULT_PADDLE_SIZE,
+  DEFAULT_PLAYER_X_OFFSET,
+  DEFAULT_WIN_SCORE
+} from './constants'
 
 export class Games {
   private readonly playerNameToGameIndex = new Map<string, number>()
@@ -13,15 +18,27 @@ export class Games {
   newGame (
     sockets: WebSocket[],
     uuids: string[],
-    gameCreationDto: GameCreationDto
+    gameCreationDto: GameCreationDtoValidated
   ): void {
     const names: string[] = gameCreationDto.playerNames
     const map: GameMap = gameCreationDto.map
     if (!this.isInAGame(names[0]) && !this.isInAGame(names[1])) {
-      this.games.push(new Game(sockets, uuids, names, map))
+      this.games.push(
+        new Game(
+          sockets,
+          uuids,
+          names,
+          map,
+          this.gameStopped.bind(this, names[0])
+        )
+      )
       this.playerNameToGameIndex.set(names[0], this.games.length - 1)
       this.playerNameToGameIndex.set(names[1], this.games.length - 1)
-      console.log(`Created game ${names[0]} vs ${names[1]}`)
+      console.log(
+        `Created game ${names[0]} vs ${names[1]} (${
+          this.games[this.games.length - 1].id
+        })`
+      )
     }
   }
 
@@ -39,13 +56,16 @@ export class Games {
     }
   }
 
-  // stopGame (uuid: string): void {
-  //   // if (this.isInAGame(uuid)) {
-  //   //   this.playerGame(uuid).stop()
-  //   //   delete this.playerNameToGameIndex[uuid]
-  //   //   delete this.games[this.playerNameToGameIndex[uuid]]
-  //   // }
-  // }
+  private gameStopped (name: string): void {
+    const game: Game | null = this.playerGame(name)
+    if (game !== null) {
+      this.games.splice(this.games.indexOf(game), 1)
+      game.players.forEach((player) => {
+        this.playerNameToGameIndex.delete(player.name)
+      })
+      console.log(`Game stopped: ${game.id}`)
+    }
+  }
 
   getGameInfo (name: string): GameInfo {
     const game: Game | null = this.playerGame(name)
@@ -53,11 +73,14 @@ export class Games {
       return game.getGameInfo(name)
     }
     return {
-      ...gameInfoConstants,
       yourPaddleIndex: 0,
       gameId: '',
       mapSize: new Point(0, 0),
-      walls: []
+      walls: [],
+      paddleSize: DEFAULT_PADDLE_SIZE,
+      playerXOffset: DEFAULT_PLAYER_X_OFFSET,
+      ballSize: DEFAULT_BALL_SIZE,
+      winScore: DEFAULT_WIN_SCORE
     }
   }
 
