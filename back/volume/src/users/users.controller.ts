@@ -44,7 +44,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUser (@Param('id', ParseIntPipe) ftId: number): Promise<User> {
+  async getUserById (@Param('id', ParseIntPipe) ftId: number): Promise<User> {
     return await this.usersService.findUser(ftId)
   }
 

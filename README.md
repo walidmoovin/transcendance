@@ -15,7 +15,7 @@ If you not use rootless docker, either rename Makesudo as Makefile or call `make
 rename .env_sample to .env and customize it to your needs and credentials.
 
 ## Back endpoints:
-|Method|endpoint|description|
+|Method|endpoint|description|account securised?|
 |:---:|:---:|:---:|
 |GET |/log/in       |the login using 42 api.|
 |GET |/log/inReturn |the 42 api callback.|
