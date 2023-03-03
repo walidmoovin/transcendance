@@ -80,7 +80,7 @@ export class UsersController {
   @FtUser() profile: Profile,
     @UploadedFile() file: Express.Multer.File
   ) {
-    return await this.usersService.addAvatar(profile.id, file.filename)
+    await this.usersService.addAvatar(profile.id, file.filename)
   }
 
   @Get('avatar')
@@ -89,15 +89,7 @@ export class UsersController {
   @FtUser() profile: Profile,
     @Res({ passthrough: true }) response: Response
   ){
-      const user = await this.usersService.findUser(profile.id)
-      if (!user) return
-      const filename = user.avatar
-      const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
-      response.set({
-        'Content-Diposition': `inline; filename="${filename}"`,
-        'Content-Type': 'image/jpg'
-      })
-      return new StreamableFile(stream)
+    return await this.getAvatarById(profile.id, response);
     }
   
   @Get('avatar/:id')

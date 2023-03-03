@@ -52,7 +52,7 @@ export class UsersService {
   }
 
   async addAvatar (ftId: number, filename: string) {
-    return await this.usersRepository.update(ftId, {
+    return await this.usersRepository.update({ftId}, {
       avatar: filename
     })
   }
