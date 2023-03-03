@@ -15,8 +15,12 @@
         name: "You",
         text: newText,
       };
-      chatMessages = [...chatMessages.slice(-7 + 1), newMessage];
+      chatMessages = [...chatMessages.slice(-5 + 1), newMessage];
       newText = "";
+      const messagesDiv = document.querySelector(".messages");
+      if (messagesDiv) {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
     }
     // TODO: save to database
   };
@@ -24,18 +28,25 @@
   export let chatMessages: Array<chatMessagesType> = [];
   let newText = "";
 
-  // const openProfile = (id: number) => (event: Event) => {
-  //   const message = chatMessages.find((m) => m.id === id);
-  //   if (message) {
-  //     const { name } = message;
-  //     const options = ["View profile", "Send private message", "Block user"];
-  //     const option = prompt(`Select an option for ${name}: ${options.join(", ")}`);
-  //     if (option === "View profile") {
-  //     } else if (option === "Send private message") {
-  //     } else if (option === "Block user") {
-  //     }
-  //   }
-  // };
+  const openProfile = (id: number) => (event: Event) => {
+    const message = chatMessages.find((m) => m.id === id);
+    if (message) {
+      const optionsModal = document.createElement("div");
+      optionsModal.classList.add("options-modal");
+      optionsModal.innerHTML = `
+        <h3>${message.name}</h3>
+        <ul>
+          <li>View profile</li>
+          <li>View posts</li>
+          <li>View comments</li>
+        </ul>
+      `;
+      document.querySelector('.overlay')?.appendChild(optionsModal);
+      optionsModal.addEventListener("click", () => {
+        document.body.removeChild(optionsModal);
+      });
+    }
+  };
 </script>
 
 <div class="overlay">
@@ -43,7 +54,7 @@
     <div class="messages">
       {#each chatMessages as message}
         <p class="message">
-          <span class="message-name">
+          <span class="message-name" on:click={openProfile(message.id)} on:keydown={openProfile(message.id)} style="cursor: pointer;">
             {message.name}
           </span>: {message.text}
         </p>
@@ -78,5 +89,21 @@
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
+  }
+
+  .messages {
+    height: 200px;
+    overflow-y: scroll;
+  }
+
+  .options-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  z-index: 9999;
   }
 </style>

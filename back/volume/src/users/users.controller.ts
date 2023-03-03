@@ -43,28 +43,6 @@ export class UsersController {
     return await this.usersService.findOnlineUsers()
   }
 
-  @Get(':id')
-  async getUserById (@Param('id', ParseIntPipe) ftId: number): Promise<User | null> {
-    return await this.usersService.findUser(ftId)
-  }
-
-  @Get()
-  @UseGuards(AuthenticatedGuard)
-  async getUser (@FtUser() profile: Profile): Promise<User | null> {
-    return await this.usersService.findUser(profile.id)
-  }
-
-  @Post()
-  @UseGuards(AuthenticatedGuard)
-  async create (@Body() payload: UserDto, @FtUser() profile: Profile) {
-    const user = await this.usersService.findUser(profile.id)
-    if (user) {
-      return await this.usersService.update(user.id, payload)
-    } else {
-      return await this.usersService.create(payload)
-    }
-  }
-
   @Get('friends')
   @UseGuards(AuthenticatedGuard)
   async getFriends (@FtUser() profile: Profile) {
@@ -75,15 +53,6 @@ export class UsersController {
   @UseGuards(AuthenticatedGuard)
   async getInvits (@FtUser() profile: Profile) {
     return await this.usersService.getInvits(profile.id)
-  }
-
-  @Post('invit/:id')
-  @UseGuards(AuthenticatedGuard)
-  async invitUser (
-  @FtUser() profile: Profile,
-    @Param('id', ParseIntPipe) id: number
-  ) {
-    return await this.usersService.invit(profile.id, id)
   }
 
   @Post('avatar')
@@ -114,7 +83,24 @@ export class UsersController {
     return await this.usersService.addAvatar(profile.id, file.filename)
   }
 
-  @Get(':id/avatar')
+  @Get('avatar')
+  @UseGuards(AuthenticatedGuard)
+  async getAvatar (
+  @FtUser() profile: Profile,
+    @Res({ passthrough: true }) response: Response
+  ){
+      const user = await this.usersService.findUser(profile.id)
+      if (!user) return
+      const filename = user.avatar
+      const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
+      response.set({
+        'Content-Diposition': `inline; filename="${filename}"`,
+        'Content-Type': 'image/jpg'
+      })
+      return new StreamableFile(stream)
+    }
+  
+  @Get('avatar/:id')
   async getAvatarById (
     @Param('id', ParseIntPipe) ftId: number,
     @Res({ passthrough: true }) response: Response
@@ -130,11 +116,25 @@ export class UsersController {
     return new StreamableFile(stream)
   }
 
-  @Get('avatar')
-  async getAvatar (
-  @FtUser() profile: Profile,
-    @Res({ passthrough: true }) response: Response
-  ) {
-    return await this.getAvatarById(profile.id, response);
+  @Get(':id')
+  async getUserById (@Param('id', ParseIntPipe) ftId: number): Promise<User | null> {
+    return await this.usersService.findUser(ftId)
+  }
+
+  @Get()
+  @UseGuards(AuthenticatedGuard)
+  async getUser (@FtUser() profile: Profile): Promise<User | null> {
+    return await this.usersService.findUser(profile.id)
+  }
+
+  @Post()
+  @UseGuards(AuthenticatedGuard)
+  async create (@Body() payload: UserDto, @FtUser() profile: Profile) {
+    const user = await this.usersService.findUser(profile.id)
+    if (user) {
+      return await this.usersService.update(user.id, payload)
+    } else {
+      return await this.usersService.create(payload)
+    }
   }
 }

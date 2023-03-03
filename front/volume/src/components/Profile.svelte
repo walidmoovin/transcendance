@@ -1,4 +1,5 @@
 <script lang="ts">
+  let api = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT
   export let username = "";
   export let realname = "";
   export let wins = 0;
@@ -34,7 +35,7 @@
     formData.append('avatar', file);
 
     try {
-      const response = await fetch('http://localhost:3001/avatar', {
+      const response = await fetch(api + '/avatar', {
         method: 'POST',
         body: formData
       });
@@ -56,10 +57,10 @@
     <div class="profile-header">
       <img class="profile-img" src="img/profileicon.png" alt="Profile Icon" />
       <h3>{realname}</h3>
-      <form>
+      <form on:submit={handleAvatarUpload}>
         <label for="avatar-input">Choose avatar:</label>
         <input type="file" id="avatar-input" accept="image/*">
-        <button type="submit" id="upload-button" on:click={handleAvatarUpload}>Upload</button>
+        <button type="submit" id="upload-button">Upload</button>
       </form>
     </div>
     <div class="profile-body">
