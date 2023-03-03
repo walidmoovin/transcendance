@@ -1,9 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsPositive,
-  IsOptional
-} from 'class-validator'
+import { IsString, IsNotEmpty, IsPositive, IsOptional } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 import { Express } from 'express'

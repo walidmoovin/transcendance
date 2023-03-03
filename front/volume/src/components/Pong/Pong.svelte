@@ -8,8 +8,10 @@
   import { onMount } from "svelte";
   import type { StringDto } from "./dtos/StringDto";
 
-  const FPS = 144;
-  const SERVER_URL = "ws://localhost:3001";
+  const FPS = import.meta.env.VITE_FRONT_FPS;
+  const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
+    import.meta.env.VITE_BACK_PORT
+  }`;
 
   let gameCanvas: HTMLCanvasElement;
   let connected: boolean = false;

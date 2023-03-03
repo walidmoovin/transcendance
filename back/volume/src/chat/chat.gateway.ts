@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common'
 import {
   type OnGatewayConnection,
   type OnGatewayDisconnect,
@@ -7,14 +8,14 @@ import {
   WebSocketServer
 } from '@nestjs/websockets'
 import { Socket, Server } from 'socket.io'
-import { type User } from 'src/users/user.entity'
-import { UsersService } from 'src/users/users.service'
-import { UnauthorizedException } from '@nestjs/common'
-import { ChatService } from './chat.service'
-import { Channel } from './model/channel.entity'
-import { Message } from './model/message.entity'
 
-import { CreateChannelDto } from './model/create-channel.dto'
+import { ChatService } from './chat.service'
+import { type User } from 'src/users/entity/user.entity'
+import { UsersService } from 'src/users/users.service'
+import { Channel } from './entity/channel.entity'
+import { Message } from './entity/message.entity'
+
+import { CreateChannelDto } from './dto/createChannel.dto'
 
 @WebSocketGateway({
   cors: {

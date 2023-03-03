@@ -1,4 +1,3 @@
-import { User } from 'src/users/user.entity'
 import {
   BeforeInsert,
   Column,
@@ -8,8 +7,10 @@ import {
   OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm'
-import { Message } from './message.entity'
 import * as bcrypt from 'bcrypt'
+
+import { User } from 'src/users/entity/user.entity'
+import { Message } from './message.entity'
 
 @Entity()
 export class Channel {

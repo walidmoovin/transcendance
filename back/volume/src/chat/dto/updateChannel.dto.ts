@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types'
-import { CreateChannelDto } from './create-channel.dto'
-import { type Message } from './message.entity'
-import { type User } from 'src/users/user.entity'
+import { CreateChannelDto } from './createChannel.dto'
+import { type Message } from '../entity/message.entity'
+import { type User } from 'src/users/entity/user.entity'
 import { IsString } from 'class-validator'
 
 export class UpdateChannelDto extends PartialType(CreateChannelDto) {
@@ -12,7 +12,7 @@ export class UpdateChannelDto extends PartialType(CreateChannelDto) {
   messages: [Message]
 
   owners: [number] // ftId
-  
+
   admins: [number]
 
   banned: [number] // ftId

@@ -1,3 +1,4 @@
+import { UsePipes, ValidationPipe } from '@nestjs/common'
 import { type WebSocket } from 'ws'
 import {
   ConnectedSocket,
@@ -8,11 +9,11 @@ import {
   WebSocketGateway
 } from '@nestjs/websockets'
 import { randomUUID } from 'crypto'
+
 import { Games } from './game/Games'
 import { formatWebsocketData } from './game/utils'
 import { GAME_EVENTS } from './game/constants'
 import { GameCreationDtoValidated } from './dtos/GameCreationDtoValidated'
-import { UsePipes, ValidationPipe } from '@nestjs/common'
 import { type Game } from './game/Game'
 import { plainToClass } from 'class-transformer'
 import { PointDtoValidated } from './dtos/PointDtoValidated'

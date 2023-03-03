@@ -14,6 +14,20 @@ If you not use rootless docker, either rename Makesudo as Makefile or call `make
 ### Setting:
 rename .env_sample to .env and customize it to your needs and credentials.
 
+## Back endpoints:
+|Method|endpoint|description|
+|:---:|:---:|:---:|
+|GET |/log/in       |the login using 42 api.|
+|GET |/log/inReturn |the 42 api callback.|
+|GET |/log/profile  |get user 42's datas.|
+|GET |/log/out      |log out user.|
+|GET |/             |return user datas.|
+|POST|/             |update user datas.|
+|GET |/friends      |return users which are friends.|
+|GET |/invits       |return users which invited user to be friend.|
+|POST|/invit/:id    |invit user whith ftId: id as friend.|
+|GET |/avatar       |return the user avatar|
+|POST|/avatar       |set a user avatar with multipart post upload.|
 
 ## Dependencies:
 

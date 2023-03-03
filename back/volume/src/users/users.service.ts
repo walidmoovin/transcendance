@@ -1,35 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { User } from './user.entity'
-import { UserDto } from './user.dto'
-import { type Channel } from 'src/chat/model/channel.entity'
+import { User } from './entity/user.entity'
+import { type UserDto } from './dto/user.dto'
+import { type Channel } from 'src/chat/entity/channel.entity'
 
 @Injectable()
 export class UsersService {
-  constructor(
+  constructor (
     @InjectRepository(User) private readonly usersRepository: Repository<User>
-  ) { }
+  ) {}
 
-  async findUsers(): Promise<User[]> {
+  async findUsers (): Promise<User[]> {
     return await this.usersRepository.find({})
   }
 
-  async findUserByName(username: string): Promise<User | null> {
+  async findUserByName (username: string): Promise<User | null> {
     return await this.usersRepository.findOneBy({ username })
   }
 
-  async findUser(ftId: number): Promise<User | null> {
-    return await this.usersRepository.findOne({
-      where: { ftId },
-      relations: {
-        friends: true,
-        followers: true,
-      }
-    });
+  async findUser (ftId: number): Promise<User | null> {
+    return await this.usersRepository.findOneBy({ftId})
   }
 
-  async create(userData: UserDto) {
+  async create (userData: UserDto) {
     try {
       const newUser = this.usersRepository.create(userData)
       return await this.usersRepository.save(newUser)
@@ -38,7 +32,7 @@ export class UsersService {
     }
   }
 
-  async findOnlineInChannel(channel: Channel): Promise<User[]> {
+  async findOnlineInChannel (channel: Channel): Promise<User[]> {
     return await this.usersRepository
       .createQueryBuilder('user')
       .where('user.channel = :chan', { chan: channel })
@@ -46,35 +40,61 @@ export class UsersService {
       .getMany()
   }
 
-  async update(ftId: number, changes: UserDto) {
+  async update (ftId: number, changes: UserDto) {
     const updatedUser = await this.findUser(ftId)
     this.usersRepository.merge(updatedUser, changes)
     return await this.usersRepository.save(updatedUser)
   }
 
-  async addAvatar(ftId: number, filename: string) {
+  async addAvatar (ftId: number, filename: string) {
     return await this.usersRepository.update(ftId, {
       avatar: filename
     })
   }
 
-  async invit(ftId: number, targetFtId: number) {
-    const user = await this.findUser(ftId);
-    const target = await this.findUser(targetFtId);
+  async getFriends (ftId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { ftId },
+      relations: {
+        friends: true,
+      }
+    })
+    return user.friends
+  }
+
+  async getInvits (ftId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { ftId },
+      relations: {
+        followers: true,
+      }
+    })
+    return user.followers
+  }
+
+  async invit (ftId: number, targetFtId: number) {
+    const user = await this.findUser(ftId)
+    const target = await this.findUser(targetFtId)
     if (!target) {
-      return new NotFoundException(`Error: user id ${targetFtId} isn't in our db.`)
+      return new NotFoundException(
+        `Error: user id ${targetFtId} isn't in our db.`
+      )
     }
-    const id = user.followers.findIndex((follower) => follower.ftId === targetFtId)
+    const id = user.followers.findIndex(
+      (follower) => follower.ftId === targetFtId
+    )
     if (id != -1) {
-      console.log(`Friend relation complete between ${user.username} and ${target.username}`);
-      user.friends.push(target);
-      target.friends.push(user);
-      user.followers.slice(id, 1);
-      this.usersRepository.save(user);
+      console.log(
+        `Friend relation complete between ${user.username} and ${target.username}`
+      )
+      user.friends.push(target)
+      target.friends.push(user)
+      user.followers.slice(id, 1)
+      this.usersRepository.save(user)
     } else {
-      console.log(`You asked ${target.username} to be your friend.`);
-      target.followers.push(user);
+      console.log(`You asked ${target.username} to be your friend.`)
+      target.followers.push(user)
     }
-    this.usersRepository.save(target);
+    this.usersRepository.save(target)
   }
 }

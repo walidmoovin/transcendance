@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import * as Joi from 'joi'
 
-import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
 import { ChatModule } from './chat/chat.module'
-import { DbModule } from './db/db.module'
 import { PongModule } from './pong/pong.module'
 import { UsersModule } from './users/users.module'
 
@@ -18,17 +17,33 @@ import { UsersModule } from './users/users.module'
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
-        BACK_PORT: Joi.number(),
         JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRATION_TIME: Joi.string().required()
+        JWT_EXPIRATION_TIME: Joi.string().required(),
+        HOST: Joi.string().required(),
+        FRONT_PORT: Joi.number().required(),
+        BACK_PORT: Joi.number().required(),
+        HASH_SALT: Joi.number().required()
+      })
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('POSTGRES_HOST'),
+        port: configService.get<number>('POSTGRES_PORT'),
+        username: configService.get<string>('POSTGRES_USER'),
+        password: configService.get<string>('POSTGRES_PASSWORD'),
+        database: configService.get<string>('POSTGRES_DB'),
+        jwt_secret: configService.get<string>('JWT_SECRET'),
+        autoLoadEntities: true,
+        synchronize: true
       })
     }),
     AuthModule,
     ChatModule,
-    DbModule,
     PongModule,
     UsersModule
-  ],
-  controllers: [AppController]
+  ]
 })
-export class AppModule { }
+export class AppModule {}

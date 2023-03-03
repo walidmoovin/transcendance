@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Channel } from 'src/chat/model/channel.entity'
-import { type User } from 'src/users/user.entity'
 import { Repository } from 'typeorm'
-import { Message } from './model/message.entity'
-import { CreateChannelDto } from './model/create-channel.dto'
+import { type User } from 'src/users/entity/user.entity'
+import { Channel } from './entity/channel.entity'
+import { Message } from './entity/message.entity'
 
 @Injectable()
 export class ChatService {

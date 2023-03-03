@@ -16,34 +16,32 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
 
-import { type User } from './user.entity'
+import { type User } from './entity/user.entity'
 import { UsersService } from './users.service'
-import { UserDto, AvatarUploadDto } from './user.dto'
+import { UserDto, AvatarUploadDto } from './dto/user.dto'
 
 import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
 import { FtUser } from 'src/auth/42.decorator'
 import { Profile } from 'passport-42'
 
 import { ApiBody, ApiConsumes } from '@nestjs/swagger'
-import { Request, Response } from 'express'
+import { type Request, Response } from 'express'
 import { createReadStream } from 'fs'
 import { join } from 'path'
 
-@Controller('users')
+@Controller()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor (private readonly usersService: UsersService) {}
 
   @Get()
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers (): Promise<User[]> {
     return await this.usersService.findUsers()
   }
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  async create(
-    @Body() payload: UserDto,
-    @FtUser() profile: Profile) {
-    const user = await this.usersService.findUser(profile.id);
+  async create (@Body() payload: UserDto, @FtUser() profile: Profile) {
+    const user = await this.usersService.findUser(profile.id)
     if (user) {
       return await this.usersService.update(user.id, payload)
     } else {
@@ -51,13 +49,25 @@ export class UsersController {
     }
   }
 
-  @Post("invit/:id")
+  @Get('friends')
   @UseGuards(AuthenticatedGuard)
-  followUser(
-    @FtUser() profile: Profile,
-    @Param('id', ParseIntPipe) id: number,
+  async getFriends (@FtUser() profile: Profile) {
+    return await this.usersService.getFriends(profile.id)
+  }
+
+  @Get('invits')
+  @UseGuards(AuthenticatedGuard)
+  async getInvits (@FtUser() profile: Profile) {
+    return await this.usersService.getInvits(profile.id)
+  }
+
+  @Post('invit/:id')
+  @UseGuards(AuthenticatedGuard)
+  async invitUser (
+  @FtUser() profile: Profile,
+    @Param('id', ParseIntPipe) id: number
   ) {
-    return this.usersService.invit(profile.id, id);
+    return await this.usersService.invit(profile.id, id)
   }
 
   @Post('avatar')
@@ -81,16 +91,16 @@ export class UsersController {
     description: 'A new avatar for the user',
     type: AvatarUploadDto
   })
-  async addAvatar(
-    @FtUser() profile: Profile,
+  async addAvatar (
+  @FtUser() profile: Profile,
     @UploadedFile() file: Express.Multer.File
   ) {
     return await this.usersService.addAvatar(profile.id, file.filename)
   }
 
   @Get('avatar')
-  async getAvatar(
-    @FtUser() profile: Profile,
+  async getAvatar (
+  @FtUser() profile: Profile,
     @Res({ passthrough: true }) response: Response
   ) {
     const user = await this.usersService.findUser(profile.id)

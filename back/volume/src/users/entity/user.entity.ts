@@ -7,13 +7,13 @@ import {
   JoinTable
 } from 'typeorm'
 
-import Message from 'src/chat/model/message.entity'
-import Channel from 'src/chat/model/channel.entity'
+import Message from 'src/chat/entity/message.entity'
+import Channel from 'src/chat/entity/channel.entity'
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-    id: number;
+    id: number
 
   @Column({ unique: true })
     ftId: number
@@ -39,11 +39,11 @@ export class User {
 
   @ManyToMany(() => User)
   @JoinTable()
-    followers: User[];
+    followers: User[]
 
   @ManyToMany(() => User)
   @JoinTable()
-    friends: User[];
+    friends: User[]
 
   // @Column({ default: { wr: -1, place: -1 } })
   // rank: { wr: number; place: number };

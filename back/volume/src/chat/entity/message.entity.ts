@@ -1,4 +1,3 @@
-import { User } from 'src/users/user.entity'
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +7,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
+
+import { User } from 'src/users/entity/user.entity'
 import { Channel } from './channel.entity'
 
 @Entity()

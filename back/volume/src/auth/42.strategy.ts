@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy, type Profile, type VerifyCallback } from 'passport-42'
-import { UsersService } from 'src/users/users.service'
-import { User } from 'src/users/user.entity'
 import { get } from 'https'
 import { createWriteStream } from 'fs'
+
+import { UsersService } from 'src/users/users.service'
+import { User } from 'src/users/entity/user.entity'
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
