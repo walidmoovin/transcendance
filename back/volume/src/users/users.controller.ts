@@ -54,7 +54,7 @@ export class UsersController {
     @Param('id', ParseIntPipe) ftId: number
   ) {
     const user = await this.usersService.findUser(ftId)
-    if (user) {
+    if (user != null) {
       return await this.usersService.update(user.id, payload)
     } else {
       return await this.usersService.create(payload)
