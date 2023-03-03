@@ -1,23 +1,41 @@
 <script lang="ts" context="module">
   export interface chatMessagesType {
+    id: number;
     name: string;
     text: string;
   }
 </script>
 
+
 <script lang="ts">
   const sendMessage = () => {
     if (newText !== "") {
       const newMessage = {
+        id: chatMessages.length + 1,
         name: "You",
         text: newText,
       };
-      chatMessages = [...chatMessages, newMessage];
+      chatMessages = [...chatMessages.slice(-5 + 1), newMessage];
       newText = "";
     }
+    // TODO: save to database
   };
+
   export let chatMessages: Array<chatMessagesType> = [];
   let newText = "";
+
+  // const openProfile = (id: number) => (event: Event) => {
+  //   const message = chatMessages.find((m) => m.id === id);
+  //   if (message) {
+  //     const { name } = message;
+  //     const options = ["View profile", "Send private message", "Block user"];
+  //     const option = prompt(`Select an option for ${name}: ${options.join(", ")}`);
+  //     if (option === "View profile") {
+  //     } else if (option === "Send private message") {
+  //     } else if (option === "Block user") {
+  //     }
+  //   }
+  // };
 </script>
 
 <div class="overlay">

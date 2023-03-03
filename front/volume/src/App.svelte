@@ -65,33 +65,20 @@
     { player1: "Alice", player2: "Bob", id: "3" },
   ];
 
-  // CHAT
-  let isChatOpen = false;
-  function clickChat() {
-    isChatOpen = true;
-  }
-  let chatMessages: Array<chatMessagesType> = [
-    { name: "Alice", text: "Bob" },
-    { name: "Alice", text: "Bob" },
-    { name: "Alice", text: "Bob" },
-    { name: "Alice", text: "Bob" },
-    { name: "Alice", text: "Bob" },
-    { name: "Alice", text: "Bob" },
-  ];
-
   // CHANNELS
   let isChannelsOpen = false;
   function clickChannels() {
     isChannelsOpen = true;
   }
   let channels: Array<ChannelsType> = [
-    { name: "My Imaginary Friends", id: "1" },
-    { name: "Chamber of Secrets", id: "4" },
-    { name: "Meme Team", id: "6" },
-    { name: "Chat 8", id: "8" },
-    { name: "F.R.I.E.N.D.S.", id: "2" },
-    { name: "Chat 3", id: "3" },
+    { id: "1", name: "General", messages: [] },
+    { id: "2", name: "Lobby", messages: [] },
+    { id: "3", name: "Game", messages: [] },
   ];
+  let selectedChannel: ChannelsType;
+  const handleSelectChannel = (channel: ChannelsType) => {
+    selectedChannel = channel;
+  };
 </script>
 
 <main>
@@ -100,31 +87,29 @@
     {clickHistory}
     {clickFriends}
     {clickSpectate}
-    {clickChat}
-	{clickChannels}
+	  {clickChannels}
   />
-  {#if isChatOpen}
-    <div
-      on:click={() => (isChatOpen = false)}
-      on:keydown={() => (isChatOpen = false)}
-    >
-      <Chat2 {chatMessages} />
-    </div>
-  {/if}
   {#if isChannelsOpen}
-  <div
-	on:click={() => (isChannelsOpen = false)}
-	on:keydown={() => (isChannelsOpen = false)}
-  >
-	<Channels {channels} />
-  </div>
-{/if}
+    {#if selectedChannel}
+      <div on:click={() => (selectedChannel = undefined)} on:keydown={() => (selectedChannel = undefined)}>
+        <Chat2 chatMessages={selectedChannel.messages} />  
+      </div>              
+    {/if}
+    {#if !selectedChannel}
+      <div
+        on:click={() => (isChannelsOpen = false)}
+        on:keydown={() => (isChannelsOpen = false)}
+      >
+      <Channels channels={channels} onSelectChannel={handleSelectChannel} />
+      </div>
+    {/if}
+  {/if}
   {#if isSpectateOpen}
     <div
       on:click={() => (isSpectateOpen = false)}
       on:keydown={() => (isSpectateOpen = false)}
     >
-      <Spectate {spectate} />
+    <Spectate {spectate} />
     </div>
   {/if}
   {#if isFriendOpen}
@@ -132,7 +117,7 @@
       on:click={() => (isFriendOpen = false)}
       on:keydown={() => (isFriendOpen = false)}
     >
-      <Friends {friends} />
+    <Friends {friends} />
     </div>
   {/if}
   {#if isHistoryOpen}
@@ -140,7 +125,7 @@
       on:click={() => (isHistoryOpen = false)}
       on:keydown={() => (isHistoryOpen = false)}
     >
-      <MatchHistory {matches} />
+    <MatchHistory {matches} />
     </div>
   {/if}
   {#if isProfileOpen}
@@ -148,14 +133,14 @@
       on:click={() => (isProfileOpen = false)}
       on:keydown={() => (isProfileOpen = false)}
     >
-      <Profile
-        username="Alice"
-        wins={10}
-        losses={5}
-        elo={256}
-        rank={23}
-        is2faEnabled={false}
-      />
+    <Profile
+      username="Alice"
+      wins={10}
+      losses={5}
+      elo={256}
+      rank={23}
+      is2faEnabled={false}
+    />
     </div>
   {/if}
   <Play />
