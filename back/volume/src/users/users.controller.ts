@@ -33,15 +33,27 @@ import { join } from 'path'
 export class UsersController {
   constructor (private readonly usersService: UsersService) {}
 
-  @Get()
+  @Get('all')
   async getAllUsers (): Promise<User[]> {
     return await this.usersService.findUsers()
   }
 
-  @Post()
-  @UseGuards(AuthenticatedGuard)
-  async create (@Body() payload: UserDto, @FtUser() profile: Profile) {
-    const user = await this.usersService.findUser(profile.id)
+  @Get('online')
+  async getOnlineUsers (): Promise<User[]> {
+    return await this.usersService.findOnlineUsers()
+  }
+
+  @Get(':id')
+  async getUser (@Param('id', ParseIntPipe) ftId: number): Promise<User> {
+    return await this.usersService.findUser(ftId)
+  }
+
+  @Post(':id')
+  async create (
+  @Body() payload: UserDto,
+    @Param('id', ParseIntPipe) ftId: number
+  ) {
+    const user = await this.usersService.findUser(ftId)
     if (user) {
       return await this.usersService.update(user.id, payload)
     } else {
@@ -49,29 +61,25 @@ export class UsersController {
     }
   }
 
-  @Get('friends')
-  @UseGuards(AuthenticatedGuard)
-  async getFriends (@FtUser() profile: Profile) {
-    return await this.usersService.getFriends(profile.id)
+  @Get(':id/friends')
+  async getFriends (@Param('id', ParseIntPipe) ftId: number) {
+    return await this.usersService.getFriends(ftId)
   }
 
-  @Get('invits')
-  @UseGuards(AuthenticatedGuard)
-  async getInvits (@FtUser() profile: Profile) {
-    return await this.usersService.getInvits(profile.id)
+  @Get(':id/invits')
+  async getInvits (@Param('id', ParseIntPipe) ftId: number) {
+    return await this.usersService.getInvits(ftId)
   }
 
-  @Post('invit/:id')
-  @UseGuards(AuthenticatedGuard)
+  @Post(':id1/invit/:id2')
   async invitUser (
-  @FtUser() profile: Profile,
-    @Param('id', ParseIntPipe) id: number
+  @Param('id1', ParseIntPipe) ftId: number,
+    @Param('id2', ParseIntPipe) targetId: number
   ) {
-    return await this.usersService.invit(profile.id, id)
+    return await this.usersService.invit(ftId, targetId)
   }
 
-  @Post('avatar')
-  @UseGuards(AuthenticatedGuard)
+  @Post(':id/avatar')
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: diskStorage({
@@ -92,18 +100,18 @@ export class UsersController {
     type: AvatarUploadDto
   })
   async addAvatar (
-  @FtUser() profile: Profile,
+  @Param('id', ParseIntPipe) ftId: number,
     @UploadedFile() file: Express.Multer.File
   ) {
-    return await this.usersService.addAvatar(profile.id, file.filename)
+    return await this.usersService.addAvatar(ftId, file.filename)
   }
 
-  @Get('avatar')
+  @Get(':id/avatar')
   async getAvatar (
-  @FtUser() profile: Profile,
+  @Param('id', ParseIntPipe) ftId: number,
     @Res({ passthrough: true }) response: Response
   ) {
-    const user = await this.usersService.findUser(profile.id)
+    const user = await this.usersService.findUser(ftId)
     const filename = user.avatar
     const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({

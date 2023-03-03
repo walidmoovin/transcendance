@@ -21,13 +21,15 @@ rename .env_sample to .env and customize it to your needs and credentials.
 |GET |/log/inReturn |the 42 api callback.|
 |GET |/log/profile  |get user 42's datas.|
 |GET |/log/out      |log out user.|
-|GET |/             |return user datas.|
-|POST|/             |update user datas.|
-|GET |/friends      |return users which are friends.|
-|GET |/invits       |return users which invited user to be friend.|
-|POST|/invit/:id    |invit user whith ftId: id as friend.|
-|GET |/avatar       |return the user avatar|
-|POST|/avatar       |set a user avatar with multipart post upload.|
+|GET |/all| Get all users datas|
+|GET |/online| Get all online users datas|
+|GET |/:id             |return user datas.|
+|POST|/:id             |update user datas.|
+|GET |/:id/friends      |return users which are friends.|
+|GET |/:id/invits       |return users which invited user to be friend.|
+|POST|/:id1/invit/:id2    |invit user whith ftId: id as friend.|
+|GET |/:id/avatar       |return the user avatar|
+|POST|/:id/avatar       |set a user avatar with multipart post upload.|
 
 ## Dependencies:
 
