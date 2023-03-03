@@ -37,7 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection (socket: Socket) {
     try {
-      const user: User = await this.userService.findUser(socket.data.user.ftId)
+      const user: User | null = await this.userService.findUser(socket.data.user.ftId)
       if (!user) {
         socket.emit('Error', new UnauthorizedException())
         // socket.disconnect();
@@ -62,10 +62,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async onCreateChannel (
     socket: Socket,
     @MessageBody() channeldto: CreateChannelDto
-  ): Promise<Channel> {
+  ): Promise<Channel | null> {
     const channel = new Channel()
     channel.name = channeldto.name
     const owner = await this.userService.findUser(channeldto.owner)
+    if (!owner) 
+      return null;
     channel.owners.push(owner)
     channel.password = channeldto.password
     /// ...///
@@ -96,7 +98,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const channel = await this.chatService.getChannel(
       createdMessage.channel.id
     )
-    const users = await this.userService.findOnlineInChannel(channel)
+    if (channel) {
+      const users = await this.userService.findOnlineInChannel(channel)
+    }
     /// TODO:  Send message to users
   }
 }

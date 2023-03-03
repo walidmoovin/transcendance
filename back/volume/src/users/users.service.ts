@@ -44,8 +44,9 @@ export class UsersService {
       .getMany()
   }
 
-  async update (ftId: number, changes: UserDto) {
+  async update (ftId: number, changes: UserDto):Promise < User | null> {
     const updatedUser = await this.findUser(ftId)
+    if (!updatedUser) return null
     this.usersRepository.merge(updatedUser, changes)
     return await this.usersRepository.save(updatedUser)
   }
@@ -56,13 +57,14 @@ export class UsersService {
     })
   }
 
-  async getFriends (ftId: number) {
+  async getFriends (ftId: number): Promise< User[] >{
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
         friends: true
       }
     })
+    if (!user) return []
     return user.friends
   }
 
@@ -73,11 +75,13 @@ export class UsersService {
         followers: true
       }
     })
+    if (!user) return null
     return user.followers
   }
 
   async invit (ftId: number, targetFtId: number) {
     const user = await this.findUser(ftId)
+    if (!user) return null
     const target = await this.findUser(targetFtId)
     if (target == null) {
       return new NotFoundException(

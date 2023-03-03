@@ -44,13 +44,13 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUserById (@Param('id', ParseIntPipe) ftId: number): Promise<User> {
+  async getUserById (@Param('id', ParseIntPipe) ftId: number): Promise<User | null> {
     return await this.usersService.findUser(ftId)
   }
 
   @Get()
   @UseGuards(AuthenticatedGuard)
-  async getUser (@FtUser() profile: Profile): Promise<User> {
+  async getUser (@FtUser() profile: Profile): Promise<User | null> {
     return await this.usersService.findUser(profile.id)
   }
 
@@ -114,12 +114,13 @@ export class UsersController {
     return await this.usersService.addAvatar(profile.id, file.filename)
   }
 
-  @Get('avatar')
-  async getAvatar (
-  @FtUser() profile: Profile,
+  @Get(':id/avatar')
+  async getAvatarById (
+    @Param('id', ParseIntPipe) ftId: number,
     @Res({ passthrough: true }) response: Response
   ) {
-    const user = await this.usersService.findUser(profile.id)
+    const user = await this.usersService.findUser(ftId)
+    if (!user) return
     const filename = user.avatar
     const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({
@@ -127,5 +128,13 @@ export class UsersController {
       'Content-Type': 'image/jpg'
     })
     return new StreamableFile(stream)
+  }
+
+  @Get('avatar')
+  async getAvatar (
+  @FtUser() profile: Profile,
+    @Res({ passthrough: true }) response: Response
+  ) {
+    return await this.getAvatarById(profile.id, response);
   }
 }

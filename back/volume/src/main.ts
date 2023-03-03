@@ -11,7 +11,7 @@ import * as cookieParser from 'cookie-parser'
 async function bootstrap () {
   const logger = new Logger()
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
-  const port = process.env.BACK_PORT
+  const port = process.env.BACK_PORT!
   const cors = {
     origin: ['http://localhost:80', 'http://localhost', '*'],
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
@@ -24,7 +24,7 @@ async function bootstrap () {
     session({
       resave: false,
       saveUninitialized: false,
-      secret: process.env.JWT_SECRET
+      secret: process.env.JWT_SECRET!
     })
   )
   app.use(cookieParser())
@@ -32,7 +32,7 @@ async function bootstrap () {
   app.use(passport.session())
   app.enableCors(cors)
   app.useWebSocketAdapter(new WsAdapter(app))
-  await app.listen(port)
-  logger.log(`Application listening on port ${port}`)
+    await app.listen(port)
+    logger.log(`Application listening on port ${port}`)
 }
 bootstrap()
