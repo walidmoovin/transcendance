@@ -20,7 +20,11 @@ export class UsersService {
   }
 
   async findUser (ftId: number): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ftId})
+    return await this.usersRepository.findOneBy({ ftId })
+  }
+
+  async findOnlineUsers (): Promise<User[]> {
+    return await this.usersRepository.find({ where: { status: 'online' } })
   }
 
   async create (userData: UserDto) {
@@ -56,7 +60,7 @@ export class UsersService {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
-        friends: true,
+        friends: true
       }
     })
     return user.friends
@@ -66,7 +70,7 @@ export class UsersService {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
-        followers: true,
+        followers: true
       }
     })
     return user.followers

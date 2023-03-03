@@ -33,7 +33,7 @@ import { join } from 'path'
 export class UsersController {
   constructor (private readonly usersService: UsersService) {}
 
-  @Get()
+  @Get('all')
   async getAllUsers (): Promise<User[]> {
     return await this.usersService.findUsers()
   }
@@ -44,8 +44,14 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUser (@Param('id', ParseIntPipe) ftId: number): Promise<User> {
+  async getUserById (@Param('id', ParseIntPipe) ftId: number): Promise<User> {
     return await this.usersService.findUser(ftId)
+  }
+
+  @Get()
+  @UseGuards(AuthenticatedGuard)
+  async getUser (@FtUser() profile: Profile): Promise<User> {
+    return await this.usersService.findUser(profile.id)
   }
 
   @Post()

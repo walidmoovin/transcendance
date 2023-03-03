@@ -15,19 +15,22 @@ If you not use rootless docker, either rename Makesudo as Makefile or call `make
 rename .env_sample to .env and customize it to your needs and credentials.
 
 ## Back endpoints:
-|Method|endpoint|description|
+|Method|endpoint|description|account securised?|
 |:---:|:---:|:---:|
-|GET |/log/in       |the login using 42 api.|
-|GET |/log/inReturn |the 42 api callback.|
-|GET |/log/profile  |get user 42's datas.|
-|GET |/log/out      |log out user.|
-|GET |/             |return user datas.|
-|POST|/             |update user datas.|
-|GET |/friends      |return users which are friends.|
-|GET |/invits       |return users which invited user to be friend.|
-|POST|/invit/:id    |invit user whith ftId: id as friend.|
-|GET |/avatar       |return the user avatar|
-|POST|/avatar       |set a user avatar with multipart post upload.|
+|GET |/log/in       |the login using 42 api.|☑|
+|GET |/log/inReturn |the 42 api callback.|☑|
+|GET |/log/profile  |get connected user 42's datas.|☑|
+|GET |/log/out      |log out user.|☑|
+|GET |/all          |return all users publics datas.|☒|
+|GET |/online       |return all online users's public datas.|☒|
+|GET |/:id          |return ftId: id's public datas|☒|
+|GET |/             |return connected user public datas|☑|
+|POST|/             |update user datas.|☑|
+|GET |/friends      |return users which are friends.|☑|
+|GET |/invits       |return users which invited user to be friend.|☑|
+|POST|/invit/:id    |invit user whith ftId: id as friend.|☑|
+|GET |/avatar       |return the user avatar|☒|
+|POST|/avatar       |set a user avatar with multipart post upload.|☑|
 
 ## Dependencies:
 
