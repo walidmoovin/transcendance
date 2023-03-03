@@ -38,6 +38,16 @@ export class UsersController {
     return await this.usersService.findUsers()
   }
 
+  @Get('online')
+  async getOnlineUsers (): Promise<User[]> {
+    return await this.usersService.findOnlineUsers()
+  }
+
+  @Get(':id')
+  async getUser (@Param('id', ParseIntPipe) ftId: number): Promise<User> {
+    return await this.usersService.findUser(ftId)
+  }
+
   @Post()
   @UseGuards(AuthenticatedGuard)
   async create (@Body() payload: UserDto, @FtUser() profile: Profile) {

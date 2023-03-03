@@ -75,7 +75,7 @@ export class UsersService {
   async invit (ftId: number, targetFtId: number) {
     const user = await this.findUser(ftId)
     const target = await this.findUser(targetFtId)
-    if (!target) {
+    if (target == null) {
       return new NotFoundException(
         `Error: user id ${targetFtId} isn't in our db.`
       )
