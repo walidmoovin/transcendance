@@ -73,7 +73,7 @@ export class Games {
       return game.getGameInfo(name)
     }
     return {
-      yourPaddleIndex: 0,
+      yourPaddleIndex: -2,
       gameId: '',
       mapSize: new Point(0, 0),
       walls: [],

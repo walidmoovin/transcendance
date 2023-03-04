@@ -65,7 +65,7 @@
 </script>
 
 <div>
-  <h2>Map Customization:</h2>
+  <h1>Map Customization:</h1>
   <div>
     Width:
     <input type="range" min="400" max="1000" bind:value={map.size.x} />

@@ -1,10 +1,15 @@
 <script lang="ts">
+  let creatingMatch: boolean = false;
 </script>
 
 <main>
   <h1>Choose a gamemode</h1>
   <button>Matchmaking</button>
-  <button>Play with a friend</button>
+  <button on:click={() => creatingMatch}>Play with a friend</button>
+
+  {#if creatingMatch}
+    <CreateMatch />
+  {/if}
 </main>
 
 <style>

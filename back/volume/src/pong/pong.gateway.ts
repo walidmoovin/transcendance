@@ -18,6 +18,8 @@ import { type Game } from './game/Game'
 import { plainToClass } from 'class-transformer'
 import { PointDtoValidated } from './dtos/PointDtoValidated'
 import { StringDtoValidated } from './dtos/StringDtoValidated'
+import { MatchmakingQueue } from './game/MatchmakingQueue'
+import { MatchmakingDtoValidated } from './dtos/MatchmakingDtoValidated'
 
 interface WebSocketWithId extends WebSocket {
   id: string
@@ -27,6 +29,7 @@ interface WebSocketWithId extends WebSocket {
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly games: Games = new Games()
   private readonly socketToPlayerName = new Map<WebSocketWithId, string>()
+  private readonly matchmakingQueue = new MatchmakingQueue(this.games)
 
   handleConnection (client: WebSocketWithId): void {
     const uuid = randomUUID()
@@ -93,7 +96,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket()
       client: WebSocketWithId,
       @MessageBody() gameCreationDto: GameCreationDtoValidated
-  ): void {
+  ): { event: string, data: boolean } {
     const realGameCreationDto: GameCreationDtoValidated = plainToClass(
       GameCreationDtoValidated,
       gameCreationDto
@@ -126,8 +129,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
           [player1Socket.id, player2Socket.id],
           realGameCreationDto
         )
+        return { event: GAME_EVENTS.CREATE_GAME, data: true }
       }
     }
+    return { event: GAME_EVENTS.CREATE_GAME, data: false }
   }
 
   @SubscribeMessage(GAME_EVENTS.READY)
@@ -147,10 +152,37 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket()
       client: WebSocketWithId,
       @MessageBody() playerToSpectate: StringDtoValidated
-  ): void {
+  ): { event: string, data: boolean } {
+    let succeeded: boolean = false
     const name: string | undefined = this.socketToPlayerName.get(client)
     if (name !== undefined) {
       this.games.spectateGame(playerToSpectate.value, client, client.id, name)
+      succeeded = true
+    }
+    return { event: GAME_EVENTS.SPECTATE, data: succeeded }
+  }
+
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @SubscribeMessage(GAME_EVENTS.MATCHMAKING)
+  updateMatchmaking (
+    @ConnectedSocket()
+      client: WebSocketWithId,
+      @MessageBody() matchmakingUpdateData: MatchmakingDtoValidated
+  ): { event: string, data: MatchmakingDtoValidated } {
+    let isMatchmaking: boolean = false
+    const name: string | undefined = this.socketToPlayerName.get(client)
+    if (name !== undefined) {
+      if (matchmakingUpdateData.matchmaking) {
+        if (this.matchmakingQueue.addPlayer(name, client, client.id)) {
+          isMatchmaking = true
+        }
+      } else {
+        this.matchmakingQueue.removePlayer(name)
+      }
+    }
+    return {
+      event: GAME_EVENTS.MATCHMAKING,
+      data: { matchmaking: isMatchmaking }
     }
   }
 }
