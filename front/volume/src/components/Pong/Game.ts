@@ -7,6 +7,7 @@ import { Player } from "./Player";
 import { formatWebsocketData, Point, Rect } from "./utils";
 
 const BG_COLOR = "black";
+const FPS = import.meta.env.VITE_FRONT_FPS;
 
 export class Game {
   canvas: HTMLCanvasElement;
@@ -16,6 +17,7 @@ export class Game {
   my_paddle: Paddle;
   id: string;
   walls: Rect[];
+  drawInterval: NodeJS.Timer;
 
   constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -23,17 +25,16 @@ export class Game {
     this.players = [];
     this.my_paddle = null;
     this.walls = [];
+    this.drawInterval = null;
   }
 
   setInfo(data: GameInfo) {
     this.canvas.width = data.mapSize.x;
     this.canvas.height = data.mapSize.y;
-
     this.ball = new Ball(
       new Point(this.canvas.width / 2, this.canvas.height / 2),
       data.ballSize
     );
-
     const paddle1: Paddle = new Paddle(
       new Point(data.playerXOffset, this.canvas.height / 2),
       data.paddleSize
@@ -53,6 +54,12 @@ export class Game {
           new Point(w.size.x, w.size.y)
         )
     );
+    if (this.drawInterval === null) {
+      this.drawInterval = setInterval(() => {
+        this.draw();
+      }, 1000 / FPS);
+    }
+    console.log("Game updated!");
   }
 
   start(socket: WebSocket) {

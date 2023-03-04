@@ -101,7 +101,7 @@
     {clickFriends}
     {clickSpectate}
     {clickChat}
-	{clickChannels}
+    {clickChannels}
   />
   {#if isChatOpen}
     <div
@@ -112,13 +112,13 @@
     </div>
   {/if}
   {#if isChannelsOpen}
-  <div
-	on:click={() => (isChannelsOpen = false)}
-	on:keydown={() => (isChannelsOpen = false)}
-  >
-	<Channels {channels} />
-  </div>
-{/if}
+    <div
+      on:click={() => (isChannelsOpen = false)}
+      on:keydown={() => (isChannelsOpen = false)}
+    >
+      <Channels {channels} />
+    </div>
+  {/if}
   {#if isSpectateOpen}
     <div
       on:click={() => (isSpectateOpen = false)}
@@ -158,7 +158,6 @@
       />
     </div>
   {/if}
-  <Play />
   <Pong />
 </main>
 

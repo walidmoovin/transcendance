@@ -1,38 +1,27 @@
 <script lang="ts">
-  import { DEFAULT_MAP_SIZE, GAME_EVENTS } from "./constants";
-  import type { GameCreationDto } from "./dtos/GameCreationDto";
+  import { GAME_EVENTS } from "./constants";
   import { Game } from "./Game";
-  import MapCustomization from "./MapCustomization.svelte";
   import { formatWebsocketData } from "./utils";
-  import { Map } from "./Map";
-  import { onMount } from "svelte";
+  import GameCreation from "./GameCreation.svelte";
+  import GameComponent from "./GameComponent.svelte";
   import type { StringDto } from "./dtos/StringDto";
+  import SpectateFriend from "./SpectateFriend.svelte";
+  import Matchmaking from "./Matchmaking.svelte";
+  import type { MatchmakingDto } from "./dtos/MatchmakingDto";
 
-  const FPS = import.meta.env.VITE_FRONT_FPS;
   const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT
   }`;
 
+  let createMatchWindow: boolean = false;
+  let spectateWindow: boolean = false;
+  let gamePlaying: boolean = false;
+  let matchmaking: boolean = false;
   let gameCanvas: HTMLCanvasElement;
   let connected: boolean = false;
   let loggedIn: boolean = false;
   let socket: WebSocket;
   let username: string = "John";
-  let otherUsername: string = "Garfield";
-  let spectateUsername: string = "Garfield";
-  let map: Map = new Map(DEFAULT_MAP_SIZE.clone(), []);
-
-  //Get canvas and its context
-  onMount(() => {
-    if (gameCanvas) {
-      const context: CanvasRenderingContext2D = gameCanvas.getContext(
-        "2d"
-      ) as CanvasRenderingContext2D;
-      if (context) {
-        setupSocket(gameCanvas, context);
-      }
-    }
-  });
 
   function setupSocket(
     canvas: HTMLCanvasElement,
@@ -51,16 +40,25 @@
         game.update(data);
       } else if (event == GAME_EVENTS.GET_GAME_INFO) {
         if (data && data.gameId != game.id) {
-          game.setInfo(data);
-          setInterval(() => {
-            game.draw();
-          }, 1000 / FPS);
-          console.log("Game updated!");
+          if (data.yourPaddleIndex !== -2) {
+            gamePlaying = true;
+            game.setInfo(data);
+          } else gamePlaying = false;
         }
       } else if (event == GAME_EVENTS.REGISTER_PLAYER) {
-        console.log("Registered player: " + data.value);
         if (data.value == username) {
           loggedIn = true;
+          setInterval(() => {
+            updateGameInfo();
+          }, 1000);
+        }
+      } else if (event == GAME_EVENTS.CREATE_GAME) {
+        if (data) gamePlaying = true;
+      } else if (event == GAME_EVENTS.MATCHMAKING) {
+        matchmaking = data.matchmaking;
+      } else if (event == GAME_EVENTS.SPECTATE) {
+        if (data) {
+          gamePlaying = true;
           setInterval(() => {
             updateGameInfo();
           }, 1000);
@@ -84,54 +82,84 @@
     socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
   }
 
-  function spectate() {
-    const data: StringDto = { value: spectateUsername };
-    socket.send(formatWebsocketData(GAME_EVENTS.SPECTATE, data));
-  }
-
   function logIn() {
     const data: StringDto = { value: username };
     socket.send(formatWebsocketData(GAME_EVENTS.REGISTER_PLAYER, data));
   }
 
-  function createGame() {
-    const data: GameCreationDto = {
-      playerNames: [username, otherUsername],
-      map,
-    };
-    socket.send(formatWebsocketData(GAME_EVENTS.CREATE_GAME, data));
+  function startMatchmaking() {
+    const data: MatchmakingDto = { matchmaking: true };
+    socket.send(formatWebsocketData(GAME_EVENTS.MATCHMAKING, data));
+  }
+
+  function stopMatchmaking() {
+    const data: MatchmakingDto = { matchmaking: false };
+    socket.send(formatWebsocketData(GAME_EVENTS.MATCHMAKING, data));
   }
 </script>
 
 <div>
-  <div>
-    {#if connected}
-      Your name:
-      <input bind:value={username} />
-      <br />
-      <button on:click={logIn}> Log in </button>
-      <br />
-      Other player name:
-      <input bind:value={otherUsername} disabled={!loggedIn} />
-      <br />
-      <button on:click={createGame} disabled={!loggedIn}>
-        Create game vs {otherUsername}
-      </button>
-      <br />
-      <button
-        on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.READY))}
-        disabled={!loggedIn}>Ready</button
-      >
-      <br />
-      <input bind:value={spectateUsername} disabled={!loggedIn} />
-      <button on:click={spectate} disabled={!loggedIn}
-        >Spectate {spectateUsername}</button
-      >
-      <br />
-    {:else}
-      Connecting to game server...
-    {/if}
-    <canvas bind:this={gameCanvas} />
+  {#if !loggedIn}
+    Log in:
+    <input bind:value={username} />
+    <button on:click={logIn} disabled={!connected}> Log in </button>
+    <br />
+  {/if}
+  <div hidden={!loggedIn}>
+    <main>
+      <GameComponent {gameCanvas} {gamePlaying} {setupSocket} {socket} />
+      {#if gamePlaying}
+        <div />
+      {:else if connected}
+        <h1>Choose a gamemode</h1>
+        <button on:click={startMatchmaking}>Matchmaking</button>
+        <button on:click={() => (createMatchWindow = true)}
+          >Play with a friend</button
+        >
+        <button on:click={() => (spectateWindow = true)}
+          >Spectate a friend</button
+        >
+
+        {#if matchmaking}
+          <div on:click={stopMatchmaking} on:keydown={stopMatchmaking}>
+            <Matchmaking {stopMatchmaking} />
+          </div>
+        {:else if createMatchWindow}
+          <div
+            on:click={() => (createMatchWindow = false)}
+            on:keydown={() => (createMatchWindow = false)}
+          >
+            <GameCreation {socket} {username} />
+          </div>
+        {:else if spectateWindow}
+          <div
+            on:click={() => (spectateWindow = false)}
+            on:keydown={() => (spectateWindow = false)}
+          >
+            <SpectateFriend {socket} />
+          </div>
+        {/if}
+      {:else}
+        Connecting to game server...
+      {/if}
+    </main>
   </div>
-  <MapCustomization {map} />
 </div>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    margin-bottom: 2rem;
+  }
+
+  button {
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
+    margin-bottom: 1rem;
+  }
+</style>

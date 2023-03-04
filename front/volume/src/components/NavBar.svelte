@@ -2,7 +2,7 @@
   export let links = [
     { text: "Home", url: "img/pong.png" },
     { text: "Spectate" },
-	{ text: "Channels" },
+    { text: "Channels" },
     { text: "Chat" },
     { text: "History" },
     { text: "Friends" },
@@ -26,13 +26,13 @@
           </button>
         </li>
       {/if}
-	  {#if link.text === "Channels"}
-	  <li>
-		<button on:click={clickChannels}>
-		  <p>Channels</p>
-		</button>
-	  </li>
-	{/if}
+      {#if link.text === "Channels"}
+        <li>
+          <button on:click={clickChannels}>
+            <p>Channels</p>
+          </button>
+        </li>
+      {/if}
       {#if link.text === "Chat"}
         <li>
           <button on:click={clickChat}>
