@@ -3,6 +3,8 @@
 	export interface ChannelsType {
 		id: string;
 		name: string;
+		privacy: string;
+		password: string;
 		messages: Array<chatMessagesType>;
 	}
 </script>
@@ -19,12 +21,27 @@
 	const createChannel = () => {
 		const name = prompt("Enter a name for the new channel:");
 		if (name) {
-			const newChannel: ChannelsType = {
-				id: Math.random().toString(),
-				name,
-				messages: []
-			};
-			channels = [newChannel, ...channels];
+			const privacy = prompt("Enter a privacy setting for the new channel (public/private):");
+			if (privacy !== "public" && privacy !== "private") {
+				alert("Invalid privacy setting");
+			}
+			let password = "";
+			if (privacy === "private") {
+				password = prompt("Enter a password for the new channel:");
+				if (!password) {
+					alert("Invalid password");
+				}
+			}
+			if (privacy === "public" || password) {
+				const newChannel: ChannelsType = {
+					id: Math.random().toString(),
+					name,
+					privacy,
+					password,
+					messages: []
+				};
+				channels = [newChannel, ...channels];
+			}
 		}
 		// TODO: save to database
   	};

@@ -1,3 +1,9 @@
+<script lang="ts" context="module">
+  export interface User {
+    username: string;
+  }
+</script>
+
 <script lang="ts">
   let api = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT
   export let username = "";
@@ -7,45 +13,21 @@
   export let elo = 0;
   export let rank = -1;
   export let is2faEnabled = false;
-  async function handleSubmit(event: Event) {
-    event.preventDefault();
-    // const response = await fetch('', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //         username
-    //     })
-    // });
-    // if (response.ok) {
-    //     console.log('username updated');
-    // }
-    // else {
-    //     console.log('username update failed');
-    // }
-    alert("Trying to update username to " + username);
-  }
-  async function handleAvatarUpload(event: Event) {
-    event.preventDefault();
-    const fileInput = document.getElementById('avatar-input') as HTMLInputElement;
-    const file = fileInput.files[0];
-
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    try {
-      const response = await fetch(api + '/avatar', {
-        method: 'POST',
-        body: formData,
-        mode: 'cors'
+  export let avatar = api + "/avatar";
+  const handleSubmit = () => {
+    const user: User = { username : username};
+    fetch("http://localhost:3001/", {
+      method: "POST",
+      body: JSON.stringify(user),
+      credentials: 'include'
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.error(err);
       });
-
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
   }
   async function handle2fa(event: Event) {
     event.preventDefault();
@@ -56,16 +38,19 @@
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="profile-header">
-      <img class="profile-img" src="img/profileicon.png" alt="Profile Icon" />
+      <img class="profile-img" src={avatar} alt="avatar" />
       <h3>{realname}</h3>
-      <form on:submit={handleAvatarUpload}>
-        <label for="avatar-input">Choose avatar:</label>
-        <input type="file" id="avatar-input" accept="image/*">
-        <button type="submit" id="upload-button">Upload</button>
+      <form action="http://localhost:3001/avatar"
+        method="post"
+        enctype="multipart/form-data">
+        <label for="mavatar-input">Select a file:</label>
+        <input type="file" id="avatar-input" name="avatar" />
+        <br /><br />
+        <input type="submit" />
       </form>
     </div>
     <div class="profile-body">
-      <form on:submit={handleSubmit}>
+      <form on:submit|preventDefault={handleSubmit}>
         <div class="username">
           <label for="username">Username</label>
           <input type="text" id="username" bind:value={username} />

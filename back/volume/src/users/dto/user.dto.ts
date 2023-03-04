@@ -5,7 +5,7 @@ import { Express } from 'express'
 
 export class UserDto {
   @IsPositive()
-  @IsNotEmpty()
+  @IsOptional()
   readonly ftId: number
 
   @IsString()

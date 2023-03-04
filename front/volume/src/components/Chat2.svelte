@@ -95,15 +95,4 @@
     height: 200px;
     overflow-y: scroll;
   }
-
-  .options-modal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: white;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  z-index: 9999;
-  }
 </style>

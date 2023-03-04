@@ -7,6 +7,7 @@ import * as session from 'express-session'
 import * as passport from 'passport'
 import { type NestExpressApplication } from '@nestjs/platform-express'
 import * as cookieParser from 'cookie-parser'
+import { Response } from 'express';
 
 async function bootstrap () {
   const logger = new Logger()

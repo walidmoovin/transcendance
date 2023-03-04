@@ -1,4 +1,5 @@
 <script lang="ts">
+  let api = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT;
   export let links = [
     { text: "Home", url: "img/pong.png" },
     { text: "Spectate" },
@@ -41,7 +42,7 @@
       {#if link.text === "Profile"}
         <li>
           <button on:click={clickProfile}>
-            <img src="img/profileicon.png" alt="profile icon" />
+            <img src={api + '/avatar'} alt="avatar" />
           </button>
         </li>
       {/if}
