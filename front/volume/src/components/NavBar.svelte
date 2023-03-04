@@ -14,6 +14,7 @@
   export let clickSpectate = () => {};
   export let clickChat = () => {};
   export let clickChannels = () => {};
+  export let clickChannels = () => {};
 </script>
 
 <nav class="navigation-bar">

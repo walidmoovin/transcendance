@@ -13,6 +13,8 @@
   import type { chatMessagesType } from "./components/Chat2.svelte";
   import Channels from "./components/Channels.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
+  import Channels from "./components/Channels.svelte";
+  import type { ChannelsType } from "./components/Channels.svelte";
 
   // PROFILE
 
