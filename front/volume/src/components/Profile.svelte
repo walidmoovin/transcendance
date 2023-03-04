@@ -37,7 +37,8 @@
     try {
       const response = await fetch(api + '/avatar', {
         method: 'POST',
-        body: formData
+        body: formData,
+        mode: 'cors'
       });
 
       const data = await response.json();
