@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import Navbar from "./components/NavBar.svelte";
   import Profile from "./components/Profile.svelte";
   import MatchHistory from "./components/MatchHistory.svelte";
@@ -14,7 +15,14 @@
   import Channels from "./components/Channels.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
 
+  import { store, getUser, login, logout } from "./Auth";
+
+
   // PROFILE
+
+  onMount(() => {
+    getUser()
+  })
 
   let isProfileOpen = false;
   function clickProfile() {
@@ -82,69 +90,79 @@
 </script>
 
 <main>
-  <Navbar
-    {clickProfile}
-    {clickHistory}
-    {clickFriends}
-    {clickSpectate}
-	  {clickChannels}
-  />
-  {#if isChannelsOpen}
-    {#if selectedChannel}
-      <div on:click={() => (selectedChannel = undefined)} on:keydown={() => (selectedChannel = undefined)}>
-        <Chat2 chatMessages={selectedChannel.messages} />  
-      </div>              
+  <div>
+    {#if $store === null}
+      <h1><button type="button" on:click={login}>Log In</button></h1>
+    {:else}
+      <h1><button type="button" on:click={logout}>Log Out</button></h1>
+        <Navbar
+          {clickProfile}
+          {clickHistory}
+          {clickFriends}
+          {clickSpectate}
+          {clickChannels}
+        />
+        {#if isChannelsOpen}
+          {#if selectedChannel}
+            <div
+              on:click={() => (selectedChannel = undefined)}
+              on:keydown={() => (selectedChannel = undefined)}
+            >
+              <Chat2 chatMessages={selectedChannel.messages} />
+            </div>
+          {/if}
+          {#if !selectedChannel}
+            <div
+              on:click={() => (isChannelsOpen = false)}
+              on:keydown={() => (isChannelsOpen = false)}
+            >
+              <Channels {channels} onSelectChannel={handleSelectChannel} />
+            </div>
+          {/if}
+        {/if}
+        {#if isSpectateOpen}
+          <div
+            on:click={() => (isSpectateOpen = false)}
+            on:keydown={() => (isSpectateOpen = false)}
+          >
+            <Spectate {spectate} />
+          </div>
+        {/if}
+        {#if isFriendOpen}
+          <div
+            on:click={() => (isFriendOpen = false)}
+            on:keydown={() => (isFriendOpen = false)}
+          >
+            <Friends {friends} />
+          </div>
+        {/if}
+        {#if isHistoryOpen}
+          <div
+            on:click={() => (isHistoryOpen = false)}
+            on:keydown={() => (isHistoryOpen = false)}
+          >
+            <MatchHistory {matches} />
+          </div>
+        {/if}
+        {#if isProfileOpen}
+          <div
+            on:click={() => (isProfileOpen = false)}
+            on:keydown={() => (isProfileOpen = false)}
+          >
+            <Profile
+              username="Alice"
+              wins={10}
+              losses={5}
+              elo={256}
+              rank={23}
+              is2faEnabled={false}
+            />
+          </div>
+        {/if}
+        <Play />
+        <Pong />
     {/if}
-    {#if !selectedChannel}
-      <div
-        on:click={() => (isChannelsOpen = false)}
-        on:keydown={() => (isChannelsOpen = false)}
-      >
-      <Channels channels={channels} onSelectChannel={handleSelectChannel} />
-      </div>
-    {/if}
-  {/if}
-  {#if isSpectateOpen}
-    <div
-      on:click={() => (isSpectateOpen = false)}
-      on:keydown={() => (isSpectateOpen = false)}
-    >
-    <Spectate {spectate} />
-    </div>
-  {/if}
-  {#if isFriendOpen}
-    <div
-      on:click={() => (isFriendOpen = false)}
-      on:keydown={() => (isFriendOpen = false)}
-    >
-    <Friends {friends} />
-    </div>
-  {/if}
-  {#if isHistoryOpen}
-    <div
-      on:click={() => (isHistoryOpen = false)}
-      on:keydown={() => (isHistoryOpen = false)}
-    >
-    <MatchHistory {matches} />
-    </div>
-  {/if}
-  {#if isProfileOpen}
-    <div
-      on:click={() => (isProfileOpen = false)}
-      on:keydown={() => (isProfileOpen = false)}
-    >
-    <Profile
-      username="Alice"
-      wins={10}
-      losses={5}
-      elo={256}
-      rank={23}
-      is2faEnabled={false}
-    />
-    </div>
-  {/if}
-  <Play />
-  <Pong />
+  </div>
 </main>
 
 <style>

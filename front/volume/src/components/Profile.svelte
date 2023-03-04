@@ -5,7 +5,11 @@
 </script>
 
 <script lang="ts">
-  let api = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT
+
+  export const API_URL = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT
+  export const AUTH_SERVER_URL = API_URL + "/log/in"
+
+  export let avatar = API_URL + "/avatar"
   export let username = "";
   export let realname = "";
   export let wins = 0;
@@ -13,10 +17,10 @@
   export let elo = 0;
   export let rank = -1;
   export let is2faEnabled = false;
-  export let avatar = api + "/avatar";
   const handleSubmit = () => {
     const user: User = { username : username};
     fetch("http://localhost:3001/", {
+      headers: {"content-type": "application/json"},
       method: "POST",
       body: JSON.stringify(user),
       credentials: 'include'
@@ -40,7 +44,7 @@
     <div class="profile-header">
       <img class="profile-img" src={avatar} alt="avatar" />
       <h3>{realname}</h3>
-      <form action="http://localhost:3001/avatar"
+      <form action={avatar}
         method="post"
         enctype="multipart/form-data">
         <label for="mavatar-input">Select a file:</label>

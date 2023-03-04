@@ -54,7 +54,7 @@ export class UsersController {
   async getInvits (@FtUser() profile: Profile) {
     return await this.usersService.getInvits(profile.id)
   }
-
+  
   @Post('avatar')
   @UseGuards(AuthenticatedGuard)
   @UseInterceptors(
@@ -92,6 +92,22 @@ export class UsersController {
     return await this.getAvatarById(profile.id, response);
     }
   
+  @Get('user/:name')
+  async getUserByName(
+    @Param('name') username: string
+  ): Promise<User | null> {
+    return await this.usersService.findUserByName(username);
+  }
+  
+  @Post('invit/:id')
+  @UseGuards(AuthenticatedGuard)
+  async invitUser (
+  @FtUser() profile: Profile,
+    @Param('id', ParseIntPipe) id: number
+  ) {
+    return await this.usersService.invit(profile.id, id)
+  }
+
   @Get('avatar/:id')
   async getAvatarById (
     @Param('id', ParseIntPipe) ftId: number,
@@ -124,7 +140,7 @@ export class UsersController {
   async create (@Body() payload: UserDto, @FtUser() profile: Profile) {
     const user = await this.usersService.findUser(profile.id)
     if (user) {
-      return await this.usersService.update(user.id, payload)
+      return await this.usersService.update(user, payload)
     } else {
       return await this.usersService.create(payload)
     }

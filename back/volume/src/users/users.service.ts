@@ -44,11 +44,9 @@ export class UsersService {
       .getMany()
   }
 
-  async update (ftId: number, changes: UserDto):Promise < User | null> {
-    const updatedUser = await this.findUser(ftId)
-    if (!updatedUser) return null
-    this.usersRepository.merge(updatedUser, changes)
-    return await this.usersRepository.save(updatedUser)
+  async update (user: User, changes: UserDto):Promise < User | null> {
+    this.usersRepository.merge(user, changes)
+    return await this.usersRepository.save(user)
   }
 
   async addAvatar (ftId: number, filename: string) {
@@ -87,8 +85,7 @@ export class UsersService {
       return new NotFoundException(
         `Error: user id ${targetFtId} isn't in our db.`
       )
-    }
-    const id = user.followers.findIndex(
+    } const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
     )
     if (id != -1) {

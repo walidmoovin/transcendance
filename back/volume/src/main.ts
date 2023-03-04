@@ -33,7 +33,7 @@ async function bootstrap () {
   app.use(passport.session())
   app.enableCors(cors)
   app.useWebSocketAdapter(new WsAdapter(app))
-    await app.listen(port)
-    logger.log(`Application listening on port ${port}`)
+  await app.listen(port)
+  logger.log(`Application listening on port ${port}`)
 }
 bootstrap()

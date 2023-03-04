@@ -29,7 +29,7 @@ export class AuthController {
   }
 
   @Get('out')
-  @Redirect('/')
+  @Redirect('http://' + process.env.HOST + ':' + process.env.FRONT_PORT + '/')
   logOut (@Req() req: Request) {
     req.logOut(function (err) {
       if (err) return err
