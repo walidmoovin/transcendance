@@ -54,7 +54,7 @@ export class UsersController {
   async getInvits (@FtUser() profile: Profile) {
     return await this.usersService.getInvits(profile.id)
   }
-  
+
   @Post('avatar')
   @UseGuards(AuthenticatedGuard)
   @UseInterceptors(
@@ -88,18 +88,16 @@ export class UsersController {
   async getAvatar (
   @FtUser() profile: Profile,
     @Res({ passthrough: true }) response: Response
-  ){
-    return await this.getAvatarById(profile.id, response);
-    }
-  
-  @Get('user/:name')
-  async getUserByName(
-    @Param('name') username: string
-  ): Promise<User | null> {
-    return await this.usersService.findUserByName(username);
+  ) {
+    return await this.getAvatarById(profile.id, response)
   }
-  
-  @Post('invit/:id')
+
+  @Get('user/:name')
+  async getUserByName (@Param('name') username: string): Promise<User | null> {
+    return await this.usersService.findUserByName(username)
+  }
+
+  @Get('invit/:id')
   @UseGuards(AuthenticatedGuard)
   async invitUser (
   @FtUser() profile: Profile,
@@ -110,11 +108,11 @@ export class UsersController {
 
   @Get('avatar/:id')
   async getAvatarById (
-    @Param('id', ParseIntPipe) ftId: number,
+  @Param('id', ParseIntPipe) ftId: number,
     @Res({ passthrough: true }) response: Response
   ) {
     const user = await this.usersService.findUser(ftId)
-    if (!user) return
+    if (user == null) return
     const filename = user.avatar
     const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({
@@ -125,7 +123,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUserById (@Param('id', ParseIntPipe) ftId: number): Promise<User | null> {
+  async getUserById (
+    @Param('id', ParseIntPipe) ftId: number
+  ): Promise<User | null> {
     return await this.usersService.findUser(ftId)
   }
 
@@ -139,7 +139,7 @@ export class UsersController {
   @UseGuards(AuthenticatedGuard)
   async create (@Body() payload: UserDto, @FtUser() profile: Profile) {
     const user = await this.usersService.findUser(profile.id)
-    if (user) {
+    if (user != null) {
       return await this.usersService.update(user, payload)
     } else {
       return await this.usersService.create(payload)

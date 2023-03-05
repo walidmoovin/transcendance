@@ -6,7 +6,6 @@
   }
 </script>
 
-
 <script lang="ts">
   const sendMessage = () => {
     if (newText !== "") {
@@ -41,7 +40,7 @@
           <li>View comments</li>
         </ul>
       `;
-      document.querySelector('.overlay')?.appendChild(optionsModal);
+      document.querySelector(".overlay")?.appendChild(optionsModal);
       optionsModal.addEventListener("click", () => {
         document.body.removeChild(optionsModal);
       });
@@ -54,7 +53,12 @@
     <div class="messages">
       {#each chatMessages as message}
         <p class="message">
-          <span class="message-name" on:click={openProfile(message.id)} on:keydown={openProfile(message.id)} style="cursor: pointer;">
+          <span
+            class="message-name"
+            on:click={openProfile(message.id)}
+            on:keydown={openProfile(message.id)}
+            style="cursor: pointer;"
+          >
             {message.name}
           </span>: {message.text}
         </p>

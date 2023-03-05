@@ -1,38 +1,27 @@
-<script lang="ts" context="module">
-  export interface User {
-    username: string;
-  }
-</script>
-
 <script lang="ts">
+  import { API_URL, store } from "../Auth";
 
-  export const API_URL = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT
-  export const AUTH_SERVER_URL = API_URL + "/log/in"
-
-  export let avatar = API_URL + "/avatar"
-  export let username = "";
+  export let username = $store.userame;
   export let realname = "";
   export let wins = 0;
   export let losses = 0;
   export let elo = 0;
   export let rank = -1;
   export let is2faEnabled = false;
-  const handleSubmit = () => {
-    const user: User = { username : username};
-    fetch("http://localhost:3001/", {
-      headers: {"content-type": "application/json"},
+
+  async function handleSubmit() {
+    let response = await fetch(API_URL, {
+      headers: { "content-type": "application/json" },
       method: "POST",
-      body: JSON.stringify(user),
-      credentials: 'include'
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+      body: JSON.stringify({ username: username }),
+      credentials: "include",
+    });
+    if (response.ok) {
+      alert("Succefully changed username.");
+      $store.username = username;
+    }
   }
+
   async function handle2fa(event: Event) {
     event.preventDefault();
     alert("Trying to " + (is2faEnabled ? "disable" : "enable") + " 2FA");
@@ -42,14 +31,14 @@
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="profile-header">
-      <img class="profile-img" src={avatar} alt="avatar" />
+      <img class="profile-img" src={API_URL + "/avatar"} alt="avatar" />
       <h3>{realname}</h3>
-      <form action={avatar}
+      <form
+        action={API_URL + "/avatar"}
         method="post"
-        enctype="multipart/form-data">
-        <label for="mavatar-input">Select a file:</label>
+        enctype="multipart/form-data"
+      >
         <input type="file" id="avatar-input" name="avatar" />
-        <br /><br />
         <input type="submit" />
       </form>
     </div>
@@ -58,8 +47,8 @@
         <div class="username">
           <label for="username">Username</label>
           <input type="text" id="username" bind:value={username} />
+          <button type="submit">Submit</button>
         </div>
-        <button type="submit">Submit</button>
       </form>
       <p>Wins: {wins}</p>
       <p>Losses: {losses}</p>

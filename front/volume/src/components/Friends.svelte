@@ -2,13 +2,16 @@
   export interface Friend {
     username: string;
     status: "online" | "offline" | "in a game";
+    ftId: number;
   }
 </script>
 
 <script lang="ts">
-  let api = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT
-  export let friends: Array<Friend>  
-  fetch(api + "/friends").then((response) => response.json()).then((ret) => {friends = ret});
+  import { API_URL } from "../Auth";
+
+  export let friends: Friend[];
+  export let invits: Friend[];
+
   async function addFriend(event: any) {
     console.log(typeof event);
 
@@ -17,24 +20,23 @@
     console.log(usernameInput);
 
     const username = usernameInput.value;
-    let ftId: number
-    fetch(api + "/user/" + username).then((response) => response.json()).then((ret) => {ftId = ret.ftID});
 
-  fetch(api + "/friends").then((response) => response.json()).then((ret) => {friends = JSON.parse(ret)});
-    const response = await fetch(api + "/invit/" + ftId, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username })
+    let response = await fetch(API_URL + "/user/" + username, {
+      credentials: "include",
+      mode: "cors",
+    });
+    let target = await response.json();
+
+    response = await fetch(API_URL + "/invit/" + target.ftId, {
+      credentials: "include",
     });
     if (response.ok) {
-       console.log('Invitation send.');
+      console.log("Invitation send.");
     } else {
-       console.log('Unknown user.');
+      console.log("Unknown user.");
     }
-    usernameInput.value = '';
-    alert("Trying to add friend" + username);
+    usernameInput.value = "";
+    alert("Trying to add friend: " + username);
   }
 </script>
 
@@ -50,6 +52,16 @@
         {/each}
       {:else}
         <p>No friends to display</p>
+      {/if}
+      {#if invits.length > 0}
+        <h2>Monkey invits</h2>
+        {#each invits.slice(0, 10) as invit}
+          <li>
+            <span>{invit.username} invited you to be friend.</span>
+          </li>
+        {/each}
+      {:else}
+        <p>No invitations to display</p>
       {/if}
       <div>
         <h3>Add a friend</h3>

@@ -44,25 +44,28 @@ export class UsersService {
       .getMany()
   }
 
-  async update (user: User, changes: UserDto):Promise < User | null> {
+  async update (user: User, changes: UserDto): Promise<User | null> {
     this.usersRepository.merge(user, changes)
     return await this.usersRepository.save(user)
   }
 
   async addAvatar (ftId: number, filename: string) {
-    return await this.usersRepository.update({ftId}, {
-      avatar: filename
-    })
+    return await this.usersRepository.update(
+      { ftId },
+      {
+        avatar: filename
+      }
+    )
   }
 
-  async getFriends (ftId: number): Promise< User[] >{
+  async getFriends (ftId: number): Promise<User[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
         friends: true
       }
     })
-    if (!user) return []
+    if (user == null) return []
     return user.friends
   }
 
@@ -73,19 +76,20 @@ export class UsersService {
         followers: true
       }
     })
-    if (!user) return null
+    if (user == null) return null
     return user.followers
   }
 
   async invit (ftId: number, targetFtId: number) {
     const user = await this.findUser(ftId)
-    if (!user) return null
+    if (user == null) return null
     const target = await this.findUser(targetFtId)
     if (target == null) {
       return new NotFoundException(
         `Error: user id ${targetFtId} isn't in our db.`
       )
-    } const id = user.followers.findIndex(
+    }
+    const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
     )
     if (id != -1) {

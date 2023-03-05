@@ -1,9 +1,13 @@
 <script lang="ts">
-  let api = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT;
+  let api =
+    "http://" +
+    import.meta.env.VITE_HOST +
+    ":" +
+    import.meta.env.VITE_BACK_PORT;
   export let links = [
     { text: "Home", url: "img/pong.png" },
     { text: "Spectate" },
-	  { text: "Channels" },
+    { text: "Channels" },
     { text: "History" },
     { text: "Friends" },
     { text: "Profile" },
@@ -25,13 +29,13 @@
           </button>
         </li>
       {/if}
-	  {#if link.text === "Channels"}
-	  <li>
-		<button on:click={clickChannels}>
-		  <p>Channels</p>
-		</button>
-	  </li>
-	{/if}
+      {#if link.text === "Channels"}
+        <li>
+          <button on:click={clickChannels}>
+            <p>Channels</p>
+          </button>
+        </li>
+      {/if}
       {#if link.text === "Friends"}
         <li>
           <button on:click={clickFriends}>
@@ -42,7 +46,7 @@
       {#if link.text === "Profile"}
         <li>
           <button on:click={clickProfile}>
-            <img src={api + '/avatar'} alt="avatar" />
+            <img src={api + "/avatar"} alt="avatar" />
           </button>
         </li>
       {/if}
