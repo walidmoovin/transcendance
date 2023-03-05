@@ -16,6 +16,7 @@ import { type MapDtoValidated } from '../dtos/MapDtoValidated'
 import { type GameUpdate } from '../dtos/GameUpdate'
 import { type GameInfo } from '../dtos/GameInfo'
 import { PongService } from '../pong.service'
+import { Injectable, Inject } from '@nestjs/common'
 
 function gameLoop (game: Game): void {
   const canvasRect: Rect = new Rect(
@@ -50,7 +51,6 @@ function gameLoop (game: Game): void {
 }
 
 export class Game {
-  private readonly pongService: PongService
   id: string
   timer: NodeJS.Timer | null
   map: MapDtoValidated
@@ -65,7 +65,9 @@ export class Game {
     uuids: string[],
     names: string[],
     map: MapDtoValidated,
-    gameStoppedCallback: (name: string) => void
+    gameStoppedCallback: (name: string) => void,
+    private readonly pongService: PongService
+
   ) {
     this.id = randomUUID()
     this.timer = null
@@ -145,10 +147,10 @@ export class Game {
     return false
   }
 
-  stop (): void {
+  async stop (): Promise<void> {
     if (this.timer !== null) {
+      await this.pongService.saveResult(this.players) 
       this.gameStoppedCallback(this.players[0].name)
-      this.pongService.saveResult(this.players) 
 
       clearInterval(this.timer)
       this.timer = null

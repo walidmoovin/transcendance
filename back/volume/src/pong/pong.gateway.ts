@@ -1,4 +1,4 @@
-import { UsePipes, ValidationPipe } from '@nestjs/common'
+import { Inject, Injectable, UsePipes, ValidationPipe } from '@nestjs/common'
 import { type WebSocket } from 'ws'
 import {
   ConnectedSocket,
@@ -20,6 +20,7 @@ import { PointDtoValidated } from './dtos/PointDtoValidated'
 import { StringDtoValidated } from './dtos/StringDtoValidated'
 import { MatchmakingQueue } from './game/MatchmakingQueue'
 import { MatchmakingDtoValidated } from './dtos/MatchmakingDtoValidated'
+import { PongService } from './pong.service'
 
 interface WebSocketWithId extends WebSocket {
   id: string
@@ -27,7 +28,11 @@ interface WebSocketWithId extends WebSocket {
 
 @WebSocketGateway()
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  private readonly games: Games = new Games()
+  constructor(
+    private readonly pongService: PongService
+  ) {}
+
+  private readonly games: Games = new Games(this.pongService)
   private readonly socketToPlayerName = new Map<WebSocketWithId, string>()
   private readonly matchmakingQueue = new MatchmakingQueue(this.games)
 

@@ -19,9 +19,13 @@ export class UsersService {
     return await this.usersRepository.find({})
   }
 
-  async findUserByName (username: string): Promise<User> {
-    let user = await this.usersRepository.findOneBy({ username })
-    if (!user) return Promise.reject()
+  async findUserByName (username: string): Promise<User | null> {
+    let user = await this.usersRepository.findOne({
+      where: { username: username }, 
+      relations : {results: true}
+      
+    })
+    if (!user) return null;
     else return user;
   }
 

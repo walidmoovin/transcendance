@@ -4,6 +4,7 @@ import { Point } from './utils'
 import { type MapDtoValidated as GameMap } from '../dtos/MapDtoValidated'
 import { type GameCreationDtoValidated } from '../dtos/GameCreationDtoValidated'
 import { type GameInfo } from '../dtos/GameInfo'
+import { PongService } from '../pong.service'
 import {
   DEFAULT_BALL_SIZE,
   DEFAULT_PADDLE_SIZE,
@@ -11,7 +12,9 @@ import {
   DEFAULT_WIN_SCORE
 } from './constants'
 
+
 export class Games {
+  constructor (private readonly pongService : PongService) {}
   private readonly playerNameToGameIndex = new Map<string, number>()
   private readonly games = new Array<Game>()
 
@@ -29,7 +32,8 @@ export class Games {
           uuids,
           names,
           map,
-          this.gameStopped.bind(this, names[0])
+          this.gameStopped.bind(this, names[0]),
+          this.pongService,
         )
       )
       this.playerNameToGameIndex.set(names[0], this.games.length - 1)

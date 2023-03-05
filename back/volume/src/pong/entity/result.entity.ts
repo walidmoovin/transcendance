@@ -13,7 +13,7 @@ export default class Result {
     id:number
 
   @ManyToMany(() => User, (player: User) => player.results)
-    players: User[]
+    players: (User | null)[] // TODO: change to User[] for final version
 
   @Column('text', {array: true})
     public score: number[]

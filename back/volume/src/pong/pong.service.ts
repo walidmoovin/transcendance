@@ -14,25 +14,27 @@ export class PongService {
     private readonly usersService: UsersService
   ) { }
 
+  async updatePlayer(i: number, result: Result) {
+    let player: User | null = result.players[i]
+    if (!player) return
+    player.matchs++
+    if (result.score[i] > result.score[Math.abs(i-1)])
+      player.wins++;
+    else
+      player.looses++;
+    player.results.push(result)
+    this.usersService.save(player)
+
+  }
+
   async saveResult(players: Player[]) {
     let result = new Result;
-    result.players = await Promise.all(players.map(async (p): Promise<User> => {
+    result.players = await Promise.all(players.map(async (p): Promise<User | null> => {
       return await this.usersService.findUserByName(p.name)
     }))
     result.score = players.map((p) => p.score);
-    result.players.forEach((p) => p.matchs++)
-    if (result.score[0] > result.score[1]) {
-      result.players[0].wins++;
-      result.players[1].looses++;
-    }
-    else if (result.score[1] > result.score[0]) {
-      result.players[1].wins++
-      result.players[0].looses++
-    }
-    result.players[0].results.push(result)
-    result.players[1].results.push(result)
+    this.updatePlayer(0, result)
+    this.updatePlayer(1, result)
     this.resultsRepository.save(result)
-    this.usersService.save(result.players[0],)
-    this.usersService.save(result.players[1])
   }
 }

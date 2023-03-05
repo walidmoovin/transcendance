@@ -11,5 +11,6 @@ import { UsersModule } from 'src/users/users.module'
     TypeOrmModule.forFeature([Result])
   ],
   providers: [PongGateway, PongService],
+  exports: [PongService]
 })
 export class PongModule {}
