@@ -131,6 +131,17 @@ export class UsersController {
     return await this.usersService.findUser(ftId)
   }
 
+  @Post(":id")
+  @UseGuards(AuthenticatedGuard)
+  async createById (@Body() payload: UserDto) {
+    const user = await this.usersService.findUser(payload.ftId)
+    if (user != null) {
+      return await this.usersService.update(user, payload)
+    } else {
+      return await this.usersService.create(payload)
+    }
+  }
+
   @Get()
   @UseGuards(AuthenticatedGuard)
   async getUser (@FtUser() profile: Profile): Promise<User | null> {
@@ -147,4 +158,5 @@ export class UsersController {
       return await this.usersService.create(payload)
     }
   }
+
 }
