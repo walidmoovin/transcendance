@@ -1,10 +1,10 @@
 <script lang="ts">
   import { API_URL, store, logout } from "../Auth";
 
-  export let username = $store.userame;
-  export let realname = "";
+  export let username = "";
   export let wins = 0;
   export let losses = 0;
+  export let winrate = 0;
   export let elo = 0;
   export let rank = -1;
   export let is2faEnabled = false;
@@ -37,8 +37,6 @@
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="profile-header">
-      <h3>{realname}</h3>
-
       <form action={API_URL + "/avatar"} method="post"
         enctype="multipart/form-data" id= "upload_avatar">
         <div class=input-avatar>
@@ -64,7 +62,7 @@
       </form>
       <p>Wins: {wins}</p>
       <p>Losses: {losses}</p>
-      <p>Winrate: {(wins / (wins + losses)) * 100}%</p>
+      <p>Winrate: {winrate}%</p>
       <p>Elo : {elo}</p>
       <p>Rank: {rank}</p>
       <form class="two-factor-auth" on:submit={handle2fa}>

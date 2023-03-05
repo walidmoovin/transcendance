@@ -167,9 +167,9 @@
         >
           <Profile
             username={$store.username}
-            wins={10}
-            losses={5}
-            elo={256}
+            wins={$store.wins}
+            losses={$store.looses}
+            winrate={$store.matchs? $store.wins / $store.matchs : 0}
             rank={23}
             is2faEnabled={false}
           />

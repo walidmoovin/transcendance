@@ -11,12 +11,18 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) {}
 
+  save(user: User) {
+    this.usersRepository.save(user)
+  }
+
   async findUsers (): Promise<User[]> {
     return await this.usersRepository.find({})
   }
 
-  async findUserByName (username: string): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ username })
+  async findUserByName (username: string): Promise<User> {
+    let user = await this.usersRepository.findOneBy({ username })
+    if (!user) return Promise.reject()
+    else return user;
   }
 
   async findUser (ftId: number): Promise<User | null> {

@@ -14,6 +14,7 @@ export class UserDto {
 
   @IsOptional()
   readonly status: string
+
 }
 
 export class AvatarUploadDto {

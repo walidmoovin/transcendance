@@ -17,3 +17,4 @@ export const DEFAULT_PADDLE_SIZE = new Point(6, 50)
 export const DEFAULT_BALL_SIZE = new Point(20, 20)
 export const DEFAULT_PLAYER_X_OFFSET = 50
 export const DEFAULT_WIN_SCORE = 5
+export const GAME_TICKS = 30

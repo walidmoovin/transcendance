@@ -7,15 +7,15 @@ import {
   DEFAULT_PADDLE_SIZE,
   DEFAULT_PLAYER_X_OFFSET,
   DEFAULT_WIN_SCORE,
-  GAME_EVENTS
+  GAME_EVENTS,
+  GAME_TICKS
 } from './constants'
 import { randomUUID } from 'crypto'
 import { Spectator } from './Spectator'
 import { type MapDtoValidated } from '../dtos/MapDtoValidated'
 import { type GameUpdate } from '../dtos/GameUpdate'
 import { type GameInfo } from '../dtos/GameInfo'
-
-const GAME_TICKS = 30
+import { PongService } from '../pong.service'
 
 function gameLoop (game: Game): void {
   const canvasRect: Rect = new Rect(
@@ -50,6 +50,7 @@ function gameLoop (game: Game): void {
 }
 
 export class Game {
+  private readonly pongService: PongService
   id: string
   timer: NodeJS.Timer | null
   map: MapDtoValidated
@@ -147,6 +148,7 @@ export class Game {
   stop (): void {
     if (this.timer !== null) {
       this.gameStoppedCallback(this.players[0].name)
+      this.pongService.saveResult(this.players) 
 
       clearInterval(this.timer)
       this.timer = null

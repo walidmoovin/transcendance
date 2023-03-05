@@ -9,6 +9,7 @@ import {
 
 import Message from 'src/chat/entity/message.entity'
 import Channel from 'src/chat/entity/channel.entity'
+import Result from 'src/pong/entity/result.entity'
 
 @Entity()
 export class User {
@@ -26,6 +27,19 @@ export class User {
 
   @Column({ name: 'avatar' })
   public avatar?: string
+
+  @Column({default: 0})
+    wins: number
+
+  @Column({default: 0})
+    looses: number
+
+  @Column({default: 0})
+    matchs: number
+
+  @ManyToMany(() => Result, (result: Result) => result.players)
+  @JoinTable()
+    results: Result[]
 
   @OneToMany(() => Message, (message: Message) => message.author)
     messages: Message[]
