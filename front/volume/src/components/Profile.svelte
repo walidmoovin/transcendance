@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { API_URL, store } from "../Auth";
+  import { API_URL, store, logout } from "../Auth";
 
   export let username = $store.userame;
   export let realname = "";
@@ -64,6 +64,7 @@
           {/if}
         </button>
       </form>
+      <button type="button" on:click={logout}>Log Out</button>
     </div>
   </div>
 </div>

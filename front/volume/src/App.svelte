@@ -111,7 +111,6 @@
     {#if $store === null}
       <h1><button type="button" on:click={login}>Log In</button></h1>
     {:else}
-      <h1><button type="button" on:click={logout}>Log Out</button></h1>
       <Navbar
         {clickProfile}
         {clickHistory}
