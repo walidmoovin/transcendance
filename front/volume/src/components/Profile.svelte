@@ -26,20 +26,32 @@
     event.preventDefault();
     alert("Trying to " + (is2faEnabled ? "disable" : "enable") + " 2FA");
   }
+  function submitAvatar() {
+    let form: HTMLFormElement = <HTMLFormElement>(
+      document.getElementById("upload_avatar")
+    );
+    form.submit();
+  }
 </script>
 
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="profile-header">
-      <img class="profile-img" src={API_URL + "/avatar"} alt="avatar" />
       <h3>{realname}</h3>
-      <form
-        action={API_URL + "/avatar"}
-        method="post"
-        enctype="multipart/form-data"
-      >
-        <input type="file" id="avatar-input" name="avatar" />
-        <input type="submit" />
+
+      <form action={API_URL + "/avatar"} method="post"
+        enctype="multipart/form-data" id= "upload_avatar">
+        <div class=input-avatar>
+          <label for="avatar-input">
+            <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
+          </label>
+          <input
+            type="file"
+            id="avatar-input"
+            name="avatar"
+            on:change={submitAvatar}
+          />
+        </div>
       </form>
     </div>
     <div class="profile-body">
@@ -97,12 +109,16 @@
   }
 
   .profile-img {
-    width: 50px;
-    height: 50px;
+    width: 80px;
+    height: 80px;
     margin-right: 1rem;
   }
 
   .two-factor-auth {
     margin-top: 1rem;
+  }
+
+  .input-avatar > input {
+    display: none;
   }
 </style>

@@ -147,6 +147,7 @@ export class Game {
   stop (): void {
     if (this.timer !== null) {
       this.gameStoppedCallback(this.players[0].name)
+
       clearInterval(this.timer)
       this.timer = null
       this.players = []

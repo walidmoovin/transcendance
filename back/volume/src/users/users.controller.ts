@@ -10,7 +10,8 @@ import {
   UseInterceptors,
   Res,
   StreamableFile,
-  BadRequestException
+  BadRequestException,
+  Redirect
 } from '@nestjs/common'
 
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -57,6 +58,7 @@ export class UsersController {
 
   @Post('avatar')
   @UseGuards(AuthenticatedGuard)
+  @Redirect('http://localhost')
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: diskStorage({
