@@ -81,9 +81,24 @@ export class UsersService {
   }
 
   async invit (ftId: number, targetFtId: number) {
-    const user = await this.findUser(ftId)
+    const user = await this.usersRepository.findOne({
+      where: { ftId },
+      relations: {
+        followers: true,
+        friends: true,
+      }
+    })
     if (user == null) return null
-    const target = await this.findUser(targetFtId)
+    if (user.friends.findIndex(
+      (friend) => friend.ftId === targetFtId) != -1)
+      return null
+    const target = await this.usersRepository.findOne({
+      where: { ftId: targetFtId },
+      relations: {
+        followers: true,
+        friends: true,
+      }
+    })
     if (target == null) {
       return new NotFoundException(
         `Error: user id ${targetFtId} isn't in our db.`
@@ -97,7 +112,8 @@ export class UsersService {
         `Friend relation complete between ${user.username} and ${target.username}`
       )
       user.friends.push(target)
-      target.friends.push(user)
+      if (user != target)
+        target.friends.push(user)
       user.followers.slice(id, 1)
       this.usersRepository.save(user)
     } else {

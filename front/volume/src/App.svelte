@@ -51,11 +51,15 @@
   export async function getFriends(): Promise<Friend[]> {
     let response = await fetch(API_URL + "/friends", {
       credentials: "include",
+      mode: "cors",
     });
     return await response.json();
   }
   export async function getInvits(): Promise<Friend[]> {
-    let response = await fetch(API_URL + "/invits", { credentials: "include" });
+    let response = await fetch(API_URL + "/invits", {
+      credentials: "include",
+      mode: "cors",
+    });
     return await response.json();
   }
 

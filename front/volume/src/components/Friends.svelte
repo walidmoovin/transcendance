@@ -29,6 +29,7 @@
 
     response = await fetch(API_URL + "/invit/" + target.ftId, {
       credentials: "include",
+      mode: "cors",
     });
     if (response.ok) {
       console.log("Invitation send.");
