@@ -28,9 +28,7 @@ interface WebSocketWithId extends WebSocket {
 
 @WebSocketGateway()
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(
-    private readonly pongService: PongService
-  ) {}
+  constructor (private readonly pongService: PongService) {}
 
   private readonly games: Games = new Games(this.pongService)
   private readonly socketToPlayerName = new Map<WebSocketWithId, string>()

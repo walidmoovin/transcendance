@@ -20,6 +20,7 @@ import { diskStorage } from 'multer'
 import { type User } from './entity/user.entity'
 import { UsersService } from './users.service'
 import { UserDto, AvatarUploadDto } from './dto/user.dto'
+import { PongService } from 'src/pong/pong.service'
 
 import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
 import { FtUser } from 'src/auth/42.decorator'
@@ -32,28 +33,56 @@ import { join } from 'path'
 
 @Controller()
 export class UsersController {
-  constructor (private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly pongService: PongService
+  ) { }
 
   @Get('all')
-  async getAllUsers (): Promise<User[]> {
+  async getAllUsers(): Promise<User[]> {
     return await this.usersService.findUsers()
   }
 
   @Get('online')
-  async getOnlineUsers (): Promise<User[]> {
+  async getOnlineUsers(): Promise<User[]> {
     return await this.usersService.findOnlineUsers()
   }
 
   @Get('friends')
   @UseGuards(AuthenticatedGuard)
-  async getFriends (@FtUser() profile: Profile) {
+  async getFriends(@FtUser() profile: Profile) {
     return await this.usersService.getFriends(profile.id)
   }
 
   @Get('invits')
   @UseGuards(AuthenticatedGuard)
-  async getInvits (@FtUser() profile: Profile) {
+  async getInvits(@FtUser() profile: Profile) {
     return await this.usersService.getInvits(profile.id)
+  }
+
+
+  @Get('leader')
+  @UseGuards(AuthenticatedGuard)
+  async getLeader() {
+    return await this.usersService.getLeader()
+  }
+
+  @Get('leader/:id')
+  @UseGuards(AuthenticatedGuard)
+  async getRank(@Param('id', ParseIntPipe) id: number) {
+    return await this.usersService.getRank(id)
+  }
+
+  @Get('history')
+  @UseGuards(AuthenticatedGuard)
+  async getHistory() {
+    return await this.pongService.getHistory()
+  }
+
+  @Get('history/:id')
+  @UseGuards(AuthenticatedGuard)
+  async getHistoryById(@Param('id', ParseIntPipe) id: number) {
+    return this.pongService.getHistoryById(id)
   }
 
   @Post('avatar')
@@ -78,8 +107,8 @@ export class UsersController {
     description: 'A new avatar for the user',
     type: AvatarUploadDto
   })
-  async addAvatar (
-  @FtUser() profile: Profile,
+  async addAvatar(
+    @FtUser() profile: Profile,
     @UploadedFile() file: Express.Multer.File
   ) {
     await this.usersService.addAvatar(profile.id, file.filename)
@@ -87,30 +116,30 @@ export class UsersController {
 
   @Get('avatar')
   @UseGuards(AuthenticatedGuard)
-  async getAvatar (
-  @FtUser() profile: Profile,
+  async getAvatar(
+    @FtUser() profile: Profile,
     @Res({ passthrough: true }) response: Response
   ) {
     return await this.getAvatarById(profile.id, response)
   }
 
   @Get('user/:name')
-  async getUserByName (@Param('name') username: string): Promise<User | null> {
+  async getUserByName(@Param('name') username: string): Promise<User | null> {
     return await this.usersService.findUserByName(username)
   }
 
   @Get('invit/:id')
   @UseGuards(AuthenticatedGuard)
-  async invitUser (
-  @FtUser() profile: Profile,
+  async invitUser(
+    @FtUser() profile: Profile,
     @Param('id', ParseIntPipe) id: number
   ) {
     return await this.usersService.invit(profile.id, id)
   }
 
   @Get('avatar/:id')
-  async getAvatarById (
-  @Param('id', ParseIntPipe) ftId: number,
+  async getAvatarById(
+    @Param('id', ParseIntPipe) ftId: number,
     @Res({ passthrough: true }) response: Response
   ) {
     const user = await this.usersService.findUser(ftId)
@@ -125,7 +154,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUserById (
+  async getUserById(
     @Param('id', ParseIntPipe) ftId: number
   ): Promise<User | null> {
     return await this.usersService.findUser(ftId)
@@ -133,7 +162,7 @@ export class UsersController {
 
   @Post(":id")
   @UseGuards(AuthenticatedGuard)
-  async createById (@Body() payload: UserDto) {
+  async createById(@Body() payload: UserDto) {
     const user = await this.usersService.findUser(payload.ftId)
     if (user != null) {
       return await this.usersService.update(user, payload)
@@ -144,13 +173,13 @@ export class UsersController {
 
   @Get()
   @UseGuards(AuthenticatedGuard)
-  async getUser (@FtUser() profile: Profile): Promise<User | null> {
+  async getUser(@FtUser() profile: Profile): Promise<User | null> {
     return await this.usersService.findUser(profile.id)
   }
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  async create (@Body() payload: UserDto, @FtUser() profile: Profile) {
+  async create(@Body() payload: UserDto, @FtUser() profile: Profile) {
     const user = await this.usersService.findUser(profile.id)
     if (user != null) {
       return await this.usersService.update(user, payload)

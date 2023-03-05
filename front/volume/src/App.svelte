@@ -169,7 +169,7 @@
             username={$store.username}
             wins={$store.wins}
             losses={$store.looses}
-            winrate={$store.matchs? $store.wins / $store.matchs : 0}
+            winrate={$store.winrate}
             rank={23}
             is2faEnabled={false}
           />

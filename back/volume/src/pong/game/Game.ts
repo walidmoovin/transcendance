@@ -15,7 +15,7 @@ import { Spectator } from './Spectator'
 import { type MapDtoValidated } from '../dtos/MapDtoValidated'
 import { type GameUpdate } from '../dtos/GameUpdate'
 import { type GameInfo } from '../dtos/GameInfo'
-import { PongService } from '../pong.service'
+import { type PongService } from '../pong.service'
 import { Injectable, Inject } from '@nestjs/common'
 
 function gameLoop (game: Game): void {
@@ -67,7 +67,6 @@ export class Game {
     map: MapDtoValidated,
     gameStoppedCallback: (name: string) => void,
     private readonly pongService: PongService
-
   ) {
     this.id = randomUUID()
     this.timer = null
@@ -149,7 +148,7 @@ export class Game {
 
   async stop (): Promise<void> {
     if (this.timer !== null) {
-      await this.pongService.saveResult(this.players) 
+      await this.pongService.saveResult(this.players)
       this.gameStoppedCallback(this.players[0].name)
 
       clearInterval(this.timer)

@@ -8,7 +8,7 @@
   import SpectateFriend from "./SpectateFriend.svelte";
   import Matchmaking from "./Matchmaking.svelte";
   import type { MatchmakingDto } from "./dtos/MatchmakingDto";
-  import { store } from '../../Auth'
+  import { store } from "../../Auth";
 
   const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT

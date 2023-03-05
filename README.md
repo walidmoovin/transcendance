@@ -23,14 +23,21 @@ rename .env_sample to .env and customize it to your needs and credentials.
 |GET |/log/out      |log out user.|☑|
 |GET |/all          |return all users publics datas.|☒|
 |GET |/online       |return all online users's public datas.|☒|
-|GET |/:id          |return ftId: id's public datas|☒|
-|GET |/             |return connected user public datas|☑|
-|POST|/             |update user datas.|☑|
 |GET |/friends      |return users which are friends.|☑|
 |GET |/invits       |return users which invited user to be friend.|☑|
-|POST|/invit/:id    |invit user whith ftId: id as friend.|☑|
-|GET |/avatar       |return the user avatar|☒|
-|POST|/avatar       |set a user avatar with multipart post upload.|☑|
+|GET |/leader       |return the global leaderboard|☑|
+|GET |/leader/:id   |return the user(id) place in leaderboard|☑|
+|GET |/history      |return the matchs results sorted by date|☑|
+|GET |/history/:id  |return the last user(id)'s results sorted by date|☑|
+|POST|/avatar       |set a user() avatar with multipart post upload.|☑|
+|GET |/avatar       |return the user() avatar|☒|
+|GET |/user/:name   |return the user(name)|☒|
+|POST|/invit/:id    |user() invit user(id) as friend.|☑|
+|GET |/avatar/:id   |return the user(id)'s avatar|☒|
+|GET |/:id          |return user(id) public datas|☒|
+|POST|/:id          |update/create user(id)|☑|
+|GET |/             |return user()' public datas|☑|
+|POST|/             |update/create user()|☑|
 
 ## Dependencies:
 

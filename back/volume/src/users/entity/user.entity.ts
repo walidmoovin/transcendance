@@ -26,16 +26,19 @@ export class User {
     status: string
 
   @Column({ name: 'avatar' })
-  public avatar?: string
+    avatar: string
 
-  @Column({default: 0})
+  @Column({ default: 0 })
     wins: number
 
-  @Column({default: 0})
+  @Column({ default: 0 })
     looses: number
 
-  @Column({default: 0})
+  @Column({ default: 0 })
     matchs: number
+
+  @Column({ default: 0 })
+    winrate: number
 
   @ManyToMany(() => Result, (result: Result) => result.players)
   @JoinTable()

@@ -4,14 +4,15 @@ import { Repository } from 'typeorm'
 import { User } from './entity/user.entity'
 import { type UserDto } from './dto/user.dto'
 import { type Channel } from 'src/chat/entity/channel.entity'
+import Result from 'src/pong/entity/result.entity'
 
 @Injectable()
 export class UsersService {
   constructor (
-    @InjectRepository(User) private readonly usersRepository: Repository<User>
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
-  save(user: User) {
+  save (user: User) {
     this.usersRepository.save(user)
   }
 
@@ -20,13 +21,12 @@ export class UsersService {
   }
 
   async findUserByName (username: string): Promise<User | null> {
-    let user = await this.usersRepository.findOne({
-      where: { username: username }, 
-      relations : {results: true}
-      
+    const user = await this.usersRepository.findOne({
+      where: { username },
+      relations: { results: true }
     })
-    if (!user) return null;
-    else return user;
+    if (user == null) return null
+    else return user
   }
 
   async findUser (ftId: number): Promise<User | null> {
@@ -75,19 +75,43 @@ export class UsersService {
         friends: true
       }
     })
-    if (user == null) return []
-    return user.friends
+    if (user != null) return user.friends
+    return []
   }
 
-  async getInvits (ftId: number) {
+  async getInvits (ftId: number): Promise<User[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
         followers: true
       }
     })
-    if (user == null) return null
-    return user.followers
+    if (user != null) return user.followers
+    return []
+  }
+
+  async getResults (ftId: number): Promise<Result[]> {
+    const user = await this.usersRepository.findOne({
+      where: { ftId },
+      relations: {
+        results: true
+      }
+    })
+    if (user != null) return user.results
+    return []
+  }
+
+  async getLeader (): Promise<User[]> {
+    return await this.usersRepository.find({
+      order: {
+        winrate: 'DESC'
+      }
+    })
+  }
+
+  async getRank (ftId: number): Promise<number> {
+    const leader = await this.getLeader()
+    return leader.findIndex((user) => user.ftId == ftId)
   }
 
   async invit (ftId: number, targetFtId: number) {
@@ -95,18 +119,20 @@ export class UsersService {
       where: { ftId },
       relations: {
         followers: true,
-        friends: true,
+        friends: true
       }
     })
-    if (user == null) return null
-    if (user.friends.findIndex(
-      (friend) => friend.ftId === targetFtId) != -1)
+    if (user == null) {
+      return new NotFoundException(`Error: user id ${ftId} isn't in our db.`)
+    }
+    if (user.friends.findIndex((friend) => friend.ftId === targetFtId) != -1) {
       return null
+    }
     const target = await this.usersRepository.findOne({
       where: { ftId: targetFtId },
       relations: {
         followers: true,
-        friends: true,
+        friends: true
       }
     })
     if (target == null) {
@@ -122,8 +148,7 @@ export class UsersService {
         `Friend relation complete between ${user.username} and ${target.username}`
       )
       user.friends.push(target)
-      if (user != target)
-        target.friends.push(user)
+      if (user != target) target.friends.push(user)
       user.followers.slice(id, 1)
       this.usersRepository.save(user)
     } else {

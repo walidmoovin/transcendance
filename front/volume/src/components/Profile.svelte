@@ -37,9 +37,13 @@
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="profile-header">
-      <form action={API_URL + "/avatar"} method="post"
-        enctype="multipart/form-data" id= "upload_avatar">
-        <div class=input-avatar>
+      <form
+        action={API_URL + "/avatar"}
+        method="post"
+        enctype="multipart/form-data"
+        id="upload_avatar"
+      >
+        <div class="input-avatar">
           <label for="avatar-input">
             <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
           </label>
