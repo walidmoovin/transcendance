@@ -8,10 +8,8 @@
   import type { Friend } from "./components/Friends.svelte";
   import Spectate from "./components/Spectate.svelte";
   import type { SpectateType } from "./components/Spectate.svelte";
-  import Play from "./components/Play.svelte";
   import Pong from "./components/Pong/Pong.svelte";
   import Chat2 from "./components/Chat2.svelte";
-  import type { chatMessagesType } from "./components/Chat2.svelte";
   import Channels from "./components/Channels.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
 
@@ -175,7 +173,6 @@
           />
         </div>
       {/if}
-      <Play />
       <Pong />
     {/if}
   </div>
