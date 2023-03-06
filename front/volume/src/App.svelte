@@ -20,6 +20,9 @@
   onMount(() => {
     getUser();
   });
+  setInterval(() => {
+    getUser();
+  },15000)
 
   let isProfileOpen = false;
   function clickProfile() {
