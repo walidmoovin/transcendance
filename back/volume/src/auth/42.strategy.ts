@@ -40,6 +40,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       newUser.socketKey = randomUUID()
       newUser.username = profile.username as string
       newUser.avatar = `${ftId}.jpg`
+      newUser.lastAccess = Date.now()
       void this.usersService.create(newUser)
       const file = createWriteStream(`avatars/${ftId}.jpg`)
       get(profile._json.image.versions.small, function (response) {

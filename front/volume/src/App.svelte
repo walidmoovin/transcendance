@@ -48,6 +48,7 @@
 
   let friends: Friend[] = [];
   let invits: Friend[] = [];
+  let friendsInterval: ReturnType<typeof setInterval>;
 
   export async function getFriends(): Promise<Friend[]> {
     let response = await fetch(API_URL + "/friends", {
@@ -69,6 +70,10 @@
     isFriendOpen = true;
     friends = await getFriends();
     invits = await getInvits();
+    friendsInterval = setInterval(async () => {
+      friends = await getFriends();
+      invits = await getInvits();
+    }, 5000)
   }
 
   // SPECTATE
@@ -147,7 +152,10 @@
       {/if}
       {#if isFriendOpen}
         <div
-          on:click={() => (isFriendOpen = false)}
+          on:click={() => {
+            isFriendOpen = false;
+            clearInterval(friendsInterval)
+          }}
           on:keydown={() => (isFriendOpen = false)}
         >
           <Friends {friends} {invits} />

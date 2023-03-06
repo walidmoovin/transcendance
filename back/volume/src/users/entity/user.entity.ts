@@ -4,7 +4,8 @@ import {
   Column,
   OneToMany,
   ManyToMany,
-  JoinTable
+  JoinTable,
+  UpdateDateColumn
 } from 'typeorm'
 
 import Message from 'src/chat/entity/message.entity'
@@ -15,6 +16,9 @@ import Result from 'src/pong/entity/result.entity'
 export class User {
   @PrimaryGeneratedColumn()
     id: number
+
+  @Column({type: "bigint"})
+    lastAccess: number
 
   @Column({ unique: true })
     ftId: number
@@ -68,8 +72,6 @@ export class User {
   @JoinTable()
     friends: User[]
 
-  // @Column({ default: { wr: -1, place: -1 } })
-  // rank: { wr: number; place: number };
 }
 
 export default User

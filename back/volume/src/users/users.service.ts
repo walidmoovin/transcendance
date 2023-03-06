@@ -5,6 +5,7 @@ import { User } from './entity/user.entity'
 import { type UserDto } from './dto/user.dto'
 import { type Channel } from 'src/chat/entity/channel.entity'
 import type Result from 'src/pong/entity/result.entity'
+import { Cron } from '@nestjs/schedule'
 
 @Injectable()
 @Catch(QueryFailedError, EntityNotFoundError)
@@ -29,8 +30,24 @@ export class UsersService {
     return user
   }
 
+  @Cron('0 */60 * * *')
+  async updateStatus() {
+    let users = await this.usersRepository.find({})
+    users.forEach((usr) => {
+      if (Date.now() - usr.lastAccess > 60) {
+        usr.status= "offline"
+        this.usersRepository.save(usr)
+      }
+    })
+  }
+
   async findUser (ftId: number): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ ftId })
+    let user = await this.usersRepository.findOneBy({ ftId })
+    if (!user) return null
+    user.lastAccess = Date.now()
+    user.status = "online"
+    this.usersRepository.save(user)
+    return user
   }
 
   async findOnlineUsers (): Promise<User[]> {
@@ -148,7 +165,7 @@ export class UsersService {
         `Friend relation complete between ${user.username} and ${target.username}`
       )
       user.friends.push(target)
-      if (user != target) target.friends.push(user)
+      if (user.ftId != target.ftId) target.friends.push(user)
       user.followers.slice(id, 1)
       this.usersRepository.save(user)
     } else {
