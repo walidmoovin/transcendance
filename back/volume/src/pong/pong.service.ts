@@ -21,21 +21,21 @@ export class PongService {
     if (result.score[i] > result.score[Math.abs(i - 1)]) player.wins++
     else player.looses++
     player.winrate = (100 * player.wins) / player.matchs
-    player.results.push(result)
+    player.rank = await this.usersService.getRank(player.ftId) + 1
+    //player.results.push(result)
     this.usersService.save(player)
   }
 
   async saveResult (players: Player[]) {
-    const result = new Result()
-    result.players = await Promise.all(
-      players.map(async (p): Promise<User | null> => {
-        return await this.usersService.findUserByName(p.name)
-      })
-    )
-    result.score = players.map((p) => p.score)
+    let result = new Result()
+    let ply = new Array<User | null>
+    ply.push(await this.usersService.findUserByName(players[0].name))
+    ply.push(await this.usersService.findUserByName(players[1].name))
+    result.players = ply;
+    result.score = [players[0].score, players[1].score]
+    this.resultsRepository.save(result)
     this.updatePlayer(0, result)
     this.updatePlayer(1, result)
-    this.resultsRepository.save(result)
   }
 
   async getHistory (): Promise<Result[]> {

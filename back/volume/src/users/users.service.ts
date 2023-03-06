@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Catch, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm'
 import { User } from './entity/user.entity'
 import { type UserDto } from './dto/user.dto'
 import { type Channel } from 'src/chat/entity/channel.entity'
 import Result from 'src/pong/entity/result.entity'
 
 @Injectable()
+@Catch(QueryFailedError, EntityNotFoundError)
 export class UsersService {
   constructor (
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
@@ -25,8 +26,7 @@ export class UsersService {
       where: { username },
       relations: { results: true }
     })
-    if (user == null) return null
-    else return user
+    return user
   }
 
   async findUser (ftId: number): Promise<User | null> {

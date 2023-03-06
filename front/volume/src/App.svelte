@@ -168,7 +168,7 @@
             wins={$store.wins}
             losses={$store.looses}
             winrate={$store.winrate}
-            rank={23}
+            rank={$store.rank}
             is2faEnabled={false}
           />
         </div>
