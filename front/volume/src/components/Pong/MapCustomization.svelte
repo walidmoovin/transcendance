@@ -72,9 +72,21 @@
   <h1>Map Customization:</h1>
   <div>
     Width:
-    <input type="range" min={DEFAULT_MAP_SIZE.x} max=1000 bind:value={map.size.x} on:input={sizeChange} />
+    <input
+      type="range"
+      min={DEFAULT_MAP_SIZE.x}
+      max="1000"
+      bind:value={map.size.x}
+      on:input={sizeChange}
+    />
     Height:
-    <input type="range" min={DEFAULT_MAP_SIZE.y} max=800 bind:value={map.size.y} on:input={sizeChange} />
+    <input
+      type="range"
+      min={DEFAULT_MAP_SIZE.y}
+      max="800"
+      bind:value={map.size.y}
+      on:input={sizeChange}
+    />
   </div>
   <canvas
     bind:this={canvas}

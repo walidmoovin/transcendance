@@ -4,13 +4,13 @@ import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm'
 import { User } from './entity/user.entity'
 import { type UserDto } from './dto/user.dto'
 import { type Channel } from 'src/chat/entity/channel.entity'
-import Result from 'src/pong/entity/result.entity'
+import type Result from 'src/pong/entity/result.entity'
 
 @Injectable()
 @Catch(QueryFailedError, EntityNotFoundError)
 export class UsersService {
   constructor (
-    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) {}
 
   save (user: User) {

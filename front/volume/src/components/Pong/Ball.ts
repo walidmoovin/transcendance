@@ -4,10 +4,7 @@ export class Ball {
   rect: Rect;
   speed: Point;
 
-  constructor(
-    spawn: Point,
-    size: Point = new Point(20, 20)
-  ) {
+  constructor(spawn: Point, size: Point = new Point(20, 20)) {
     this.rect = new Rect(spawn, size);
   }
 

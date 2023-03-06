@@ -16,7 +16,6 @@ import { type MapDtoValidated } from '../dtos/MapDtoValidated'
 import { type GameUpdate } from '../dtos/GameUpdate'
 import { type GameInfo } from '../dtos/GameInfo'
 import { type PongService } from '../pong.service'
-import { Injectable, Inject } from '@nestjs/common'
 
 function gameLoop (game: Game): void {
   const canvasRect: Rect = new Rect(
@@ -34,7 +33,7 @@ function gameLoop (game: Game): void {
     game.players[indexPlayerScored].score += 1
     if (game.players[indexPlayerScored].score >= DEFAULT_WIN_SCORE) {
       console.log(`${game.players[indexPlayerScored].name} won!`)
-      game.stop()
+      void game.stop()
     }
   }
 
@@ -116,7 +115,7 @@ export class Game {
     if (playerIndex !== -1) {
       this.players.splice(playerIndex, 1)
       if (this.players.length < 2) {
-        this.stop()
+        void this.stop()
       }
     }
   }

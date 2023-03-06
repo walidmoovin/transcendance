@@ -6,9 +6,7 @@ import { PongService } from './pong.service'
 import { UsersModule } from 'src/users/users.module'
 
 @Module({
-  imports: [
-    forwardRef(() => UsersModule),
-    TypeOrmModule.forFeature([Result])],
+  imports: [forwardRef(() => UsersModule), TypeOrmModule.forFeature([Result])],
   providers: [PongGateway, PongService],
   exports: [PongService]
 })

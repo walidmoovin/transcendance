@@ -20,7 +20,12 @@ export class Game {
   elementsColor: string;
   backgroundColor: string;
 
-  constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, elementsColor: string, backgroundColor: string) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
+    elementsColor: string,
+    backgroundColor: string
+  ) {
     this.canvas = canvas;
     this.context = context;
     this.players = [];

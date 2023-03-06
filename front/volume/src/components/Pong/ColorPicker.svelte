@@ -3,7 +3,7 @@
 </script>
 
 <div>
-  <input type="color" bind:value={color}>
+  <input type="color" bind:value={color} />
 </div>
 
 <style>

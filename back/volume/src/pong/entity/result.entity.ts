@@ -14,7 +14,7 @@ export default class Result {
   @PrimaryGeneratedColumn()
     id: number
 
-  @ManyToMany(() => User, (player: User) => player.results, { cascade: true})
+  @ManyToMany(() => User, (player: User) => player.results, { cascade: true })
     players: Array<User | null> // TODO: change to User[] for final version
 
   @Column('text', { array: true })
