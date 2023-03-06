@@ -1,4 +1,4 @@
-import { Inject, Injectable, UsePipes, ValidationPipe } from '@nestjs/common'
+import { UsePipes, ValidationPipe } from '@nestjs/common'
 import { type WebSocket } from 'ws'
 import {
   ConnectedSocket,
@@ -21,6 +21,7 @@ import { StringDtoValidated } from './dtos/StringDtoValidated'
 import { MatchmakingQueue } from './game/MatchmakingQueue'
 import { MatchmakingDtoValidated } from './dtos/MatchmakingDtoValidated'
 import { PongService } from './pong.service'
+import { UsersService } from 'src/users/users.service'
 
 interface WebSocketWithId extends WebSocket {
   id: string
@@ -28,13 +29,24 @@ interface WebSocketWithId extends WebSocket {
 
 @WebSocketGateway()
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor (private readonly pongService: PongService) {}
+  constructor (
+    private readonly pongService: PongService,
+    private readonly usersService: UsersService
+  ) {}
 
   private readonly games: Games = new Games(this.pongService)
   private readonly socketToPlayerName = new Map<WebSocketWithId, string>()
   private readonly matchmakingQueue = new MatchmakingQueue(this.games)
 
-  handleConnection (client: WebSocketWithId): void {
+  playerIsRegistered (name: string): boolean {
+    return Array.from(this.socketToPlayerName.values()).includes(name)
+  }
+
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  handleConnection (
+    @ConnectedSocket()
+      client: WebSocketWithId
+  ): void {
     const uuid = randomUUID()
     client.id = uuid
   }
@@ -45,24 +57,39 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const name: string | undefined = this.socketToPlayerName.get(client)
     const game: Game | null = this.games.playerGame(name)
-    if (game !== null) {
-      console.log('Disconnected ', this.socketToPlayerName.get(client))
-      if (game.isPlaying()) {
-        game.stop()
-      }
+    console.log(game)
+    console.log(game?.isPlaying())
+    if (game !== null && game.isPlaying()) {
+      void game.stop()
+    }
+    if (name !== undefined) {
       this.socketToPlayerName.delete(client)
+      console.log('Disconnected ', this.socketToPlayerName.get(client))
     }
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @SubscribeMessage(GAME_EVENTS.REGISTER_PLAYER)
-  registerPlayer (
+  async registerPlayer (
     @ConnectedSocket()
       client: WebSocketWithId,
-      @MessageBody() playerName: StringDtoValidated
-  ): { event: string, data: StringDtoValidated } {
-    this.socketToPlayerName.set(client, playerName.value)
-    return { event: GAME_EVENTS.REGISTER_PLAYER, data: playerName }
+      @MessageBody('playerName') playerName: StringDtoValidated,
+      @MessageBody('socketKey') socketKey: StringDtoValidated
+  ): Promise<{ event: string, data: boolean }> {
+    let succeeded: boolean = false
+    const user = await this.usersService.findUserByName(playerName.value)
+    if (
+      user !== null &&
+      user.socketKey === socketKey.value &&
+      !this.playerIsRegistered(playerName.value)
+    ) {
+      this.socketToPlayerName.set(client, playerName.value)
+      succeeded = true
+      console.log('Registered player', playerName.value)
+    } else {
+      console.log('Failed to register player', playerName.value)
+    }
+    return { event: GAME_EVENTS.REGISTER_PLAYER, data: succeeded }
   }
 
   @SubscribeMessage(GAME_EVENTS.GET_GAME_INFO)

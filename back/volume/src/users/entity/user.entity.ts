@@ -20,6 +20,9 @@ export class User {
     ftId: number
 
   @Column({ unique: true })
+    socketKey: string
+
+  @Column({ unique: true })
     username: string
 
   @Column({ default: 'online' })
@@ -37,10 +40,10 @@ export class User {
   @Column({ default: 0 })
     matchs: number
 
-  @Column({ default: 0})
+  @Column({ default: 0 })
     rank: number
 
-  @Column({ default: 0 , type: "double precision"})
+  @Column({ default: 0, type: 'double precision' })
     winrate: number
 
   @ManyToMany(() => Result, (result: Result) => result.players)

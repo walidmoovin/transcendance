@@ -8,8 +8,8 @@
   import SpectateFriend from "./SpectateFriend.svelte";
   import Matchmaking from "./Matchmaking.svelte";
   import type { MatchmakingDto } from "./dtos/MatchmakingDto";
-  import { store } from "../../Auth";
-    import ColorPicker from "./ColorPicker.svelte";
+  import { getUser, store } from "../../Auth";
+  import ColorPicker from "./ColorPicker.svelte";
 
   const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT
@@ -22,6 +22,7 @@
   let gameCanvas: HTMLCanvasElement;
   let connected: boolean = false;
   let loggedIn: boolean = false;
+  let failedLogIn: boolean = false;
   let socket: WebSocket;
   let username: string = $store.username;
   let elementsColor: string = "#FFFFFF";
@@ -52,11 +53,13 @@
           } else gamePlaying = false;
         }
       } else if (event == GAME_EVENTS.REGISTER_PLAYER) {
-        if (data.value == username) {
+        if (data) {
           loggedIn = true;
           setInterval(() => {
             updateGameInfo();
           }, 1000);
+        } else {
+          failedLogIn = true;
         }
       } else if (event == GAME_EVENTS.CREATE_GAME) {
         if (data) gamePlaying = true;
@@ -76,6 +79,7 @@
       }
     };
     socket.onopen = () => {
+      void logIn();
       connected = true;
     };
     socket.onclose = () => {
@@ -88,8 +92,13 @@
     socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
   }
 
-  function logIn() {
-    const data: StringDto = { value: username };
+  async function logIn() {
+    await getUser();
+    const socketKey = $store.socketKey;
+    const data: { playerName: StringDto; socketKey: StringDto } = {
+      playerName: { value: username },
+      socketKey: { value: socketKey },
+    };
     socket.send(formatWebsocketData(GAME_EVENTS.REGISTER_PLAYER, data));
   }
 
@@ -105,63 +114,56 @@
 
   $: {
     if (game !== undefined) {
-      game.updateColors(elementsColor, backgroundColor)
+      game.updateColors(elementsColor, backgroundColor);
     }
   }
 </script>
 
-<div>
-  {#if !loggedIn}
-    Log in:
-    <input bind:value={username} />
-    <button on:click={logIn} disabled={!connected}> Log in </button>
-    <br />
-  {/if}
-  <div hidden={!loggedIn}>
-    <main>
-      <GameComponent {gameCanvas} {gamePlaying} {setupSocket} {socket} />
-      {#if gamePlaying}
-        <div />
-      {:else if connected}
-        <h1>Choose a gamemode</h1>
-        <button on:click={startMatchmaking}>Matchmaking</button>
-        <button on:click={() => (createMatchWindow = true)}
-          >Play with a friend</button
-        >
-        <button on:click={() => (spectateWindow = true)}
-          >Spectate a friend</button
-        >
-        <label for="colorPicker">Elements color:</label>
-        <ColorPicker bind:color={elementsColor} />
-        <label for="colorPicker">Background color:</label>
-        <ColorPicker bind:color={backgroundColor} />
+<main>
+  <GameComponent {gameCanvas} {gamePlaying} {setupSocket} {socket} />
+  {#if gamePlaying}
+    <div />
+  {:else if loggedIn}
+    <h1>Choose a gamemode</h1>
+    <button on:click={startMatchmaking}>Matchmaking</button>
+    <button on:click={() => (createMatchWindow = true)}
+      >Play with a friend</button
+    >
+    <button on:click={() => (spectateWindow = true)}>Spectate a friend</button>
+    <label for="colorPicker">Elements color:</label>
+    <ColorPicker bind:color={elementsColor} />
+    <label for="colorPicker">Background color:</label>
+    <ColorPicker bind:color={backgroundColor} />
 
-        {#if matchmaking}
-          <div on:click={stopMatchmaking} on:keydown={stopMatchmaking}>
-            <Matchmaking {stopMatchmaking} />
-          </div>
-          <button on:click={() => console.log(elementsColor)}>tet</button>
-        {:else if createMatchWindow}
-          <div
-            on:click={() => (createMatchWindow = false)}
-            on:keydown={() => (createMatchWindow = false)}
-          >
-            <GameCreation {socket} {username} />
-          </div>
-        {:else if spectateWindow}
-          <div
-            on:click={() => (spectateWindow = false)}
-            on:keydown={() => (spectateWindow = false)}
-          >
-            <SpectateFriend {socket} />
-          </div>
-        {/if}
-      {:else}
-        Connecting to game server...
-      {/if}
-    </main>
-  </div>
-</div>
+    {#if matchmaking}
+      <div on:click={stopMatchmaking} on:keydown={stopMatchmaking}>
+        <Matchmaking {stopMatchmaking} />
+      </div>
+      <button on:click={() => console.log(elementsColor)}>tet</button>
+    {:else if createMatchWindow}
+      <div
+        on:click={() => (createMatchWindow = false)}
+        on:keydown={() => (createMatchWindow = false)}
+      >
+        <GameCreation {socket} {username} />
+      </div>
+    {:else if spectateWindow}
+      <div
+        on:click={() => (spectateWindow = false)}
+        on:keydown={() => (spectateWindow = false)}
+      >
+        <SpectateFriend {socket} />
+      </div>
+    {/if}
+  {:else if !connected}
+    Connecting to game server...
+  {:else if failedLogIn}
+    Failed to log in to game server. Do you have multiple pages open at the same
+    time? If yes, please close them and try again.
+  {:else if !loggedIn}
+    Logging in to game server...
+  {/if}
+</main>
 
 <style>
   main {
