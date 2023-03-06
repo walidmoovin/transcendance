@@ -46,22 +46,22 @@ export class Games {
   }
 
   removePlayer (name: string): void {
-    const game: Game | null = this.playerGame(name)
-    if (game !== null) {
+    const game: Game | undefined = this.playerGame(name)
+    if (game !== undefined) {
       game.removePlayer(name)
     }
   }
 
   ready (name: string): void {
-    const game: Game | null = this.playerGame(name)
-    if (game !== null) {
+    const game: Game | undefined = this.playerGame(name)
+    if (game !== undefined) {
       game.ready(name)
     }
   }
 
   private gameStopped (name: string): void {
-    const game: Game | null = this.playerGame(name)
-    if (game !== null) {
+    const game: Game | undefined = this.playerGame(name)
+    if (game !== undefined) {
       this.games.splice(this.games.indexOf(game), 1)
       game.players.forEach((player) => {
         this.playerNameToGameIndex.delete(player.name)
@@ -71,8 +71,8 @@ export class Games {
   }
 
   getGameInfo (name: string): GameInfo {
-    const game: Game | null = this.playerGame(name)
-    if (game !== null) {
+    const game: Game | undefined = this.playerGame(name)
+    if (game !== undefined) {
       return game.getGameInfo(name)
     }
     return {
@@ -88,8 +88,8 @@ export class Games {
   }
 
   movePlayer (name: string | undefined, position: Point): void {
-    const game: Game | null = this.playerGame(name)
-    if (game !== null) {
+    const game: Game | undefined = this.playerGame(name)
+    if (game !== undefined) {
       game.movePaddle(name, position)
     }
   }
@@ -99,13 +99,11 @@ export class Games {
     return this.playerNameToGameIndex.get(name) !== undefined
   }
 
-  playerGame (name: string | undefined): Game | null {
-    if (name === undefined) return null
-    const gameIndex: number | undefined = this.playerNameToGameIndex.get(name)
-    if (gameIndex !== undefined) {
-      return this.games[gameIndex]
-    }
-    return null
+  playerGame (name: string | undefined): Game | undefined {
+    const game: Game | undefined = this.games.find((game) =>
+      game.players.some((player) => player.name === name)
+    )
+    return game
   }
 
   spectateGame (
