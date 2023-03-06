@@ -10,6 +10,7 @@
     { text: "Channels" },
     { text: "History" },
     { text: "Friends" },
+    { text: "Leaderboard"},
     { text: "Profile" },
   ];
   export let clickProfile = () => {};
@@ -17,11 +18,19 @@
   export let clickFriends = () => {};
   export let clickSpectate = () => {};
   export let clickChannels = () => {};
+  export let clickLeaderboard = () => {};
 </script>
 
 <nav class="navigation-bar">
   <ul>
     {#each links as link}
+      {#if link.text === "Leaderboard"}
+        <li>
+          <button on:click={clickLeaderboard}>
+            <p>Leaderboard</p>
+          </button>
+        </li>
+      {/if}
       {#if link.text === "Spectate"}
         <li>
           <button on:click={clickSpectate}>

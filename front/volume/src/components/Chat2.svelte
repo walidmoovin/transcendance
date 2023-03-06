@@ -4,6 +4,7 @@
     name: string;
     text: string;
   }
+  import { createEventDispatcher, onMount } from "svelte";
 </script>
 
 <script lang="ts">
@@ -27,25 +28,18 @@
   export let chatMessages: Array<chatMessagesType> = [];
   let newText = "";
 
-  const openProfile = (id: number) => (event: Event) => {
-    const message = chatMessages.find((m) => m.id === id);
-    if (message) {
-      const optionsModal = document.createElement("div");
-      optionsModal.classList.add("options-modal");
-      optionsModal.innerHTML = `
-        <h3>${message.name}</h3>
-        <ul>
-          <li>View profile</li>
-          <li>View posts</li>
-          <li>View comments</li>
-        </ul>
-      `;
-      document.querySelector(".overlay")?.appendChild(optionsModal);
-      optionsModal.addEventListener("click", () => {
-        document.body.removeChild(optionsModal);
-      });
-    }
-  };
+  const dispatch = createEventDispatcher();
+  let showProfileMenu = false;
+  let selectedUserId = null;
+  function openProfile(id : number) {
+    showProfileMenu = true;
+    selectedUserId = id;
+  }
+  function closeProfileMenu() {
+    showProfileMenu = false;
+    selectedUserId = null;
+  }
+  onMount(closeProfileMenu)
 </script>
 
 <div class="overlay">
@@ -64,6 +58,24 @@
         </p>
       {/each}
     </div>
+    {#if showProfileMenu}
+      <div class="profile-menu" on:click|stopPropagation on:keydown|stopPropagation>
+        <ul>
+          <!-- if admin 
+          <li><button on:click={() => dispatch('delete-user', selectedUserId)}>Delete User</button></li>
+          <li><button on:click={() => dispatch('ban-user', selectedUserId)}>Ban User</button></li>
+          <li><button on:click={() => dispatch('mute-user', selectedUserId)}>Mute User</button></li>
+          <li><button on:click={() => dispatch('promote-user', selectedUserId)}>Promote User</button></li>
+          -->
+          <li><button on:click={() => dispatch('send-message', selectedUserId)}>Send Message</button></li>
+          <li><button on:click={() => dispatch('view-profile', selectedUserId)}>View Profile</button></li>
+          <li><button on:click={() => dispatch('add-friend', selectedUserId)}>Add Friend</button></li>
+          <li><button on:click={() => dispatch('invite-to-game', selectedUserId)}>Invite to Game</button></li>
+          <li><button on:click={() => dispatch('block-user', selectedUserId)}>Block User</button></li>
+          <li><button on:click={closeProfileMenu}>Close</button></li>
+        </ul>
+      </div>
+    {/if}
     <form on:submit|preventDefault={sendMessage}>
       <input type="text" placeholder="Type a message..." bind:value={newText} />
       <button>

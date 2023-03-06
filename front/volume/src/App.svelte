@@ -12,6 +12,7 @@
   import Chat2 from "./components/Chat2.svelte";
   import Channels from "./components/Channels.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
+  import Leaderboard from "./components/Leaderboard.svelte";
 
   import { store, getUser, login, logout, API_URL } from "./Auth";
 
@@ -110,6 +111,13 @@
   const handleSelectChannel = (channel: ChannelsType) => {
     selectedChannel = channel;
   };
+
+  // LEADERBOARD
+  let isLeaderboardOpen = false;
+  function clickLeaderboard() {
+    isLeaderboardOpen = true;
+  }
+
 </script>
 
 <main>
@@ -123,6 +131,7 @@
         {clickFriends}
         {clickSpectate}
         {clickChannels}
+        {clickLeaderboard}
       />
       {#if isChannelsOpen}
         {#if selectedChannel}
@@ -148,6 +157,14 @@
           on:keydown={() => (isSpectateOpen = false)}
         >
           <Spectate {spectate} />
+        </div>
+      {/if}
+      {#if isLeaderboardOpen}
+        <div
+          on:click={() => (isLeaderboardOpen = false)}
+          on:keydown={() => (isLeaderboardOpen = false)}
+        >
+          <Leaderboard />
         </div>
       {/if}
       {#if isFriendOpen}
