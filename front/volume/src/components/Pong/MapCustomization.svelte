@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { Point, Rect } from "./utils";
   import type { Map } from "./Map";
-  import { DEFAULT_BALL_SIZE } from "./constants";
+  import { DEFAULT_BALL_SIZE, DEFAULT_MAP_SIZE } from "./constants";
 
   export let map: Map;
   let canvas: HTMLCanvasElement;
@@ -62,15 +62,19 @@
     const index = map.walls.findIndex((w) => w.collides(click));
     if (index != -1) map.walls.splice(index, 1);
   }
+
+  function sizeChange() {
+    map.walls = [];
+  }
 </script>
 
 <div>
   <h1>Map Customization:</h1>
   <div>
     Width:
-    <input type="range" min="400" max="1000" bind:value={map.size.x} />
+    <input type="range" min={DEFAULT_MAP_SIZE.x} max=1000 bind:value={map.size.x} on:input={sizeChange} />
     Height:
-    <input type="range" min="300" max="800" bind:value={map.size.y} />
+    <input type="range" min={DEFAULT_MAP_SIZE.y} max=800 bind:value={map.size.y} on:input={sizeChange} />
   </div>
   <canvas
     bind:this={canvas}
