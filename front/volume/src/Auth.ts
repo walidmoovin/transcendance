@@ -20,10 +20,8 @@ export async function getUser() {
     referrerPolicy: "no-referrer",
   });
   let user = await res.json();
-  if (user.username) {
-    console.log(user);
-    store.set(user);
-  }
+  if (user.username) store.set(user);
+  else store.set(null);
 }
 
 export function login() {
