@@ -2,14 +2,13 @@ import { Point, Rect } from "./utils";
 
 export class Paddle {
   rect: Rect;
-  color: string | CanvasGradient | CanvasPattern = "white";
 
   constructor(spawn: Point, size: Point = new Point(6, 100)) {
     this.rect = new Rect(spawn, size);
   }
 
-  draw(context: CanvasRenderingContext2D) {
-    this.rect.draw(context, this.color);
+  draw(context: CanvasRenderingContext2D, color: string) {
+    this.rect.draw(context, color);
   }
 
   move(e: MouseEvent) {

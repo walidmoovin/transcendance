@@ -34,7 +34,7 @@ export class Rect {
 
   draw(
     context: CanvasRenderingContext2D,
-    color: string | CanvasGradient | CanvasPattern
+    color: string
   ) {
     const offset: Point = new Point(this.size.x / 2, this.size.y / 2);
 

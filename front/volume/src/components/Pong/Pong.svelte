@@ -9,6 +9,7 @@
   import Matchmaking from "./Matchmaking.svelte";
   import type { MatchmakingDto } from "./dtos/MatchmakingDto";
   import { store } from "../../Auth";
+    import ColorPicker from "./ColorPicker.svelte";
 
   const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT
@@ -23,19 +24,23 @@
   let loggedIn: boolean = false;
   let socket: WebSocket;
   let username: string = $store.username;
+  let elementsColor: string = "#FFFFFF";
+  let backgroundColor: string = "#000000";
+  let game: Game;
 
   function setupSocket(
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D
   ) {
     socket = new WebSocket(SERVER_URL);
-    const game = new Game(canvas, context);
+    game = new Game(canvas, context, elementsColor, backgroundColor);
     socket.onmessage = function (e) {
       const event_json = JSON.parse(e.data);
       const event = event_json.event;
       const data = event_json.data;
 
       if (event == GAME_EVENTS.START_GAME) {
+        matchmaking = false;
         game.start(socket);
       } else if (event == GAME_EVENTS.GAME_TICK) {
         game.update(data);
@@ -97,6 +102,12 @@
     const data: MatchmakingDto = { matchmaking: false };
     socket.send(formatWebsocketData(GAME_EVENTS.MATCHMAKING, data));
   }
+
+  $: {
+    if (game !== undefined) {
+      game.updateColors(elementsColor, backgroundColor)
+    }
+  }
 </script>
 
 <div>
@@ -120,11 +131,16 @@
         <button on:click={() => (spectateWindow = true)}
           >Spectate a friend</button
         >
+        <label for="colorPicker">Elements color:</label>
+        <ColorPicker bind:color={elementsColor} />
+        <label for="colorPicker">Background color:</label>
+        <ColorPicker bind:color={backgroundColor} />
 
         {#if matchmaking}
           <div on:click={stopMatchmaking} on:keydown={stopMatchmaking}>
             <Matchmaking {stopMatchmaking} />
           </div>
+          <button on:click={() => console.log(elementsColor)}>tet</button>
         {:else if createMatchWindow}
           <div
             on:click={() => (createMatchWindow = false)}

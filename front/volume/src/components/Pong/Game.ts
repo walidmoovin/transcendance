@@ -6,7 +6,6 @@ import { Paddle } from "./Paddle";
 import { Player } from "./Player";
 import { formatWebsocketData, Point, Rect } from "./utils";
 
-const BG_COLOR = "black";
 const FPS = import.meta.env.VITE_FRONT_FPS;
 
 export class Game {
@@ -18,14 +17,18 @@ export class Game {
   id: string;
   walls: Rect[];
   drawInterval: NodeJS.Timer;
+  elementsColor: string;
+  backgroundColor: string;
 
-  constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
+  constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, elementsColor: string, backgroundColor: string) {
     this.canvas = canvas;
     this.context = context;
     this.players = [];
     this.my_paddle = null;
     this.walls = [];
     this.drawInterval = null;
+    this.elementsColor = elementsColor;
+    this.backgroundColor = backgroundColor;
   }
 
   setInfo(data: GameInfo) {
@@ -86,13 +89,18 @@ export class Game {
     }
   }
 
+  updateColors(elementsColor: string, backgroundColor: string) {
+    this.elementsColor = elementsColor;
+    this.backgroundColor = backgroundColor;
+  }
+
   draw() {
-    this.context.fillStyle = BG_COLOR;
+    this.context.fillStyle = this.backgroundColor;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.walls.forEach((w) => w.draw(this.context, "white"));
-    this.players.forEach((p) => p.draw(this.context));
-    this.ball.draw(this.context);
+    this.walls.forEach((w) => w.draw(this.context, this.elementsColor));
+    this.players.forEach((p) => p.draw(this.context, this.elementsColor));
+    this.ball.draw(this.context, this.elementsColor);
 
     const max_width = 50;
     this.context.font = "50px Arial";

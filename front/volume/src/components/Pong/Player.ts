@@ -9,8 +9,8 @@ export class Player {
     this.score = 0;
   }
 
-  draw(context: CanvasRenderingContext2D) {
-    this.paddle.draw(context);
+  draw(context: CanvasRenderingContext2D, color: string) {
+    this.paddle.draw(context, color);
   }
 
   drawScore(
