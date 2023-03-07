@@ -31,8 +31,8 @@ export class UsersService {
   }
 
   @Cron('0 * * * * *')
-  async updateStatus() {
-    let users = await this.usersRepository.find({})
+  async updateStatus () {
+    const users = await this.usersRepository.find({})
     users.forEach((usr) => {
       if (Date.now() - usr.lastAccess > 60000) {
         usr.status = 'offline'
@@ -111,7 +111,9 @@ export class UsersService {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
-        results: true
+        results: {
+          players: true
+        }
       }
     })
     if (user != null) return user.results

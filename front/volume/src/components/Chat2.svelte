@@ -5,7 +5,7 @@
     text: string;
   }
   import { createEventDispatcher, onMount } from "svelte";
-  import { store } from "../Auth"
+  import { store } from "../Auth";
 </script>
 
 <script lang="ts">
@@ -32,7 +32,7 @@
   const dispatch = createEventDispatcher();
   let showProfileMenu = false;
   let selectedUser = null;
-  function openProfile(username : string) {
+  function openProfile(username: string) {
     showProfileMenu = true;
     selectedUser = username;
   }
@@ -40,7 +40,7 @@
     showProfileMenu = false;
     selectedUser = "";
   }
-  onMount(closeProfileMenu)
+  onMount(closeProfileMenu);
 </script>
 
 <div class="overlay">
@@ -60,7 +60,11 @@
       {/each}
     </div>
     {#if showProfileMenu}
-      <div class="profile-menu" on:click|stopPropagation on:keydown|stopPropagation>
+      <div
+        class="profile-menu"
+        on:click|stopPropagation
+        on:keydown|stopPropagation
+      >
         <ul>
           <!-- if admin 
           <li><button on:click={() => dispatch('delete-user', selectedUser)}>Delete User</button></li>
@@ -68,11 +72,31 @@
           <li><button on:click={() => dispatch('mute-user', selectedUser)}>Mute User</button></li>
           <li><button on:click={() => dispatch('promote-user', selectedUser)}>Promote User</button></li>
           -->
-          <li><button on:click={() => dispatch('send-message', selectedUser)}>Send Message</button></li>
-          <li><button on:click={() => dispatch('view-profile', selectedUser)}>View Profile</button></li>
-          <li><button on:click={() => dispatch('add-friend', selectedUser)}>Add Friend</button></li>
-          <li><button on:click={() => dispatch('invite-to-game', selectedUser)}>Invite to Game</button></li>
-          <li><button on:click={() => dispatch('block-user', selectedUser)}>Block User</button></li>
+          <li>
+            <button on:click={() => dispatch("send-message", selectedUser)}
+              >Send Message</button
+            >
+          </li>
+          <li>
+            <button on:click={() => dispatch("view-profile", selectedUser)}
+              >View Profile</button
+            >
+          </li>
+          <li>
+            <button on:click={() => dispatch("add-friend", selectedUser)}
+              >Add Friend</button
+            >
+          </li>
+          <li>
+            <button on:click={() => dispatch("invite-to-game", selectedUser)}
+              >Invite to Game</button
+            >
+          </li>
+          <li>
+            <button on:click={() => dispatch("block-user", selectedUser)}
+              >Block User</button
+            >
+          </li>
           <li><button on:click={closeProfileMenu}>Close</button></li>
         </ul>
       </div>

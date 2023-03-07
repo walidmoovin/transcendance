@@ -10,7 +10,7 @@
     { text: "Channels" },
     { text: "History" },
     { text: "Friends" },
-    { text: "Leaderboard"},
+    { text: "Leaderboard" },
     { text: "Profile" },
   ];
   export let clickProfile = () => {};

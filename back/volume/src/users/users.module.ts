@@ -6,10 +6,7 @@ import { UsersService } from './users.service'
 import { PongModule } from 'src/pong/pong.module'
 
 @Module({
-  imports: [
-    forwardRef(() => PongModule),
-    TypeOrmModule.forFeature([User])
-  ],
+  imports: [forwardRef(() => PongModule), TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService]

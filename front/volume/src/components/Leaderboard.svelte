@@ -1,38 +1,38 @@
 <script lang="ts" context="module">
-    export interface Player {
-        username: string;
-        wins: number;
-        losses: number;
-	winrate: number;
-        rank: number;
-    }
+  export interface Player {
+    username: string;
+    wins: number;
+    looses: number;
+    winrate: number;
+    rank: number;
+  }
 </script>
 
 <script lang="ts">
-    export let leaderboard: Array<Player> = [];
+  export let leaderboard: Array<Player> = [];
 </script>
 
 <div class="overlay">
-    <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
-        <div>
-            {#if leaderboard.length > 0}
-                <h2>Leaderboard</h2>
-                {#each leaderboard.slice(0, 10) as match}
-                    <li>
-                        <span>{match.username}</span>
-                        <span>{match.wins} - {match.losses}</span>
-                        <span>MP | rank #{match.rank}</span>
-                    </li>
-                {/each}
-            {:else}
-                <p>No Players to display</p>
-            {/if}
-        </div>
+  <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
+    <div>
+      {#if leaderboard.length > 0}
+        <h2>Leaderboard</h2>
+        {#each leaderboard.slice(0, 10) as player}
+          <li>
+            <span>{player.username}</span>
+            <span>{player.wins} - {player.looses} - {player.winrate}%wins</span>
+            <span> | rank #{player.rank}</span>
+          </li>
+        {/each}
+      {:else}
+        <p>No Players to display</p>
+      {/if}
     </div>
+  </div>
 </div>
 
 <style>
-.overlay {
+  .overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -43,13 +43,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
-}
+  }
 
-.history {
+  .history {
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
-}
+  }
 </style>

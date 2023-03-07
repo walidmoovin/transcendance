@@ -33,7 +33,7 @@ export class User {
   @Column({ default: 'online' })
     status: string
 
-  @Column({ name: 'avatar'})
+  @Column({ name: 'avatar' })
     avatar: string
 
   @Column({ default: 0 })

@@ -4,8 +4,8 @@
   import Profile from "./components/Profile.svelte";
   import MatchHistory from "./components/MatchHistory.svelte";
   import type { Match } from "./components/MatchHistory.svelte";
-  import Friends,{addFriend} from "./components/Friends.svelte";
-  import type { Friend} from "./components/Friends.svelte";
+  import Friends, { addFriend } from "./components/Friends.svelte";
+  import type { Friend } from "./components/Friends.svelte";
   import Spectate from "./components/Spectate.svelte";
   import type { SpectateType } from "./components/Spectate.svelte";
   import Pong from "./components/Pong/Pong.svelte";
@@ -13,7 +13,7 @@
   import Channels from "./components/Channels.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
-  import type { Player } from "./components/Leaderboard.svelte"
+  import type { Player } from "./components/Leaderboard.svelte";
 
   import { store, getUser, login, logout, API_URL } from "./Auth";
 
@@ -34,7 +34,7 @@
   let userProfile;
   let isIdProfileOpen = false;
   async function openIdProfile(event) {
-    console.log("Opening profile: " + event.detail)
+    console.log("Opening profile: " + event.detail);
     isIdProfileOpen = true;
     const res = await fetch(API_URL + "/user/" + event.detail, {
       method: "get",
@@ -48,18 +48,19 @@
 
   // HISTORY
 
+  let matches: Array<Match>;
   let isHistoryOpen = false;
   function clickHistory() {
     isHistoryOpen = true;
+    getHistory();
   }
-  let matches: Array<Match>;
 
   export async function getHistory(): Promise<Match[]> {
     let response = await fetch(API_URL + "/history/" + $store.ftId, {
       credentials: "include",
       mode: "cors",
     });
-    return await response.json();
+    matches = await response.json();
   }
 
   // FRIENDS
@@ -144,7 +145,6 @@
     isLeaderboardOpen = true;
     leaderboard = await getLeader();
   }
-
 </script>
 
 <main>
@@ -166,8 +166,11 @@
             on:click={() => (selectedChannel = undefined)}
             on:keydown={() => (selectedChannel = undefined)}
           >
-            <Chat2 chatMessages={selectedChannel.messages} 
-              on:view-profile={openIdProfile} on:add-friend={addFriend} />
+            <Chat2
+              chatMessages={selectedChannel.messages}
+              on:view-profile={openIdProfile}
+              on:add-friend={addFriend}
+            />
           </div>
         {/if}
         {#if !selectedChannel}
@@ -192,7 +195,7 @@
           on:click={() => (isLeaderboardOpen = false)}
           on:keydown={() => (isLeaderboardOpen = false)}
         >
-          <Leaderboard {leaderboard}/>
+          <Leaderboard {leaderboard} />
         </div>
       {/if}
       {#if isFriendOpen}
@@ -202,8 +205,8 @@
             clearInterval(friendsInterval);
           }}
           on:keydown={() => {
-	    isFriendOpen = false;
-            clearInterval(friendsInterval)
+            isFriendOpen = false;
+            clearInterval(friendsInterval);
           }}
         >
           <Friends {friends} {invits} />
@@ -222,10 +225,7 @@
           on:click={() => (isProfileOpen = false)}
           on:keydown={() => (isProfileOpen = false)}
         >
-          <Profile
-	    user = {$store}
-            edit = 1
-          />
+          <Profile user={$store} edit={1} />
         </div>
       {/if}
       {#if isIdProfileOpen}
@@ -233,10 +233,7 @@
           on:click={() => (isIdProfileOpen = false)}
           on:keydown={() => (isIdProfileOpen = false)}
         >
-          <Profile
-	    user = {userProfile}
-            edit = 0
-          />
+          <Profile user={userProfile} edit={0} />
         </div>
       {/if}
       <Pong />

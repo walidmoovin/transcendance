@@ -22,7 +22,7 @@ export class PongService {
     else player.looses++
     player.winrate = (100 * player.wins) / player.matchs
     player.rank = (await this.usersService.getRank(player.ftId)) + 1
-    // player.results.push(result)
+    player.results.push(result)
     this.usersService.save(player)
   }
 

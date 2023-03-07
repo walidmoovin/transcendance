@@ -8,8 +8,8 @@
     console.log(typeof event);
 
     event.preventDefault();
-    const username = event.target ?
-      event.target.querySelector('input[type="text"]').value
+    const username = event.target
+      ? event.target.querySelector('input[type="text"]').value
       : event.detail;
 
     let response = await fetch(API_URL + "/user/" + username, {
@@ -23,11 +23,10 @@
       mode: "cors",
     });
     if (response.ok) {
-      console.log("Invitation send.");
+      alert("Invitation send.");
     } else {
-      console.log("Unknown user.");
+      alert("Invitation refused.");
     }
-    alert("Trying to add friend: " + username);
   }
 </script>
 
@@ -36,7 +35,6 @@
 
   export let friends: Friend[];
   export let invits: Friend[];
-
 </script>
 
 <div class="overlay">

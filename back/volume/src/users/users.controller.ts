@@ -137,6 +137,9 @@ export class UsersController {
     @FtUser() profile: Profile,
       @Param('id', ParseIntPipe) id: number
   ): Promise<NotFoundException | null | undefined> {
+    if (profile.id == id) {
+      throw new BadRequestException("You can't invit yourself.")
+    }
     return await this.usersService.invit(profile.id, id)
   }
 

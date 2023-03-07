@@ -1,15 +1,19 @@
 <script lang="ts" context="module">
-  import type user from './Profile.svelte' 
+  import type user from "./Profile.svelte";
   export interface Match {
     players: Array<user>;
-    scores: Array<number>;
+    score: Array<number>;
     date: Date;
   }
-
 </script>
 
 <script lang="ts">
   export let matches: Array<Match> = [];
+  function displayDate(str: string) {
+    const splitT = str.split("T");
+    const splitdot = splitT[1].split(".");
+    return splitT[0] + "-" + splitdot[0];
+  }
 </script>
 
 <div class="overlay">
@@ -19,7 +23,11 @@
         <h2>Last 10 monkey games</h2>
         {#each matches.slice(0, 10) as match}
           <li>
-            <span>{match.date.toString()}: {match.players[0].username} {match.scores[0]} - {match.scores[1]} {match.players[1].username}</span>
+            <span
+              >{displayDate(match.date.toString())}: {match.players[0].username}
+              {match.scores[0]} - {match.scores[1]}
+              {match.players[1].username}</span
+            >
             <!---
             {#if match.points > 0}
               <span>+{match.points}</span>
