@@ -59,7 +59,7 @@ export class UsersService {
       const newUser = this.usersRepository.create(userData)
       return await this.usersRepository.save(newUser)
     } catch (err) {
-      throw new Error(`Error creating ${err} user ${err.message}`)
+      throw new Error(`Error creating user ${err}`)
     }
   }
 
@@ -130,10 +130,10 @@ export class UsersService {
 
   async getRank (ftId: number): Promise<number> {
     const leader = await this.getLeader()
-    return leader.findIndex((user) => user.ftId == ftId)
+    return leader.findIndex((user) => user.ftId === ftId)
   }
 
-  async invit (ftId: number, targetFtId: number) {
+  async invit (ftId: number, targetFtId: number): Promise<any> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
@@ -144,7 +144,7 @@ export class UsersService {
     if (user == null) {
       return new NotFoundException(`Error: user id ${ftId} isn't in our db.`)
     }
-    if (user.friends.findIndex((friend) => friend.ftId === targetFtId) != -1) {
+    if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1) {
       return null
     }
     const target = await this.usersRepository.findOne({
@@ -162,18 +162,18 @@ export class UsersService {
     const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
     )
-    if (id != -1) {
+    if (id !== -1) {
       console.log(
         `Friend relation complete between ${user.username} and ${target.username}`
       )
       user.friends.push(target)
-      if (user.ftId != target.ftId) target.friends.push(user)
+      if (user.ftId !== target.ftId) target.friends.push(user)
       user.followers.slice(id, 1)
-      this.usersRepository.save(user)
+      await this.usersRepository.save(user)
     } else {
       console.log(`You asked ${target.username} to be your friend.`)
       target.followers.push(user)
     }
-    this.usersRepository.save(target)
+    await this.usersRepository.save(target)
   }
 }

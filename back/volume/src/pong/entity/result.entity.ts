@@ -3,8 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToMany,
-  CreateDateColumn,
-  JoinTable
+  CreateDateColumn
 } from 'typeorm'
 
 import User from 'src/users/entity/user.entity'

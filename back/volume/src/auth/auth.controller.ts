@@ -13,26 +13,26 @@ export class AuthController {
 
   @Get('inReturn')
   @UseGuards(FtOauthGuard)
-  @Redirect('http://' + process.env.HOST + ':' + process.env.FRONT_PORT + '/')
+  @Redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}`)
   ftAuthCallback (
-  @Res({ passthrough: true }) response: Response,
-    @Req() request: Request
-  ) {
+    @Res({ passthrough: true }) response: Response,
+      @Req() request: Request
+  ): any {
     console.log('cookie:', request.cookies['connect.sid'])
     response.cookie('connect.sid', request.cookies['connect.sid'])
   }
 
   @Get('profile')
   @UseGuards(AuthenticatedGuard)
-  profile (@FtUser() user: Profile) {
+  profile (@FtUser() user: Profile): any {
     return { user }
   }
 
   @Get('out')
-  @Redirect('http://' + process.env.HOST + ':' + process.env.FRONT_PORT + '/')
-  logOut (@Req() req: Request) {
+  @Redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}`)
+  logOut (@Req() req: Request): any {
     req.logOut(function (err) {
-      if (err) return err
+      if (err != null) return err
     })
   }
 }

@@ -1,18 +1,20 @@
 import { WsAdapter } from '@nestjs/platform-ws'
 
-import { Logger } from '@nestjs/common'
+import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import * as session from 'express-session'
 import * as passport from 'passport'
 import { type NestExpressApplication } from '@nestjs/platform-express'
 import * as cookieParser from 'cookie-parser'
-import { Response } from 'express'
 
-async function bootstrap () {
+async function bootstrap (): Promise<void> {
   const logger = new Logger()
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
-  const port = process.env.BACK_PORT!
+  const port =
+    process.env.BACK_PORT && process.env.BACK_PORT !== ''
+      ? +process.env.BACK_PORT
+      : 3001
   const cors = {
     origin: ['http://localhost:80', 'http://localhost', '*'],
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
@@ -25,7 +27,10 @@ async function bootstrap () {
     session({
       resave: false,
       saveUninitialized: false,
-      secret: process.env.JWT_SECRET!
+      secret:
+        process.env.JWT_SECRET && process.env.JWT_SECRET !== ''
+          ? process.env.JWT_SECRET
+          : 'secret'
     })
   )
   app.use(cookieParser())
@@ -36,4 +41,6 @@ async function bootstrap () {
   await app.listen(port)
   logger.log(`Application listening on port ${port}`)
 }
-bootstrap()
+bootstrap().catch((e) => {
+  throw new InternalServerErrorException(e)
+})

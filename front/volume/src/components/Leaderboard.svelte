@@ -3,6 +3,7 @@
     username: string;
     wins: number;
     looses: number;
+    matchs: number;
     winrate: number;
     rank: number;
   }
@@ -14,20 +15,35 @@
 
 <div class="overlay">
   <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
-    <div>
-      {#if leaderboard.length > 0}
-        <h2>Leaderboard</h2>
-        {#each leaderboard.slice(0, 10) as player}
-          <li>
-            <span>{player.username}</span>
-            <span>{player.wins} - {player.looses} - {player.winrate}%wins</span>
-            <span> | rank #{player.rank}</span>
-          </li>
-        {/each}
-      {:else}
-        <p>No Players to display</p>
-      {/if}
-    </div>
+    {#if leaderboard.length > 0}
+      <table>
+        <thead>
+          <tr>
+            <th colspan="5">Leaderboard</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rank</td>
+            <td>Usernames</td>
+            <td>Wins</td>
+            <td>Matchs</td>
+            <td>Winrates</td>
+          </tr>
+          {#each leaderboard.slice(0, 10) as player}
+            <tr>
+              <td>{player.rank}</td>
+              <td>{player.username}</td>
+              <td>{player.wins}</td>
+              <td>{player.matchs}</td>
+              <td>{player.winrate}%</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    {:else}
+      <p>No Players to display</p>
+    {/if}
   </div>
 </div>
 
@@ -51,5 +67,14 @@
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
+    display: flex;
+    justify-content: center;
+  }
+
+  td {
+    border: 1px solid #333;
+    text-align: center;
+    max-width: 12ch;
+    overflow: hidden;
   }
 </style>

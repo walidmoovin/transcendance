@@ -4,8 +4,7 @@ import {
   Column,
   OneToMany,
   ManyToMany,
-  JoinTable,
-  UpdateDateColumn
+  JoinTable
 } from 'typeorm'
 import { randomUUID } from 'crypto'
 

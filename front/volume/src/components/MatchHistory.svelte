@@ -11,8 +11,9 @@
   export let matches: Array<Match> = [];
   function displayDate(str: string) {
     const splitT = str.split("T");
-    const splitdot = splitT[1].split(".");
-    return splitT[0] + "-" + splitdot[0];
+    const splitDate = splitT[0].split('-')
+    const splitDot = splitT[1].split(".");
+    return `${splitDate[1]}/${splitDate[2]}-${splitDot[0]}`;
   }
 </script>
 
@@ -20,24 +21,27 @@
   <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
       {#if matches.length > 0}
-        <h2>Last 10 monkey games</h2>
+      <table>
+        <thead>
+          <tr>
+            <th colspan="3">Last 10 monkey games</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Date</td>
+          <td>Players</td>
+          <td>Scores</td>
+        </tr>
         {#each matches.slice(0, 10) as match}
-          <li>
-            <span
-              >{displayDate(match.date.toString())}: {match.players[0].username}
-              {match.scores[0]} - {match.scores[1]}
-              {match.players[1].username}</span
-            >
-            <!---
-            {#if match.points > 0}
-              <span>+{match.points}</span>
-            {:else}
-              <span>{match.points}</span>
-            {/if}
-            <span>MP | rank #{match.rank}</span>
-            --->
-          </li>
+          <tr>
+            <td>{displayDate(match.date.toString())}</td>
+            <td>{match.players[0].username}<br>{match.players[1].username}</td> 
+            <td>{match.score[0]}<br>{match.score[1]}</td> 
+          </tr>
         {/each}
+        </tbody>
+      </table>
       {:else}
         <p>No matches to display</p>
       {/if}
@@ -65,5 +69,15 @@
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
+    display:flex;
+    justify-content: center;
   }
+  
+  td {
+    border:1px solid #111;
+    text-align: center;
+    max-width: 15ch;
+    overflow: hidden;
+  }
+
 </style>
