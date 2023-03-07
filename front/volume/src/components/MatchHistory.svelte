@@ -1,10 +1,11 @@
 <script lang="ts" context="module">
+  import type user from './Profile.svelte' 
   export interface Match {
-    winner: string;
-    loser: string;
-    points: number;
-    rank: string;
+    players: Array<user>;
+    scores: Array<number>;
+    date: Date;
   }
+
 </script>
 
 <script lang="ts">
@@ -18,13 +19,15 @@
         <h2>Last 10 monkey games</h2>
         {#each matches.slice(0, 10) as match}
           <li>
-            <span>{match.winner} 1 - 0 {match.loser}</span>
+            <span>{match.date.toString()}: {match.players[0].username} {match.scores[0]} - {match.scores[1]} {match.players[1].username}</span>
+            <!---
             {#if match.points > 0}
               <span>+{match.points}</span>
             {:else}
               <span>{match.points}</span>
             {/if}
             <span>MP | rank #{match.rank}</span>
+            --->
           </li>
         {/each}
       {:else}

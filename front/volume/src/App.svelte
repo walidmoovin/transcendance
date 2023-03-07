@@ -52,14 +52,15 @@
   function clickHistory() {
     isHistoryOpen = true;
   }
-  let matches: Array<Match> = [
-    { winner: "Alice", loser: "Bob", points: -5, rank: "22" },
-    { winner: "Alice", loser: "Bob", points: 10, rank: "24" },
-    { winner: "Alice", loser: "Bob", points: 10, rank: "24" },
-    { winner: "Alice", loser: "Bob", points: 7, rank: "23" },
-    { winner: "Alice", loser: "Bob", points: 10, rank: "24" },
-    { winner: "Alice", loser: "Bob", points: 10, rank: "24" },
-  ];
+  let matches: Array<Match>;
+
+  export async function getHistory(): Promise<Match[]> {
+    let response = await fetch(API_URL + "/history/" + $store.ftId, {
+      credentials: "include",
+      mode: "cors",
+    });
+    return await response.json();
+  }
 
   // FRIENDS
 
