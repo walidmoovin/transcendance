@@ -82,7 +82,9 @@ export class UsersController {
 
   @Get('history/:id')
   @UseGuards(AuthenticatedGuard)
-  async getHistoryById (@Param('id', ParseIntPipe) id: number): Promise<Result[]> {
+  async getHistoryById (
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<Result[]> {
     return await this.pongService.getHistoryById(id)
   }
 
@@ -180,7 +182,10 @@ export class UsersController {
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  async create (@Body() payload: UserDto, @FtUser() profile: Profile): Promise<User | null> {
+  async create (
+    @Body() payload: UserDto,
+      @FtUser() profile: Profile
+  ): Promise<User | null> {
     const user = await this.usersService.findUser(profile.id)
     if (user != null) {
       return await this.usersService.update(user, payload)

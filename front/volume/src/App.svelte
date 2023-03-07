@@ -24,7 +24,7 @@
   });
   setInterval(() => {
     getUser();
-  },15000)
+  }, 15000);
 
   let isProfileOpen = false;
   function clickProfile() {
@@ -90,7 +90,7 @@
     friendsInterval = setInterval(async () => {
       friends = await getFriends();
       invits = await getInvits();
-    }, 5000)
+    }, 5000);
   }
 
   // SPECTATE
@@ -198,7 +198,7 @@
         <div
           on:click={() => {
             isFriendOpen = false;
-            clearInterval(friendsInterval)
+            clearInterval(friendsInterval);
           }}
           on:keydown={() => {
 	    isFriendOpen = false;

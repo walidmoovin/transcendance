@@ -7,7 +7,6 @@ import { createWriteStream } from 'fs'
 
 import { UsersService } from 'src/users/users.service'
 import { User } from 'src/users/entity/user.entity'
-import { randomUUID } from 'crypto'
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
@@ -37,10 +36,8 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     if ((await this.usersService.findUser(ftId)) === null) {
       const newUser = new User()
       newUser.ftId = profile.id as number
-      newUser.socketKey = randomUUID()
       newUser.username = profile.username as string
       newUser.avatar = `${ftId}.jpg`
-      newUser.lastAccess = Date.now()
       void this.usersService.create(newUser)
       const file = createWriteStream(`avatars/${ftId}.jpg`)
       get(profile._json.image.versions.small, function (response) {

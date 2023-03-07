@@ -1,7 +1,7 @@
 <script lang="ts">
   import { API_URL, store, logout } from "../Auth";
 
-  export let edit = false
+  export let edit = 0
   export let user = {
     username: "",
     wins: 0,
@@ -15,12 +15,12 @@
     let response = await fetch(API_URL, {
       headers: { "content-type": "application/json" },
       method: "POST",
-      body: JSON.stringify({ username: username }),
+      body: JSON.stringify({ username: user.username }),
       credentials: "include",
     });
     if (response.ok) {
       alert("Succefully changed username.");
-      $store.username = username;
+      $store.username = user.username;
     }
   }
 
@@ -54,7 +54,7 @@
         <input type="file" id="avatar-input" name="avatar" on:change={submitAvatar} />
         </form>
         <label class="img-class" for="avatar-input">
-          <img src={API_URL + "/avatar"} alt="avatar"/>
+          <img src={API_URL + "/avatar"} alt="avatar" class="profile-img"/>
         </label>
       {/if}
     </div>
@@ -109,14 +109,13 @@
   }
 
   .profile-header {
-    width: 80px;
-    height: 80px;
     margin:auto;
     justify-content: center;
   }
 
-  .two-factor-auth {
-    margin-top: 1rem;
+  .profile-img {
+    width: 256px;
+    height: 256px;
   }
 
   #avatar-input {

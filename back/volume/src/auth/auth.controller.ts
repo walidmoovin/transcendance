@@ -9,7 +9,7 @@ import { FtUser } from './42.decorator'
 export class AuthController {
   @Get('in')
   @UseGuards(FtOauthGuard)
-  ftAuth () {}
+  ftAuth (): void {}
 
   @Get('inReturn')
   @UseGuards(FtOauthGuard)

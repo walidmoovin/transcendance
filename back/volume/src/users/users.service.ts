@@ -34,18 +34,18 @@ export class UsersService {
   async updateStatus() {
     let users = await this.usersRepository.find({})
     users.forEach((usr) => {
-      if (Date.now() - usr.lastAccess > 60) {
-        usr.status= "offline"
+      if (Date.now() - usr.lastAccess > 60000) {
+        usr.status = 'offline'
         this.usersRepository.save(usr)
       }
     })
   }
 
   async findUser (ftId: number): Promise<User | null> {
-    let user = await this.usersRepository.findOneBy({ ftId })
-    if (!user) return null
+    const user = await this.usersRepository.findOneBy({ ftId })
+    if (user == null) return null
     user.lastAccess = Date.now()
-    user.status = "online"
+    user.status = 'online'
     this.usersRepository.save(user)
     return user
   }

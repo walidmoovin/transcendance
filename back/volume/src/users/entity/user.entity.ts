@@ -7,6 +7,7 @@ import {
   JoinTable,
   UpdateDateColumn
 } from 'typeorm'
+import { randomUUID } from 'crypto'
 
 import Message from 'src/chat/entity/message.entity'
 import Channel from 'src/chat/entity/channel.entity'
@@ -17,13 +18,13 @@ export class User {
   @PrimaryGeneratedColumn()
     id: number
 
-  @Column({type: "bigint"})
+  @Column({ type: 'bigint', default: Date.now() })
     lastAccess: number
 
   @Column({ unique: true })
     ftId: number
 
-  @Column({ unique: true })
+  @Column({ unique: true, default: randomUUID() })
     socketKey: string
 
   @Column({ unique: true })
@@ -32,7 +33,7 @@ export class User {
   @Column({ default: 'online' })
     status: string
 
-  @Column({ name: 'avatar' })
+  @Column({ name: 'avatar'})
     avatar: string
 
   @Column({ default: 0 })
@@ -71,7 +72,6 @@ export class User {
   @ManyToMany(() => User)
   @JoinTable()
     friends: User[]
-
 }
 
 export default User
