@@ -3,6 +3,7 @@
         username: string;
         wins: number;
         losses: number;
+	winrate: number;
         rank: number;
     }
 </script>

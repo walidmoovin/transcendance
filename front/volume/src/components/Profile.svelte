@@ -1,13 +1,15 @@
 <script lang="ts">
   import { API_URL, store, logout } from "../Auth";
 
-  export let username = "";
-  export let wins = 0;
-  export let losses = 0;
-  export let winrate = 0;
-  export let elo = 0;
-  export let rank = -1;
-  export let is2faEnabled = false;
+  export let edit = false
+  export let user = {
+    username: "",
+    wins: 0,
+    losses: 0,
+    winrate: 0,
+    rank: -1,
+    is2faEnabled: false
+  }
 
   async function handleSubmit() {
     let response = await fetch(API_URL, {
@@ -24,8 +26,9 @@
 
   async function handle2fa(event: Event) {
     event.preventDefault();
-    alert("Trying to " + (is2faEnabled ? "disable" : "enable") + " 2FA");
+    alert("Trying to " + (user.is2faEnabled ? "disable" : "enable") + " 2FA");
   }
+
   function submitAvatar() {
     let form: HTMLFormElement = <HTMLFormElement>(
       document.getElementById("upload_avatar")
@@ -36,49 +39,44 @@
 
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
+
+    <h3>===| <mark>{user.username}'s Profile</mark> |===</h3>
     <div class="profile-header">
-      <form
-        action={API_URL + "/avatar"}
-        method="post"
-        enctype="multipart/form-data"
-        id="upload_avatar"
-      >
-        <div class="input-avatar">
-          <label for="avatar-input">
-            <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
-          </label>
-          <input
-            type="file"
-            id="avatar-input"
-            name="avatar"
-            on:change={submitAvatar}
-          />
-        </div>
-      </form>
+      {#if edit == 0}
+        <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
+      {:else}
+        <form
+          action={API_URL + "/avatar"}
+          method="post"
+          enctype="multipart/form-data"
+          id="upload_avatar"
+        >
+        <input type="file" id="avatar-input" name="avatar" on:change={submitAvatar} />
+        </form>
+        <label class="img-class" for="avatar-input">
+          <img src={API_URL + "/avatar"} alt="avatar"/>
+        </label>
+      {/if}
     </div>
     <div class="profile-body">
-      <form on:submit|preventDefault={handleSubmit}>
-        <div class="username">
-          <label for="username">Username</label>
-          <input type="text" id="username" bind:value={username} />
-          <button type="submit">Submit</button>
-        </div>
-      </form>
-      <p>Wins: {wins}</p>
-      <p>Losses: {losses}</p>
-      <p>Winrate: {winrate}%</p>
-      <p>Elo : {elo}</p>
-      <p>Rank: {rank}</p>
-      <form class="two-factor-auth" on:submit={handle2fa}>
-        <button type="submit">
-          {#if is2faEnabled}
-            Disable 2FA
-          {:else}
-            Enable 2FA
-          {/if}
-        </button>
-      </form>
-      <button type="button" on:click={logout}>Log Out</button>
+      <p>Wins: {user.wins}</p>
+      <p>Losses: {user.losses}</p>
+      <p>Winrate: {user.winrate}%</p>
+      <p>Rank: {user.rank}</p>
+      {#if edit == 1}
+        <form id="username-form" class="username" on:submit|preventDefault={handleSubmit}>
+          <input type="text" id="username"  bind:value={user.username} />
+          <button type="submit" class="username" form="username-form">Change</button>
+        </form>
+          <button type="button" on:click={handle2fa}>
+            {#if user.is2faEnabled}
+              Disable 2FA
+            {:else}
+              Enable user.2FA
+            {/if}
+          </button>
+        <button id="logout" type="button" on:click={logout}>Log Out</button>
+      {/if}
     </div>
   </div>
 </div>
@@ -110,17 +108,39 @@
     align-items: center;
   }
 
-  .profile-img {
+  .profile-header {
     width: 80px;
     height: 80px;
-    margin-right: 1rem;
+    margin:auto;
+    justify-content: center;
   }
 
   .two-factor-auth {
     margin-top: 1rem;
   }
 
-  .input-avatar > input {
+  #avatar-input {
     display: none;
+  }
+
+  .profile > h3 {
+    display: flex;
+    justify-content: center;
+  }
+  .profile-body > p {
+    display: flex;
+    justify-content: center;
+  }
+
+  .profile-body > img {
+    display: flex;
+    justify-content: center;
+  }
+  .username {
+    text-align: center;
+  }
+
+  #logout {
+    float: right;
   }
 </style>

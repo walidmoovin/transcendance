@@ -4,8 +4,8 @@
   import Profile from "./components/Profile.svelte";
   import MatchHistory from "./components/MatchHistory.svelte";
   import type { Match } from "./components/MatchHistory.svelte";
-  import Friends from "./components/Friends.svelte";
-  import type { Friend } from "./components/Friends.svelte";
+  import Friends,{addFriend} from "./components/Friends.svelte";
+  import type { Friend} from "./components/Friends.svelte";
   import Spectate from "./components/Spectate.svelte";
   import type { SpectateType } from "./components/Spectate.svelte";
   import Pong from "./components/Pong/Pong.svelte";
@@ -13,6 +13,7 @@
   import Channels from "./components/Channels.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
+  import type { Player } from "./components/Leaderboard.svelte"
 
   import { store, getUser, login, logout, API_URL } from "./Auth";
 
@@ -28,6 +29,21 @@
   let isProfileOpen = false;
   function clickProfile() {
     isProfileOpen = true;
+  }
+
+  let userProfile;
+  let isIdProfileOpen = false;
+  async function openIdProfile(event) {
+    console.log("Opening profile: " + event.detail)
+    isIdProfileOpen = true;
+    const res = await fetch(API_URL + "/user/" + event.detail, {
+      method: "get",
+      mode: "cors",
+      cache: "no-cache",
+      redirect: "follow",
+      referrerPolicy: "no-referrer",
+    });
+    userProfile = await res.json();
   }
 
   // HISTORY
@@ -112,10 +128,20 @@
     selectedChannel = channel;
   };
 
+  let leaderboard: Player[] = [];
+  export async function getLeader(): Promise<Player[]> {
+    let response = await fetch(API_URL + "/leader", {
+      credentials: "include",
+      mode: "cors",
+    });
+    return await response.json();
+  }
+
   // LEADERBOARD
   let isLeaderboardOpen = false;
-  function clickLeaderboard() {
+  async function clickLeaderboard() {
     isLeaderboardOpen = true;
+    leaderboard = await getLeader();
   }
 
 </script>
@@ -139,7 +165,8 @@
             on:click={() => (selectedChannel = undefined)}
             on:keydown={() => (selectedChannel = undefined)}
           >
-            <Chat2 chatMessages={selectedChannel.messages} />
+            <Chat2 chatMessages={selectedChannel.messages} 
+              on:view-profile={openIdProfile} on:add-friend={addFriend} />
           </div>
         {/if}
         {#if !selectedChannel}
@@ -164,7 +191,7 @@
           on:click={() => (isLeaderboardOpen = false)}
           on:keydown={() => (isLeaderboardOpen = false)}
         >
-          <Leaderboard />
+          <Leaderboard {leaderboard}/>
         </div>
       {/if}
       {#if isFriendOpen}
@@ -173,7 +200,10 @@
             isFriendOpen = false;
             clearInterval(friendsInterval)
           }}
-          on:keydown={() => (isFriendOpen = false)}
+          on:keydown={() => {
+	    isFriendOpen = false;
+            clearInterval(friendsInterval)
+          }}
         >
           <Friends {friends} {invits} />
         </div>
@@ -192,12 +222,19 @@
           on:keydown={() => (isProfileOpen = false)}
         >
           <Profile
-            username={$store.username}
-            wins={$store.wins}
-            losses={$store.looses}
-            winrate={$store.winrate}
-            rank={$store.rank}
-            is2faEnabled={false}
+	    user = {$store}
+            edit = 1
+          />
+        </div>
+      {/if}
+      {#if isIdProfileOpen}
+        <div
+          on:click={() => (isIdProfileOpen = false)}
+          on:keydown={() => (isIdProfileOpen = false)}
+        >
+          <Profile
+	    user = {userProfile}
+            edit = 0
           />
         </div>
       {/if}

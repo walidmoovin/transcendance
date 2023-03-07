@@ -4,22 +4,13 @@
     status: "online" | "offline" | "in a game";
     ftId: number;
   }
-</script>
-
-<script lang="ts">
-  import { API_URL } from "../Auth";
-
-  export let friends: Friend[];
-  export let invits: Friend[];
-
-  async function addFriend(event: any) {
+  export async function addFriend(event: any) {
     console.log(typeof event);
 
     event.preventDefault();
-    const usernameInput = event.target.querySelector('input[type="text"]');
-    console.log(usernameInput);
-
-    const username = usernameInput.value;
+    const username = event.target ?
+      event.target.querySelector('input[type="text"]').value
+      : event.detail;
 
     let response = await fetch(API_URL + "/user/" + username, {
       credentials: "include",
@@ -36,9 +27,16 @@
     } else {
       console.log("Unknown user.");
     }
-    usernameInput.value = "";
     alert("Trying to add friend: " + username);
   }
+</script>
+
+<script lang="ts">
+  import { API_URL } from "../Auth";
+
+  export let friends: Friend[];
+  export let invits: Friend[];
+
 </script>
 
 <div class="overlay">

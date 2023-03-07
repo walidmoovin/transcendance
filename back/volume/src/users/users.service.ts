@@ -30,7 +30,7 @@ export class UsersService {
     return user
   }
 
-  @Cron('0 */60 * * *')
+  @Cron('0 * * * * *')
   async updateStatus() {
     let users = await this.usersRepository.find({})
     users.forEach((usr) => {
