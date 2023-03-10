@@ -19,38 +19,47 @@
   let spectateWindow: boolean = false;
   let gamePlaying: boolean = false;
   let matchmaking: boolean = false;
-  let gameCanvas: HTMLCanvasElement;
   let connected: boolean = false;
   let loggedIn: boolean = false;
   let failedLogIn: boolean = false;
   let socket: WebSocket;
-  let username: string = $store.username;
   let elementsColor: string = "#FFFFFF";
   let backgroundColor: string = "#000000";
   let game: Game;
+  let renderCanvas: HTMLCanvasElement;
+  let canvas: HTMLCanvasElement;
+  let context: CanvasRenderingContext2D;
 
   function setupSocket(
-    canvas: HTMLCanvasElement,
-    context: CanvasRenderingContext2D
+    _renderCanvas: HTMLCanvasElement,
+    _canvas: HTMLCanvasElement,
+    _context: CanvasRenderingContext2D
   ) {
     socket = new WebSocket(SERVER_URL);
-    game = new Game(canvas, context, elementsColor, backgroundColor);
+    renderCanvas = _renderCanvas;
+    canvas = _canvas;
+    context = _context;
+    game = new Game(_renderCanvas, canvas, context, elementsColor, backgroundColor);
+
     socket.onmessage = function (e) {
       const event_json = JSON.parse(e.data);
       const event = event_json.event;
       const data = event_json.data;
 
       if (event == GAME_EVENTS.START_GAME) {
-        matchmaking = false;
         game.start(socket);
       } else if (event == GAME_EVENTS.GAME_TICK) {
         game.update(data);
       } else if (event == GAME_EVENTS.GET_GAME_INFO) {
         if (data && data.gameId != game.id) {
+          if (gamePlaying && data.gameId == '') {
+            resetMenus();
+            gamePlaying = false;
+          }
           if (data.yourPaddleIndex !== -2) {
             gamePlaying = true;
             game.setInfo(data);
-          } else gamePlaying = false;
+          }
         }
       } else if (event == GAME_EVENTS.REGISTER_PLAYER) {
         if (data) {
@@ -78,26 +87,29 @@
         );
       }
     };
-    socket.onopen = () => {
-      void logIn();
-      connected = true;
-    };
-    socket.onclose = () => {
-      connected = false;
-      setupSocket(canvas, context);
-    };
+    socket.onopen = onSocketOpen
+    socket.onclose = onSocketClose
   }
+
+  async function onSocketOpen() {
+    await getUser();
+    void logIn();
+    connected = true;
+  };
+
+  async function onSocketClose() {
+    connected = false;
+    setupSocket(renderCanvas, canvas, context);
+  };
 
   function updateGameInfo() {
     socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
   }
 
   async function logIn() {
-    await getUser();
-    const socketKey = $store.socketKey;
     const data: { playerName: StringDto; socketKey: StringDto } = {
-      playerName: { value: username },
-      socketKey: { value: socketKey },
+      playerName: { value: $store.username },
+      socketKey: { value: $store.socketKey },
     };
     socket.send(formatWebsocketData(GAME_EVENTS.REGISTER_PLAYER, data));
   }
@@ -112,6 +124,12 @@
     socket.send(formatWebsocketData(GAME_EVENTS.MATCHMAKING, data));
   }
 
+  function resetMenus() {
+    createMatchWindow = false;
+    spectateWindow = false;
+    matchmaking = false;
+  }
+
   $: {
     if (game !== undefined) {
       game.updateColors(elementsColor, backgroundColor);
@@ -120,7 +138,7 @@
 </script>
 
 <main>
-  <GameComponent {gameCanvas} {gamePlaying} {setupSocket} {socket} />
+  <GameComponent {gamePlaying} {setupSocket} {socket} />
   {#if gamePlaying}
     <div />
   {:else if loggedIn}
@@ -145,7 +163,7 @@
         on:click={() => (createMatchWindow = false)}
         on:keydown={() => (createMatchWindow = false)}
       >
-        <GameCreation {socket} {username} />
+        <GameCreation {socket} />
       </div>
     {:else if spectateWindow}
       <div

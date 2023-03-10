@@ -3,10 +3,11 @@
   import { Point, Rect } from "./utils";
   import type { Map } from "./Map";
   import { DEFAULT_BALL_SIZE, DEFAULT_MAP_SIZE } from "./constants";
+  import { Ball } from "./Ball";
 
   export let map: Map;
 
-  let canvas: HTMLCanvasElement;
+  let gameCanvas: HTMLCanvasElement;
   let context: CanvasRenderingContext2D;
   let wallWidth = 20;
   let wallHeight = 80;
@@ -14,65 +15,95 @@
   const MAX_WALLS = 5;
 
   onMount(() => {
-    if (canvas) {
-      canvas.width = map.size.x;
-      canvas.height = map.size.y;
-      context = canvas.getContext("2d");
+    if (gameCanvas) {
+      gameCanvas.width = map.size.x;
+      gameCanvas.height = map.size.y;
+      context = gameCanvas.getContext("2d");
       drawMap();
     }
   });
 
-  $: {
-    if (canvas) {
-      canvas.width = map.size.x;
-      canvas.height = map.size.y;
-    }
-    drawMap();
-  }
-
   function drawMap() {
-    if (canvas && context) {
+    if (gameCanvas && context) {
       context.fillStyle = "black";
       context.fillRect(0, 0, map.size.x, map.size.y);
       for (const wall of map.walls) {
         wall.draw(context, "white");
       }
+      const ball = new Ball(
+        new Point(map.size.x / 2, map.size.y / 2),
+        DEFAULT_BALL_SIZE
+      );
+      ball.draw(context, "white");
     }
   }
 
   function click(e: MouseEvent, rightClick: boolean) {
-    if (rightClick) removeWall(e);
-    else addWall(e);
+    if (rightClick) {
+      e.preventDefault();
+      removeWall(e);
+    } else {
+      addWall(e);
+    }
     drawMap();
   }
 
   function addWall(e: MouseEvent) {
+    const rect: any = gameCanvas.getBoundingClientRect();
     const wall = new Rect(
-      new Point(e.offsetX, e.offsetY),
+      getMapXY(e),
       new Point(wallWidth, wallHeight)
     );
     const ballSpawnArea = new Rect(
       new Point(map.size.x / 2, map.size.y / 2),
       new Point(DEFAULT_BALL_SIZE.x * 5, DEFAULT_BALL_SIZE.y * 5)
     );
+
     if (map.walls.length < MAX_WALLS && !wall.collides(ballSpawnArea))
       map.walls.push(wall);
   }
 
   function removeWall(e: MouseEvent) {
-    e.preventDefault();
-    const click = new Rect(new Point(e.offsetX, e.offsetY), new Point(1, 1));
+    const click = new Rect(getMapXY(e), new Point(1, 1));
     const index = map.walls.findIndex((w) => w.collides(click));
     if (index != -1) map.walls.splice(index, 1);
+  }
+
+  function getCanvasXY(pagePoint: Point): Point {
+    const rect: any = gameCanvas.getBoundingClientRect();
+    const x = pagePoint.x - rect.left;
+    const y = pagePoint.y - rect.top;
+    return new Point(x, y);
+  }
+
+  function getMapXY(e: MouseEvent): Point {
+    const canvasPoint: Point = getCanvasXY(new Point(e.pageX, e.pageY));
+    const x = canvasPoint.x * gameCanvas.width / gameCanvas.clientWidth;
+    const y = canvasPoint.y * gameCanvas.height / gameCanvas.clientHeight;
+    return new Point(x, y);
   }
 </script>
 
 <div>
   <h1>Map Customization:</h1>
   Right click to add walls, left click to remove walls. (Max {MAX_WALLS} walls)
+  <button
+    on:click={() => {
+      map.walls = [];
+      drawMap();
+    }}>Clear</button
+  >
   <canvas
-    bind:this={canvas}
+    bind:this={gameCanvas}
     on:click={(e) => click(e, false)}
     on:contextmenu={(e) => click(e, true)}
+    class="renderCanvas"
   />
 </div>
+
+<style>
+  .renderCanvas {
+    width: 100%;
+    height: 100%;
+  }
+</style>

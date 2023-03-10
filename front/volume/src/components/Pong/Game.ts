@@ -9,6 +9,7 @@ import { formatWebsocketData, Point, Rect } from "./utils";
 const FPS = import.meta.env.VITE_FRONT_FPS;
 
 export class Game {
+  renderCanvas: HTMLCanvasElement;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   ball: Ball;
@@ -21,11 +22,13 @@ export class Game {
   backgroundColor: string;
 
   constructor(
+    renderCanvas: HTMLCanvasElement,
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
     elementsColor: string,
     backgroundColor: string
   ) {
+    this.renderCanvas = renderCanvas;
     this.canvas = canvas;
     this.context = context;
     this.players = [];
@@ -37,6 +40,8 @@ export class Game {
   }
 
   setInfo(data: GameInfo) {
+    this.renderCanvas.width = data.mapSize.x;
+    this.renderCanvas.height = data.mapSize.y;
     this.canvas.width = data.mapSize.x;
     this.canvas.height = data.mapSize.y;
     this.ball = new Ball(
@@ -72,7 +77,7 @@ export class Game {
 
   start(socket: WebSocket) {
     if (this.my_paddle) {
-      this.canvas.addEventListener("mousemove", (e) => {
+      this.renderCanvas.addEventListener("pointermove", (e) => {
         this.my_paddle.move(e);
         const data: Point = this.my_paddle.rect.center;
         socket.send(formatWebsocketData(GAME_EVENTS.PLAYER_MOVE, data));
@@ -121,5 +126,7 @@ export class Game {
       max_width,
       this.context
     );
+
+    this.renderCanvas.getContext("2d").drawImage(this.canvas, 0, 0);
   }
 }

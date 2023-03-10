@@ -27,28 +27,28 @@
       {#if link.text === "Leaderboard"}
         <li>
           <button on:click={clickLeaderboard}>
-            <p>Leaderboard</p>
+            Leaderboard
           </button>
         </li>
       {/if}
       {#if link.text === "Spectate"}
         <li>
           <button on:click={clickSpectate}>
-            <p>Spectate</p>
+            Spectate
           </button>
         </li>
       {/if}
       {#if link.text === "Channels"}
         <li>
           <button on:click={clickChannels}>
-            <p>Channels</p>
+            Channels
           </button>
         </li>
       {/if}
       {#if link.text === "Friends"}
         <li>
           <button on:click={clickFriends}>
-            <p>Friends</p>
+            Friends
           </button>
         </li>
       {/if}
@@ -62,7 +62,7 @@
       {#if link.text === "History"}
         <li>
           <button on:click={clickHistory}>
-            <p>History</p>
+            History
           </button>
         </li>
       {/if}
@@ -111,17 +111,18 @@
     .navigation-bar {
       flex-direction: column;
       align-items: stretch;
+      padding: 0;
     }
 
     .navigation-bar ul {
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      margin: 4px;
     }
 
     .navigation-bar li {
       margin: 0;
-      padding: 1rem;
       text-align: center;
     }
   }
