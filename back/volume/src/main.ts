@@ -16,7 +16,7 @@ async function bootstrap (): Promise<void> {
       ? +process.env.BACK_PORT
       : 3001
   const cors = {
-    origin: ['http://localhost:80', 'http://localhost', '*'],
+    origin: /^(http|ws):\/\/localhost(:\d+)?$/,
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,
