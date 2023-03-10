@@ -39,7 +39,13 @@
     renderCanvas = _renderCanvas;
     canvas = _canvas;
     context = _context;
-    game = new Game(_renderCanvas, canvas, context, elementsColor, backgroundColor);
+    game = new Game(
+      _renderCanvas,
+      canvas,
+      context,
+      elementsColor,
+      backgroundColor
+    );
 
     socket.onmessage = function (e) {
       const event_json = JSON.parse(e.data);
@@ -52,7 +58,7 @@
         game.update(data);
       } else if (event == GAME_EVENTS.GET_GAME_INFO) {
         if (data && data.gameId != game.id) {
-          if (gamePlaying && data.gameId == '') {
+          if (gamePlaying && data.gameId == "") {
             resetMenus();
             gamePlaying = false;
           }
@@ -81,26 +87,28 @@
             updateGameInfo();
           }, 1000);
         }
+      } else if (event == GAME_EVENTS.READY) {
+        game.youAreReady = true;
       } else {
         console.log(
           "Unknown event from server: " + event + " with data " + data
         );
       }
     };
-    socket.onopen = onSocketOpen
-    socket.onclose = onSocketClose
+    socket.onopen = onSocketOpen;
+    socket.onclose = onSocketClose;
   }
 
   async function onSocketOpen() {
     await getUser();
     void logIn();
     connected = true;
-  };
+  }
 
   async function onSocketClose() {
     connected = false;
     setupSocket(renderCanvas, canvas, context);
-  };
+  }
 
   function updateGameInfo() {
     socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
@@ -128,6 +136,7 @@
     createMatchWindow = false;
     spectateWindow = false;
     matchmaking = false;
+    game.youAreReady = false;
   }
 
   $: {
@@ -138,7 +147,7 @@
 </script>
 
 <main>
-  <GameComponent {gamePlaying} {setupSocket} {socket} />
+  <GameComponent {game} {gamePlaying} {setupSocket} {socket} />
   {#if gamePlaying}
     <div />
   {:else if loggedIn}

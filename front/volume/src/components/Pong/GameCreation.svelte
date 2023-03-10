@@ -7,6 +7,7 @@
 
   export let username: string;
   export let socket: WebSocket;
+
   let map: Map = new Map(DEFAULT_MAP_SIZE.clone(), []);
   let otherUsername: string = "Garfield";
 

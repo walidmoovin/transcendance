@@ -57,7 +57,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const name: string | undefined = this.socketToPlayerName.get(client)
     const game: Game | undefined = this.games.playerGame(name)
-    if (game !== undefined && game.isPlaying()) {
+    if (game?.isPlaying() !== undefined) {
       void game.stop()
     }
     if (name !== undefined) {
@@ -152,10 +152,12 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         (client.id === player1Socket.id || client.id === player2Socket.id) &&
         player1Socket.id !== player2Socket.id
       ) {
+        const ranked = false
         this.games.newGame(
           [player1Socket, player2Socket],
           [player1Socket.id, player2Socket.id],
-          realGameCreationDto
+          realGameCreationDto,
+          ranked
         )
         return { event: GAME_EVENTS.CREATE_GAME, data: true }
       }
@@ -167,11 +169,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ready (
     @ConnectedSocket()
       client: WebSocketWithId
-  ): void {
+  ): { event: string, data: boolean } {
+    let succeeded: boolean = false
     const name: string | undefined = this.socketToPlayerName.get(client)
     if (name !== undefined) {
       this.games.ready(name)
+      succeeded = true
     }
+    return { event: GAME_EVENTS.READY, data: succeeded }
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -211,6 +216,18 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return {
       event: GAME_EVENTS.MATCHMAKING,
       data: { matchmaking: isMatchmaking }
+    }
+  }
+
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @SubscribeMessage(GAME_EVENTS.LEAVE_GAME)
+  leaveGame (
+    @ConnectedSocket()
+      client: WebSocketWithId
+  ): void {
+    const name: string | undefined = this.socketToPlayerName.get(client)
+    if (name !== undefined) {
+      void this.games.leaveGame(name)
     }
   }
 }

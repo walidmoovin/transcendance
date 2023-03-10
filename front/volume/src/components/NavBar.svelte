@@ -26,30 +26,22 @@
     {#each links as link}
       {#if link.text === "Leaderboard"}
         <li>
-          <button on:click={clickLeaderboard}>
-            Leaderboard
-          </button>
+          <button on:click={clickLeaderboard}> Leaderboard </button>
         </li>
       {/if}
       {#if link.text === "Spectate"}
         <li>
-          <button on:click={clickSpectate}>
-            Spectate
-          </button>
+          <button on:click={clickSpectate}> Spectate </button>
         </li>
       {/if}
       {#if link.text === "Channels"}
         <li>
-          <button on:click={clickChannels}>
-            Channels
-          </button>
+          <button on:click={clickChannels}> Channels </button>
         </li>
       {/if}
       {#if link.text === "Friends"}
         <li>
-          <button on:click={clickFriends}>
-            Friends
-          </button>
+          <button on:click={clickFriends}> Friends </button>
         </li>
       {/if}
       {#if link.text === "Profile"}
@@ -61,9 +53,7 @@
       {/if}
       {#if link.text === "History"}
         <li>
-          <button on:click={clickHistory}>
-            History
-          </button>
+          <button on:click={clickHistory}> History </button>
         </li>
       {/if}
       {#if link.text === "Home"}

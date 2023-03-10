@@ -17,38 +17,6 @@ import { type GameUpdate } from '../dtos/GameUpdate'
 import { type GameInfo } from '../dtos/GameInfo'
 import { type PongService } from '../pong.service'
 
-function gameLoop (game: Game): void {
-  const canvasRect: Rect = new Rect(
-    new Point(game.map.size.x / 2, game.map.size.y / 2),
-    new Point(game.map.size.x, game.map.size.y)
-  )
-
-  game.ball.update(
-    canvasRect,
-    game.players.map((p) => p.paddle),
-    game.map
-  )
-  const indexPlayerScored: number = game.ball.getIndexPlayerScored()
-  if (indexPlayerScored !== -1) {
-    game.players[indexPlayerScored].score += 1
-    if (game.players[indexPlayerScored].score >= DEFAULT_WIN_SCORE) {
-      console.log(`${game.players[indexPlayerScored].name} won!`)
-      void game.stop()
-    }
-  }
-
-  const data: GameUpdate = {
-    paddlesPositions: game.players.map((p) => p.paddle.rect.center),
-    ballPosition: game.ball.rect.center,
-    scores: game.players.map((p) => p.score)
-  }
-  const websocketData: string = formatWebsocketData(
-    GAME_EVENTS.GAME_TICK,
-    data
-  )
-  game.broadcastGame(websocketData)
-}
-
 export class Game {
   id: string
   timer: NodeJS.Timer | null
@@ -57,6 +25,7 @@ export class Game {
   players: Player[] = []
   spectators: Spectator[] = []
   playing: boolean
+  ranked: boolean
   gameStoppedCallback: (name: string) => void
 
   constructor (
@@ -65,11 +34,13 @@ export class Game {
     names: string[],
     map: MapDtoValidated,
     gameStoppedCallback: (name: string) => void,
-    private readonly pongService: PongService
+    private readonly pongService: PongService,
+    ranked: boolean
   ) {
     this.id = randomUUID()
     this.timer = null
     this.playing = false
+    this.ranked = ranked
     this.map = map
     this.gameStoppedCallback = gameStoppedCallback
     this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
@@ -88,7 +59,8 @@ export class Game {
       paddleSize: DEFAULT_PADDLE_SIZE,
       playerXOffset: DEFAULT_PLAYER_X_OFFSET,
       ballSize: DEFAULT_BALL_SIZE,
-      winScore: DEFAULT_WIN_SCORE
+      winScore: DEFAULT_WIN_SCORE,
+      ranked: this.ranked
     }
   }
 
@@ -108,47 +80,41 @@ export class Game {
     this.players.push(
       new Player(socket, uuid, name, paddleCoords, this.map.size)
     )
-  }
-
-  removePlayer (name: string): void {
-    const playerIndex: number = this.players.findIndex((p) => p.name === name)
-    if (playerIndex !== -1) {
-      this.players.splice(playerIndex, 1)
-      if (this.players.length < 2) {
-        void this.stop()
-      }
+    if (this.ranked) {
+      this.ready(name)
     }
   }
 
   ready (name: string): void {
     const playerIndex: number = this.players.findIndex((p) => p.name === name)
-    if (playerIndex !== -1) {
+    if (playerIndex !== -1 && !this.players[playerIndex].ready) {
       this.players[playerIndex].ready = true
-      console.log(`${this.players[playerIndex].name} is ready!`)
-      if (this.players.every((p) => p.ready)) {
+      console.log(`${this.players[playerIndex].name} is ready`)
+      if (this.players.length === 2 && this.players.every((p) => p.ready)) {
         this.start()
       }
     }
   }
 
-  private start (): boolean {
+  private start (): void {
     if (this.timer === null && this.players.length === 2) {
       this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
       this.players.forEach((p) => {
         p.newGame()
       })
-      this.timer = setInterval(gameLoop, 1000 / GAME_TICKS, this)
-      this.broadcastGame(formatWebsocketData(GAME_EVENTS.START_GAME))
       this.playing = true
-      return true
+      this.broadcastGame(formatWebsocketData(GAME_EVENTS.START_GAME))
+      this.timer = setInterval(this.gameLoop.bind(this), 1000 / GAME_TICKS)
+      console.log(`Game ${this.id} started`)
     }
-    return false
   }
 
   async stop (): Promise<void> {
     if (this.timer !== null) {
       await this.pongService.saveResult(this.players)
-      this.gameStoppedCallback(this.players[0].name)
+      if (this.players.length !== 0) {
+        this.gameStoppedCallback(this.players[0].name)
+      }
 
       clearInterval(this.timer)
       this.timer = null
@@ -165,7 +131,7 @@ export class Game {
     }
   }
 
-  broadcastGame (data: string): void {
+  private broadcastGame (data: string): void {
     this.players.forEach((p) => {
       p.socket.send(data)
     })
@@ -176,5 +142,37 @@ export class Game {
 
   isPlaying (): boolean {
     return this.playing
+  }
+
+  private gameLoop (): void {
+    const canvasRect: Rect = new Rect(
+      new Point(this.map.size.x / 2, this.map.size.y / 2),
+      new Point(this.map.size.x, this.map.size.y)
+    )
+
+    this.ball.update(
+      canvasRect,
+      this.players.map((p) => p.paddle),
+      this.map
+    )
+    const indexPlayerScored: number = this.ball.getIndexPlayerScored()
+    if (indexPlayerScored !== -1) {
+      this.players[indexPlayerScored].score += 1
+      if (this.players[indexPlayerScored].score >= DEFAULT_WIN_SCORE) {
+        console.log(`${this.players[indexPlayerScored].name} won`)
+        void this.stop()
+      }
+    }
+
+    const data: GameUpdate = {
+      paddlesPositions: this.players.map((p) => p.paddle.rect.center),
+      ballPosition: this.ball.rect.center,
+      scores: this.players.map((p) => p.score)
+    }
+    const websocketData: string = formatWebsocketData(
+      GAME_EVENTS.GAME_TICK,
+      data
+    )
+    this.broadcastGame(websocketData)
   }
 }

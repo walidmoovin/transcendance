@@ -12,7 +12,7 @@ async function bootstrap (): Promise<void> {
   const logger = new Logger()
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
   const port =
-    process.env.BACK_PORT && process.env.BACK_PORT !== ''
+    process.env.BACK_PORT !== undefined && process.env.BACK_PORT !== ''
       ? +process.env.BACK_PORT
       : 3001
   const cors = {
@@ -28,7 +28,7 @@ async function bootstrap (): Promise<void> {
       resave: false,
       saveUninitialized: false,
       secret:
-        process.env.JWT_SECRET && process.env.JWT_SECRET !== ''
+        process.env.JWT_SECRET !== undefined && process.env.JWT_SECRET !== ''
           ? process.env.JWT_SECRET
           : 'secret'
     })

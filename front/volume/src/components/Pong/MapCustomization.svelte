@@ -50,10 +50,7 @@
 
   function addWall(e: MouseEvent) {
     const rect: any = gameCanvas.getBoundingClientRect();
-    const wall = new Rect(
-      getMapXY(e),
-      new Point(wallWidth, wallHeight)
-    );
+    const wall = new Rect(getMapXY(e), new Point(wallWidth, wallHeight));
     const ballSpawnArea = new Rect(
       new Point(map.size.x / 2, map.size.y / 2),
       new Point(DEFAULT_BALL_SIZE.x * 5, DEFAULT_BALL_SIZE.y * 5)
@@ -78,8 +75,8 @@
 
   function getMapXY(e: MouseEvent): Point {
     const canvasPoint: Point = getCanvasXY(new Point(e.pageX, e.pageY));
-    const x = canvasPoint.x * gameCanvas.width / gameCanvas.clientWidth;
-    const y = canvasPoint.y * gameCanvas.height / gameCanvas.clientHeight;
+    const x = (canvasPoint.x * gameCanvas.width) / gameCanvas.clientWidth;
+    const y = (canvasPoint.y * gameCanvas.height) / gameCanvas.clientHeight;
     return new Point(x, y);
   }
 </script>

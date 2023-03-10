@@ -9,4 +9,5 @@ export class GameInfo {
   playerXOffset!: number;
   ballSize!: Point;
   winScore!: number;
+  ranked!: boolean;
 }

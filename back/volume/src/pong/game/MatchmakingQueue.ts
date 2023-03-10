@@ -49,11 +49,13 @@ export class MatchmakingQueue {
         walls: []
       }
     }
+    const ranked = true
 
     this.games.newGame(
       [player1.socket, player2.socket],
       [player1.uuid, player2.uuid],
-      gameCreationDto
+      gameCreationDto,
+      ranked
     )
   }
 }

@@ -21,7 +21,8 @@ export class Games {
   newGame (
     sockets: WebSocket[],
     uuids: string[],
-    gameCreationDto: GameCreationDtoValidated
+    gameCreationDto: GameCreationDtoValidated,
+    ranked: boolean
   ): void {
     const names: string[] = gameCreationDto.playerNames
     const map: GameMap = {
@@ -35,8 +36,9 @@ export class Games {
           uuids,
           names,
           map,
-          this.gameStopped.bind(this, names[0]),
-          this.pongService
+          this.deleteGame.bind(this, names[0]),
+          this.pongService,
+          ranked
         )
       )
       this.playerNameToGameIndex.set(names[0], this.games.length - 1)
@@ -49,13 +51,6 @@ export class Games {
     }
   }
 
-  removePlayer (name: string): void {
-    const game: Game | undefined = this.playerGame(name)
-    if (game !== undefined) {
-      game.removePlayer(name)
-    }
-  }
-
   ready (name: string): void {
     const game: Game | undefined = this.playerGame(name)
     if (game !== undefined) {
@@ -63,7 +58,7 @@ export class Games {
     }
   }
 
-  private gameStopped (name: string): void {
+  private deleteGame (name: string): void {
     const game: Game | undefined = this.playerGame(name)
     if (game !== undefined) {
       this.games.splice(this.games.indexOf(game), 1)
@@ -87,7 +82,8 @@ export class Games {
       paddleSize: DEFAULT_PADDLE_SIZE,
       playerXOffset: DEFAULT_PLAYER_X_OFFSET,
       ballSize: DEFAULT_BALL_SIZE,
-      winScore: DEFAULT_WIN_SCORE
+      winScore: DEFAULT_WIN_SCORE,
+      ranked: false
     }
   }
 
@@ -121,6 +117,14 @@ export class Games {
     if (gameIndex !== undefined) {
       this.playerNameToGameIndex.set(name, gameIndex)
       this.games[gameIndex].addSpectator(socket, uuid, name)
+    }
+  }
+
+  async leaveGame (name: string): Promise<void> {
+    const game: Game | undefined = this.playerGame(name)
+    if (game !== undefined && !game.ranked) {
+      await game.stop()
+      this.deleteGame(name)
     }
   }
 }

@@ -20,6 +20,8 @@ export class Game {
   drawInterval: NodeJS.Timer;
   elementsColor: string;
   backgroundColor: string;
+  ranked: boolean;
+  youAreReady: boolean;
 
   constructor(
     renderCanvas: HTMLCanvasElement,
@@ -33,10 +35,13 @@ export class Game {
     this.context = context;
     this.players = [];
     this.my_paddle = null;
+    this.id = "";
     this.walls = [];
     this.drawInterval = null;
     this.elementsColor = elementsColor;
     this.backgroundColor = backgroundColor;
+    this.ranked = false;
+    this.youAreReady = false;
   }
 
   setInfo(data: GameInfo) {
@@ -44,6 +49,8 @@ export class Game {
     this.renderCanvas.height = data.mapSize.y;
     this.canvas.width = data.mapSize.x;
     this.canvas.height = data.mapSize.y;
+    this.ranked = data.ranked;
+    this.youAreReady = false;
     this.ball = new Ball(
       new Point(this.canvas.width / 2, this.canvas.height / 2),
       data.ballSize
@@ -76,26 +83,28 @@ export class Game {
   }
 
   start(socket: WebSocket) {
-    if (this.my_paddle) {
-      this.renderCanvas.addEventListener("pointermove", (e) => {
-        this.my_paddle.move(e);
-        const data: Point = this.my_paddle.rect.center;
-        socket.send(formatWebsocketData(GAME_EVENTS.PLAYER_MOVE, data));
-      });
-      console.log("Game started!");
-    }
+    // if (this.my_paddle) {
+    this.renderCanvas.addEventListener("pointermove", (e) => {
+      this.my_paddle.move(e);
+      const data: Point = this.my_paddle.rect.center;
+      socket.send(formatWebsocketData(GAME_EVENTS.PLAYER_MOVE, data));
+    });
+    console.log("Game started!");
+    // }
   }
 
   update(data: GameUpdate) {
-    if (this.players[0].paddle != this.my_paddle) {
-      this.players[0].paddle.rect.center = data.paddlesPositions[0];
-    }
-    if (this.players[1].paddle != this.my_paddle) {
-      this.players[1].paddle.rect.center = data.paddlesPositions[1];
-    }
-    this.ball.rect.center = data.ballPosition;
-    for (let i = 0; i < data.scores.length; i++) {
-      this.players[i].score = data.scores[i];
+    if (this.id !== "") {
+      if (this.players[0].paddle != this.my_paddle) {
+        this.players[0].paddle.rect.center = data.paddlesPositions[0];
+      }
+      if (this.players[1].paddle != this.my_paddle) {
+        this.players[1].paddle.rect.center = data.paddlesPositions[1];
+      }
+      this.ball.rect.center = data.ballPosition;
+      for (let i = 0; i < data.scores.length; i++) {
+        this.players[i].score = data.scores[i];
+      }
     }
   }
 
