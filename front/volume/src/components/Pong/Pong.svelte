@@ -11,6 +11,8 @@
   import { getUser, store } from "../../Auth";
   import ColorPicker from "./ColorPicker.svelte";
 
+  export let fakeUser;
+
   const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT
   }`;
@@ -166,7 +168,6 @@
       <div on:click={stopMatchmaking} on:keydown={stopMatchmaking}>
         <Matchmaking {stopMatchmaking} />
       </div>
-      <button on:click={() => console.log(elementsColor)}>tet</button>
     {:else if createMatchWindow}
       <div
         on:click={() => (createMatchWindow = false)}

@@ -4,8 +4,8 @@
   import { DEFAULT_MAP_SIZE, GAME_EVENTS } from "./constants";
   import MapCustomization from "./MapCustomization.svelte";
   import type { GameCreationDto } from "./dtos/GameCreationDto";
+  import { store } from "../../Auth";
 
-  export let username: string;
   export let socket: WebSocket;
 
   let map: Map = new Map(DEFAULT_MAP_SIZE.clone(), []);
@@ -13,7 +13,7 @@
 
   function createGame() {
     const data: GameCreationDto = {
-      playerNames: [username, otherUsername],
+      playerNames: [$store.username, otherUsername],
       map,
     };
     socket.send(formatWebsocketData(GAME_EVENTS.CREATE_GAME, data));

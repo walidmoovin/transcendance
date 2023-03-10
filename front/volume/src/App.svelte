@@ -14,8 +14,8 @@
   import type { ChannelsType } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
   import type { Player } from "./components/Leaderboard.svelte";
-
   import { store, getUser, login, logout, API_URL } from "./Auth";
+  import FakeLogin from "./FakeLogin.svelte";
 
   // PROFILE
 
@@ -145,6 +145,20 @@
     isLeaderboardOpen = true;
     leaderboard = await getLeader();
   }
+
+  let usernameFake = "test";
+  let ftIdFake = "42";
+  let fakemenu = true;
+  let fakeUser = false;
+  function impersonate() {
+    const user = {
+      username: "test",
+      socketKey: "42",
+    };
+    store.set(user)
+    fakeUser = true
+    fakemenu = false 
+  }
 </script>
 
 <main>
@@ -236,7 +250,14 @@
           <Profile user={userProfile} edit={0} />
         </div>
       {/if}
-      <Pong />
+
+      {#if fakemenu}
+        <FakeLogin username={usernameFake} ftId={ftIdFake} />
+        <button on:click={impersonate}>Impersonate</button>
+        <button on:click={() => fakemenu = false}>No impersonate</button>
+      {:else}
+        <Pong {fakeUser} />
+      {/if}
     {/if}
   </div>
 </main>
