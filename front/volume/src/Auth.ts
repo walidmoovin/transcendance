@@ -7,8 +7,7 @@ store.subscribe((value) => {
   else localStorage.removeItem("user");
 });
 
-export const API_URL =
-  "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT;
+export const API_URL = `http://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_BACK_PORT}`
 
 export async function getUser() {
   const res = await fetch(API_URL, {

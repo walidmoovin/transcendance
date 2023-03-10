@@ -1,15 +1,6 @@
-<script lang="ts" context="module">
-  export interface Player {
-    username: string;
-    wins: number;
-    looses: number;
-    matchs: number;
-    winrate: number;
-    rank: number;
-  }
-</script>
 
 <script lang="ts">
+  import type Player from './Profile.svelte'
   export let leaderboard: Array<Player> = [];
 </script>
 

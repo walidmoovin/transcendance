@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import type { chatMessagesType } from "./Chat2.svelte";
+  import type { chatMessagesType } from "./Chat.svelte";
   export interface ChannelsType {
     id: string;
     name: string;

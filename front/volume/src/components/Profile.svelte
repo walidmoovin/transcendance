@@ -1,15 +1,20 @@
+<script lang="ts" context="module">
+  export interface Player {
+    username: string;
+    wins: number;
+    looses: number;
+    matchs: number;
+    winrate: number;
+    rank: number;
+    is2faEnabled: boolean;
+  }
+</script>
+
 <script lang="ts">
   import { API_URL, store, logout } from "../Auth";
 
-  export let edit = 0;
-  export let user = {
-    username: "",
-    wins: 0,
-    looses: 0,
-    winrate: 0,
-    rank: -1,
-    is2faEnabled: false,
-  };
+  export let edit: number;
+  export let user: any;
 
   async function handleSubmit() {
     let response = await fetch(API_URL, {
@@ -45,7 +50,7 @@
         <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
       {:else}
         <form
-          action={API_URL + "/avatar"}
+          action={`${API_URL}/avatar/${user.id}`}
           method="post"
           enctype="multipart/form-data"
           id="upload_avatar"
@@ -136,15 +141,12 @@
     display: flex;
     justify-content: center;
   }
+
   .profile-body > p {
     display: flex;
     justify-content: center;
   }
 
-  .profile-body > img {
-    display: flex;
-    justify-content: center;
-  }
   .username {
     text-align: center;
   }

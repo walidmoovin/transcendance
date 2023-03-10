@@ -12,20 +12,14 @@
       ? event.target.querySelector('input[type="text"]').value
       : event.detail;
 
-    let response = await fetch(API_URL + "/user/" + username, {
-      credentials: "include",
-      mode: "cors",
-    });
-    let target = await response.json();
-
-    response = await fetch(API_URL + "/invit/" + target.ftId, {
+    const response = await fetch(API_URL + "/invit/" + username, {
       credentials: "include",
       mode: "cors",
     });
     if (response.ok) {
       alert("Invitation send.");
     } else {
-      alert("Invitation refused.");
+      alert("Invitation failed.");
     }
   }
 </script>

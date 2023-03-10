@@ -1,19 +1,22 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Navbar from "./components/NavBar.svelte";
+
   import Profile from "./components/Profile.svelte";
   import MatchHistory from "./components/MatchHistory.svelte";
-  import type { Match } from "./components/MatchHistory.svelte";
   import Friends, { addFriend } from "./components/Friends.svelte";
-  import type { Friend } from "./components/Friends.svelte";
   import Spectate from "./components/Spectate.svelte";
-  import type { SpectateType } from "./components/Spectate.svelte";
-  import Pong from "./components/Pong/Pong.svelte";
-  import Chat2 from "./components/Chat2.svelte";
+  import Chat from "./components/Chat.svelte";
   import Channels from "./components/Channels.svelte";
-  import type { ChannelsType } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
-  import type { Player } from "./components/Leaderboard.svelte";
+
+  import Pong from "./components/Pong/Pong.svelte";
+  import type { Player } from "./components/Profile.svelte";
+  import type { Match } from "./components/MatchHistory.svelte";
+  import type { Friend } from "./components/Friends.svelte";
+  import type { SpectateType } from "./components/Spectate.svelte";
+  import type { ChannelsType } from "./components/Channels.svelte";
+
   import { store, getUser, login, logout, API_URL } from "./Auth";
   import FakeLogin from "./FakeLogin.svelte";
 
@@ -30,7 +33,7 @@
     isProfileOpen = true;
   }
 
-  let userProfile;
+  let userProfile: Player;
   let isIdProfileOpen = false;
   async function openIdProfile(event: CustomEvent<string>) {
     console.log("Opening profile: " + event.detail);
@@ -129,7 +132,7 @@
 
   let leaderboard: Player[] = [];
   export async function getLeader(): Promise<Player[]> {
-    let response = await fetch(API_URL + "/leader", {
+    let response = await fetch(API_URL + "/leaderboard", {
       credentials: "include",
       mode: "cors",
     });
@@ -181,7 +184,7 @@
             on:click={() => (selectedChannel = undefined)}
             on:keydown={() => (selectedChannel = undefined)}
           >
-            <Chat2
+            <Chat
               chatMessages={selectedChannel.messages}
               on:view-profile={openIdProfile}
               on:add-friend={addFriend}

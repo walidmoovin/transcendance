@@ -62,13 +62,13 @@ export class UsersController {
     return await this.usersService.getInvits(profile.id)
   }
 
-  @Get('leader')
+  @Get('leaderboard')
   @UseGuards(AuthenticatedGuard)
-  async getLeader (): Promise<User[]> {
-    return await this.usersService.getLeader()
+  async getLeaderboard (): Promise<User[]> {
+    return await this.usersService.getLeaderboard()
   }
 
-  @Get('leader/:id')
+  @Get('rank/:id')
   @UseGuards(AuthenticatedGuard)
   async getRank (@Param('id', ParseIntPipe) id: number): Promise<number> {
     return await this.usersService.getRank(id)
@@ -110,7 +110,7 @@ export class UsersController {
     description: 'A new avatar for the user',
     type: AvatarUploadDto
   })
-  async addAvatar (
+  async changeAvatar (
     @FtUser() profile: Profile,
       @UploadedFile() file: Express.Multer.File
   ): Promise<void> {
@@ -131,16 +131,20 @@ export class UsersController {
     return await this.usersService.findUserByName(username)
   }
 
-  @Get('invit/:id')
+  @Get('invit/:username')
   @UseGuards(AuthenticatedGuard)
   async invitUser (
     @FtUser() profile: Profile,
-      @Param('id', ParseIntPipe) id: number
+      @Param('username') username: string
   ): Promise<NotFoundException | null | undefined> {
-    if (profile.id === id) {
+    const target = (await this.usersService.findUserByName(username))!;
+
+    if (!target)
+      throw new BadRequestException("Target unknown.")
+    if (profile.id === target.ftId)
       throw new BadRequestException("You can't invit yourself.")
-    }
-    return await this.usersService.invit(profile.id, id)
+
+    return await this.usersService.invit(profile.id, target.id)
   }
 
   @Get('avatar/:id')
@@ -185,15 +189,11 @@ export class UsersController {
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  async create (
+  async updateUser (
     @Body() payload: UserDto,
       @FtUser() profile: Profile
   ): Promise<User | null> {
-    const user = await this.usersService.findUser(profile.id)
-    if (user != null) {
-      return await this.usersService.update(user, payload)
-    } else {
-      return await this.usersService.create(payload)
-    }
+    const user = (await this.usersService.findUser(profile.id))!
+    return await this.usersService.update(user, payload)
   }
 }
