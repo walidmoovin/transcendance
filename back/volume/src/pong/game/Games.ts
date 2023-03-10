@@ -7,6 +7,7 @@ import { type GameInfo } from '../dtos/GameInfo'
 import { type PongService } from '../pong.service'
 import {
   DEFAULT_BALL_SIZE,
+  DEFAULT_MAP_SIZE,
   DEFAULT_PADDLE_SIZE,
   DEFAULT_PLAYER_X_OFFSET,
   DEFAULT_WIN_SCORE
@@ -23,7 +24,10 @@ export class Games {
     gameCreationDto: GameCreationDtoValidated
   ): void {
     const names: string[] = gameCreationDto.playerNames
-    const map: GameMap = gameCreationDto.map
+    const map: GameMap = {
+      size: DEFAULT_MAP_SIZE,
+      walls: gameCreationDto.map.walls
+    }
     if (!this.isInAGame(names[0]) && !this.isInAGame(names[1])) {
       this.games.push(
         new Game(
