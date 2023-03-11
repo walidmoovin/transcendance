@@ -12,23 +12,24 @@ export class MatchmakingQueue {
     this.queue = []
   }
 
-  addPlayer (name: string, socket: WebSocket, uuid: string): boolean {
-    let succeeded: boolean = false
-    if (!this.alreadyInQueue(name)) {
+  addPlayer (name: string, socket: WebSocket, uuid: string): void {
+    if (!this.isInQueue(name)) {
+      console.log('Adding player to queue: ', name)
       this.queue.push({ name, socket, uuid })
       if (this.canCreateGame()) {
         this.createGame()
       }
-      succeeded = true
     }
-    return succeeded
   }
 
   removePlayer (name: string): void {
-    this.queue = this.queue.filter((player) => player.name !== name)
+    if (this.isInQueue(name)) {
+      console.log('Removing player from queue: ', name)
+      this.queue = this.queue.filter((player) => player.name !== name)
+    }
   }
 
-  alreadyInQueue (name: string): boolean {
+  isInQueue (name: string): boolean {
     return this.queue.some((player) => player.name === name)
   }
 

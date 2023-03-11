@@ -62,6 +62,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     if (name !== undefined) {
       console.log('Disconnected ', this.socketToPlayerName.get(client))
+      this.matchmakingQueue.removePlayer(name)
       this.socketToPlayerName.delete(client)
     }
   }
@@ -202,20 +203,19 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client: WebSocketWithId,
       @MessageBody() matchmakingUpdateData: MatchmakingDtoValidated
   ): { event: string, data: MatchmakingDtoValidated } {
-    let isMatchmaking: boolean = false
+    let matchmaking: boolean = false
     const name: string | undefined = this.socketToPlayerName.get(client)
     if (name !== undefined) {
-      if (matchmakingUpdateData.matchmaking) {
-        if (this.matchmakingQueue.addPlayer(name, client, client.id)) {
-          isMatchmaking = true
-        }
+      if (matchmakingUpdateData.matchmaking && !this.games.isInAGame(name)) {
+        this.matchmakingQueue.addPlayer(name, client, client.id)
       } else {
         this.matchmakingQueue.removePlayer(name)
       }
+      matchmaking = this.matchmakingQueue.isInQueue(name)
     }
     return {
       event: GAME_EVENTS.MATCHMAKING,
-      data: { matchmaking: isMatchmaking }
+      data: { matchmaking }
     }
   }
 

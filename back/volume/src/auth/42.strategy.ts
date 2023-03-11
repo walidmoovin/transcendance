@@ -30,9 +30,8 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     cb: VerifyCallback
   ): Promise<VerifyCallback> {
     request.session.accessToken = accessToken
-    console.log('accessToken', accessToken, 'refreshToken', refreshToken)
     const ftId = profile.id as number
-    console.log(profile)
+    console.log('Validated ', profile.username)
     if ((await this.usersService.findUser(ftId)) === null) {
       const newUser = new User()
       newUser.ftId = profile.id as number
