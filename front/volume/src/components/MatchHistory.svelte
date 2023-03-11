@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+  export let username: string = "Global";
   export let matches: Array<Match> = [];
   function displayDate(str: string) {
     const splitT = str.split("T");
@@ -25,7 +26,7 @@
         <table>
           <thead>
             <tr>
-              <th colspan="3">Last 10 monkey games</th>
+              <th colspan="3">{username}'s last matchs</th>
             </tr>
           </thead>
           <tbody>

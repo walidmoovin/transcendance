@@ -142,7 +142,7 @@ export class UsersService {
     return leaderboard.findIndex((user) => user.ftId === ftId);
   }
 
-  async invit(ftId: number, targetFtId: number): Promise<void> {
+  async invit(ftId: number, targetFtId: number): Promise<string> {
     const user: User | null = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
@@ -150,9 +150,9 @@ export class UsersService {
         friends: true,
       },
     });
-    if (user == null) throw new BadRequestException("User not found.");
+    if (!user) throw new BadRequestException("User not found.");
     if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1) {
-      throw new BadRequestException("You are already friends.");
+      return "You are already friends.";
     }
     const target: User | null = await this.usersRepository.findOne({
       where: { ftId: targetFtId },
@@ -161,16 +161,20 @@ export class UsersService {
         friends: true,
       },
     });
-    if (target == null) throw new BadRequestException("Target not found.");
+    if (!target) return "Target not found.";
     const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
     );
-    if (id !== -1) {
+    if (target.followers.findIndex((follower) => follower.ftId === user.ftId) !== -1) {
+      return "Invitation already sent.";
+    }else if (user.followers.findIndex((follower) => follower.ftId === targetFtId) !== -1) {
       user.friends.push(target);
-      if (user.ftId !== target.ftId) target.friends.push(user);
+      target.friends.push(user);
       user.followers.slice(id, 1);
       await this.usersRepository.save(user);
-    } else target.followers.push(user);
+    } else
+      target.followers.push(user);
     await this.usersRepository.save(target);
+    return "OK"
   }
 }

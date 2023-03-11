@@ -250,7 +250,7 @@
       {/if}
       {#if appState === APPSTATE.HISTORY_ID}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <MatchHistory {matches} />
+          <MatchHistory username={$store.username} {matches} />
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE}

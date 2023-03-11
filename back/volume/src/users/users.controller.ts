@@ -138,14 +138,12 @@ export class UsersController {
     @FtUser() profile: Profile,
       @Param('username') username: string
   ): Promise<void> {
-    const target: User | null = await this.usersService.findUserByName(
-      username
-    )
-    if (target == null) throw new BadRequestException('Target unknown.')
-    if (profile.id === target.ftId) {
+    const target: User | null = await this.usersService.findUserByName( username )
+    if (!target) throw new BadRequestException(`User ${username} not found.`)
+    if (+profile.id === target.ftId)
       throw new BadRequestException("You can't invit yourself.")
-    }
-    await this.usersService.invit(profile.id, target.id)
+    const ret: string = await this.usersService.invit(profile.id, target.ftId);
+    if (ret !== "OK") throw new BadRequestException(ret)
   }
 
   @Get('avatar/:id')
