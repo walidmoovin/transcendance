@@ -49,8 +49,14 @@
   }
 
   .renderCanvas {
+    max-width: 1000px;
     width: 100%;
     height: auto;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
     touch-action: none;
   }
 </style>
