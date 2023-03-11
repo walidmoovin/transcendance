@@ -4,6 +4,7 @@
     players: Array<Player>;
     score: Array<number>;
     date: Date;
+    ranked: boolean;
   }
 </script>
 

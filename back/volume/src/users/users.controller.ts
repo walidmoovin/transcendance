@@ -76,7 +76,7 @@ export class UsersController {
   @Get('rankedHistory')
   @UseGuards(AuthenticatedGuard)
   async getRankedHistory (): Promise<Result[]> {
-    return await this.pongService.getHistory(true)
+    return await this.pongService.getRankedHistory()
   }
 
   @Get('history/:id')

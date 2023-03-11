@@ -87,7 +87,7 @@
   }
 
   export async function getHistory(): Promise<Array<Match>> {
-    let response = await fetch(API_URL + "/history/" + $store.ftId, {
+    let response = await fetch(API_URL + "/rankedHistory/", {
       credentials: "include",
       mode: "cors",
     });

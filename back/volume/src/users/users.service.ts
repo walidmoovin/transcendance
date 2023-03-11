@@ -131,12 +131,15 @@ export class UsersService {
       },
     });
     return leaderboard.filter((user) => user.rank !== 0);
-
   }
 
   async getRank(ftId: number): Promise<number> {
-    const leader = await this.getLeaderboard();
-    return leader.findIndex((user) => user.ftId === ftId);
+    let leaderboard = await this.usersRepository.find({
+      order: {
+        winrate: "DESC",
+      },
+    });
+    return leaderboard.findIndex((user) => user.ftId === ftId);
   }
 
   async invit(ftId: number, targetFtId: number): Promise<void> {

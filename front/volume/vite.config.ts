@@ -1,13 +1,13 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [svelte()],
+  appType: "spa",
   server: {
-    port: 80
+    port: 80,
   },
   preview: {
-    port: 80
+    port: 80,
   },
-})
+});

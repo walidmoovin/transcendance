@@ -49,9 +49,12 @@ export class PongService {
     await this.updatePlayer(1, result)
   }
 
-  async getHistory (ranked: boolean): Promise<Result[]> {
+  async getRankedHistory (): Promise<Result[]> {
     return await this.resultsRepository.find({
-      where: { ranked },
+      where: { ranked: true},
+      relations: {
+        players: true,
+      },
       order: { date: 'DESC' }
     })
   }
