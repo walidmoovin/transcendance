@@ -23,6 +23,13 @@ export class PongService {
     player.winrate = (100 * player.wins) / player.matchs
     player.rank = (await this.usersService.getRank(player.ftId)) + 1
     player.results.push(result)
+    player.status = "online" 
+    await this.usersService.save(player)
+  }
+
+  async setInGame (playerName: string): Promise<void> {
+    const player = await this.usersService.findUserByName(playerName)
+    player.status = "in-game"
     await this.usersService.save(player)
   }
 

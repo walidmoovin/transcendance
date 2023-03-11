@@ -19,14 +19,19 @@ export class UsersService {
   }
 
   async findUsers (): Promise<User[]> {
-    return await this.usersRepository.find({})
+    const users = await this.usersRepository.find({})
+    users.forEach((usr) => {
+      usr.socketKey = ''
+    })
+    return users
   }
 
-  async findUserByName (username: string): Promise<User | null> {
+  async findUserByName (username: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { username },
       relations: { results: true }
     })
+    if (user == null) throw new BadRequestException('User not found.')
     return user
   }
 
@@ -43,20 +48,26 @@ export class UsersService {
     })
   }
 
-  async findUser (ftId: number): Promise<User | null> {
+  async findUser (ftId: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ ftId })
-    if (user == null) return null
+    if (user == null) throw new BadRequestException('User not found.')
     user.lastAccess = Date.now()
-    user.status = 'online'
+    if (user.status === 'offline') user.status = 'online'
     await this.usersRepository.save(user)
     return user
   }
 
   async findOnlineUsers (): Promise<User[]> {
-    return await this.usersRepository.find({ where: { status: 'online' } })
+    const users = await this.usersRepository.find({
+      where: { status: 'online' }
+    })
+    users.forEach((usr) => {
+      usr.socketKey = ''
+    })
+    return users
   }
 
-  async create (userData: UserDto): Promise<BadRequestException | User> {
+  async create (userData: UserDto): Promise<User | null> {
     try {
       const newUser = this.usersRepository.create(userData)
       return await this.usersRepository.save(newUser)
@@ -87,8 +98,8 @@ export class UsersService {
       where: { ftId },
       relations: { friends: true }
     })
-    if (user != null) return user.friends
-    return []
+    if (user == null) throw new BadRequestException('User not found.')
+    return user.friends
   }
 
   async getInvits (ftId: number): Promise<User[]> {
@@ -98,8 +109,8 @@ export class UsersService {
         followers: true
       }
     })
-    if (user != null) return user.followers
-    return []
+    if (user == null) throw new BadRequestException('User not found.')
+    return user.followers
   }
 
   async getResults (ftId: number): Promise<Result[]> {
@@ -111,8 +122,8 @@ export class UsersService {
         }
       }
     })
-    if (user != null) return user.results
-    return []
+    if (user == null) throw new BadRequestException('User not found.')
+    return user.results
   }
 
   async getLeaderboard (): Promise<User[]> {
@@ -128,7 +139,7 @@ export class UsersService {
     return leader.findIndex((user) => user.ftId === ftId)
   }
 
-  async invit (ftId: number, targetFtId: number): Promise<any> {
+  async invit (ftId: number, targetFtId: number): Promise<void> {
     const user: User | null = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
@@ -138,7 +149,7 @@ export class UsersService {
     })
     if (user == null) throw new BadRequestException('User not found.')
     if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1) {
-      return new BadRequestException('You are already friends.')
+      throw new BadRequestException('You are already friends.')
     }
     const target: User | null = await this.usersRepository.findOne({
       where: { ftId: targetFtId },
