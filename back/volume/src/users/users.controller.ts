@@ -73,10 +73,10 @@ export class UsersController {
     return await this.usersService.getRank(id)
   }
 
-  @Get('history')
+  @Get('rankedHistory')
   @UseGuards(AuthenticatedGuard)
-  async getHistory (): Promise<Result[]> {
-    return await this.pongService.getHistory()
+  async getRankedHistory (): Promise<Result[]> {
+    return await this.pongService.getHistory(true)
   }
 
   @Get('history/:id')
@@ -169,6 +169,7 @@ export class UsersController {
     @Param('id', ParseIntPipe) ftId: number
   ): Promise<User | null> {
     const user = await this.usersService.findUser(ftId)
+    if (!user) throw new BadRequestException('User unknown.')
     user.socketKey = ''
     return user
   }
