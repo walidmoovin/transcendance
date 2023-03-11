@@ -16,7 +16,6 @@
   export let clickProfile = () => {};
   export let clickHistory = () => {};
   export let clickFriends = () => {};
-  export let clickSpectate = () => {};
   export let clickChannels = () => {};
   export let clickLeaderboard = () => {};
 </script>
@@ -27,11 +26,6 @@
       {#if link.text === "Leaderboard"}
         <li>
           <button on:click={clickLeaderboard}> Leaderboard </button>
-        </li>
-      {/if}
-      {#if link.text === "Spectate"}
-        <li>
-          <button on:click={clickSpectate}> Spectate </button>
         </li>
       {/if}
       {#if link.text === "Channels"}

@@ -10,22 +10,22 @@
   import type { MatchmakingDto } from "./dtos/MatchmakingDto";
   import { getUser, store } from "../../Auth";
   import ColorPicker from "./ColorPicker.svelte";
+  import { APPSTATE } from "../../App.svelte";
 
   export function inviteToGame(event: CustomEvent<string>) {
-    createMatchWindow = true;
+    setAppState(APPSTATE.CREATE_GAME);
     invitedUsername = event.detail;
   }
 
   export let fakeUser: boolean;
+  export let appState: string;
+  export let setAppState: (newState: APPSTATE | string) => void;
 
   const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT
   }`;
 
-  let createMatchWindow: boolean = false;
-  let spectateWindow: boolean = false;
   let gamePlaying: boolean = false;
-  let matchmaking: boolean = false;
   let connected: boolean = false;
   let loggedIn: boolean = false;
   let failedLogIn: boolean = false;
@@ -87,7 +87,11 @@
       } else if (event == GAME_EVENTS.CREATE_GAME) {
         if (data) gamePlaying = true;
       } else if (event == GAME_EVENTS.MATCHMAKING) {
-        matchmaking = data.matchmaking;
+        if (data.matchmaking && appState !== APPSTATE.MATCHMAKING) {
+          setAppState(APPSTATE.MATCHMAKING);
+        } else if (!data.matchmaking && appState === APPSTATE.MATCHMAKING) {
+          setAppState(APPSTATE.HOME);
+        }
       } else if (event == GAME_EVENTS.SPECTATE) {
         if (data) {
           gamePlaying = true;
@@ -141,15 +145,23 @@
   }
 
   function resetMenus() {
-    createMatchWindow = false;
-    spectateWindow = false;
-    matchmaking = false;
+    setAppState(APPSTATE.HOME);
     game.youAreReady = false;
   }
 
   $: {
     if (game !== undefined) {
       game.updateColors(elementsColor, backgroundColor);
+    }
+  }
+
+  $: {
+    if (socket && socket.readyState) {
+      if (appState === APPSTATE.MATCHMAKING) {
+        startMatchmaking();
+      } else if (appState !== APPSTATE.MATCHMAKING) {
+        stopMatchmaking();
+      }
     }
   }
 </script>
@@ -161,30 +173,32 @@
   {:else if loggedIn}
     <h1>Choose a gamemode</h1>
     <button on:click={startMatchmaking}>Matchmaking</button>
-    <button on:click={() => (createMatchWindow = true)}
+    <button on:click={() => setAppState(APPSTATE.CREATE_GAME)}
       >Play with a friend</button
     >
-    <button on:click={() => (spectateWindow = true)}>Spectate a friend</button>
+    <button on:click={() => setAppState(APPSTATE.SPECTATE_GAME)}
+      >Spectate a friend</button
+    >
     <label for="colorPicker">Elements color:</label>
     <ColorPicker bind:color={elementsColor} />
     <label for="colorPicker">Background color:</label>
     <ColorPicker bind:color={backgroundColor} />
 
-    {#if matchmaking}
+    {#if appState === APPSTATE.MATCHMAKING}
       <div on:click={stopMatchmaking} on:keydown={stopMatchmaking}>
         <Matchmaking {stopMatchmaking} />
       </div>
-    {:else if createMatchWindow}
+    {:else if appState === APPSTATE.CREATE_GAME}
       <div
-        on:click={() => (createMatchWindow = false)}
-        on:keydown={() => (createMatchWindow = false)}
+        on:click={() => setAppState(APPSTATE.HOME)}
+        on:keydown={() => setAppState(APPSTATE.HOME)}
       >
         <GameCreation {socket} {invitedUsername} />
       </div>
-    {:else if spectateWindow}
+    {:else if appState === APPSTATE.SPECTATE_GAME}
       <div
-        on:click={() => (spectateWindow = false)}
-        on:keydown={() => (spectateWindow = false)}
+        on:click={() => setAppState(APPSTATE.HOME)}
+        on:keydown={() => setAppState(APPSTATE.HOME)}
       >
         <SpectateFriend {socket} />
       </div>

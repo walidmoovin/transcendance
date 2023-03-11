@@ -1,3 +1,19 @@
+<script lang="ts" context="module">
+  export enum APPSTATE {
+    HOME = "/",
+    PROFILE = "/profile",
+    HISTORY = "/history",
+    FRIENDS = "/friends",
+    SPECTATE = "/spectate",
+    CHANNELS = "/channels",
+    LEADERBOARD = "/leaderboard",
+    SPECTATE_GAME = "/spectate_game",
+    CREATE_GAME = "/create-game",
+    MATCHMAKING = "/matchmaking",
+    PROFILE_ID = "/profile_id",
+  }
+</script>
+
 <script lang="ts">
   import { onMount } from "svelte";
   import Navbar from "./components/NavBar.svelte";
@@ -5,7 +21,6 @@
   import Profile from "./components/Profile.svelte";
   import MatchHistory from "./components/MatchHistory.svelte";
   import Friends, { addFriend } from "./components/Friends.svelte";
-  import Spectate from "./components/Spectate.svelte";
   import Chat from "./components/Chat.svelte";
   import Channels from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
@@ -14,11 +29,30 @@
   import type { Player } from "./components/Profile.svelte";
   import type { Match } from "./components/MatchHistory.svelte";
   import type { Friend } from "./components/Friends.svelte";
-  import type { SpectateType } from "./components/Spectate.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
 
   import { store, getUser, login, API_URL } from "./Auth";
   import FakeLogin from "./FakeLogin.svelte";
+
+  // Single Page Application config
+  let appState: string = APPSTATE.HOME;
+
+  history.replaceState({ appState: "" }, "", "/");
+  window.onpopstate = (e: PopStateEvent) => {
+    if (e.state) {
+      appState = e.state.appState;
+    }
+  };
+
+  function resetAppState() {
+    setAppState(APPSTATE.HOME);
+  }
+
+  function setAppState(newState: APPSTATE | string) {
+    if (newState === appState) return;
+    appState = newState;
+    history.pushState({ appState }, "", appState);
+  }
 
   // PROFILE
   onMount(() => {
@@ -27,16 +61,13 @@
   setInterval(() => {
     getUser();
   }, 15000);
-  let isProfileOpen = false;
   function clickProfile() {
-    isProfileOpen = true;
+    setAppState(APPSTATE.PROFILE);
   }
 
   let userProfile: Player;
-  let isIdProfileOpen = false;
   async function openIdProfile(event: CustomEvent<string>) {
     console.log("Opening profile: " + event.detail);
-    isIdProfileOpen = true;
     const res = await fetch(API_URL + "/user/" + event.detail, {
       method: "get",
       mode: "cors",
@@ -45,13 +76,13 @@
       referrerPolicy: "no-referrer",
     });
     userProfile = await res.json();
+    setAppState(APPSTATE.PROFILE_ID);
   }
 
   // HISTORY
   let matches: Array<Match>;
-  let isHistoryOpen = false;
   async function clickHistory() {
-    isHistoryOpen = true;
+    setAppState(APPSTATE.HISTORY);
     matches = await getHistory();
   }
 
@@ -83,9 +114,8 @@
     return await response.json();
   }
 
-  let isFriendOpen = false;
   async function clickFriends() {
-    isFriendOpen = true;
+    setAppState(APPSTATE.FRIENDS);
     friends = await getFriends();
     invits = await getInvits();
     friendsInterval = setInterval(async () => {
@@ -94,24 +124,9 @@
     }, 5000);
   }
 
-  // SPECTATE
-  let isSpectateOpen = false;
-  function clickSpectate() {
-    isSpectateOpen = true;
-  }
-  let spectate: Array<SpectateType> = [
-    { player1: "Alice", player2: "Bob", id: "1" },
-    { player1: "Alice", player2: "Bob", id: "4" },
-    { player1: "Alice", player2: "Bob", id: "6" },
-    { player1: "Alice", player2: "Bob", id: "8" },
-    { player1: "Alice", player2: "Bob", id: "2" },
-    { player1: "Alice", player2: "Bob", id: "3" },
-  ];
-
   // CHANNELS
-  let isChannelsOpen = false;
   function clickChannels() {
-    isChannelsOpen = true;
+    setAppState(APPSTATE.CHANNELS);
   }
   let channels: Array<ChannelsType> = [
     { id: "1", name: "General", messages: [], privacy: "public", password: "" },
@@ -127,8 +142,10 @@
   let selectedChannel: ChannelsType;
   const handleSelectChannel = (channel: ChannelsType) => {
     selectedChannel = channel;
+    setAppState(APPSTATE.CHANNELS + "#" + channel.name);
   };
 
+  // LEADERBOARD
   let leaderboard: Array<Player> = [];
 
   export async function getLeader(): Promise<Player[]> {
@@ -139,11 +156,9 @@
     return await response.json();
   }
 
-  // LEADERBOARD
-  let isLeaderboardOpen = false;
   async function clickLeaderboard() {
-    isLeaderboardOpen = true;
     leaderboard = await getLeader();
+    setAppState(APPSTATE.LEADERBOARD);
   }
 
   // GAME
@@ -174,15 +189,14 @@
         {clickProfile}
         {clickHistory}
         {clickFriends}
-        {clickSpectate}
         {clickChannels}
         {clickLeaderboard}
       />
-      {#if isChannelsOpen}
-        {#if selectedChannel}
+      {#if appState.includes(APPSTATE.CHANNELS)}
+        {#if appState.replace(APPSTATE.CHANNELS, "") !== ""}
           <div
-            on:click={() => (selectedChannel = undefined)}
-            on:keydown={() => (selectedChannel = undefined)}
+            on:click={() => setAppState(APPSTATE.CHANNELS)}
+            on:keydown={() => setAppState(APPSTATE.CHANNELS)}
           >
             <Chat
               chatMessages={selectedChannel.messages}
@@ -191,67 +205,43 @@
               on:invite-to-game={pong.inviteToGame}
             />
           </div>
-        {/if}
-        {#if !selectedChannel}
-          <div
-            on:click={() => (isChannelsOpen = false)}
-            on:keydown={() => (isChannelsOpen = false)}
-          >
+        {:else}
+          <div on:click={resetAppState} on:keydown={resetAppState}>
             <Channels {channels} onSelectChannel={handleSelectChannel} />
           </div>
         {/if}
       {/if}
-      {#if isSpectateOpen}
-        <div
-          on:click={() => (isSpectateOpen = false)}
-          on:keydown={() => (isSpectateOpen = false)}
-        >
-          <Spectate {spectate} />
-        </div>
-      {/if}
-      {#if isLeaderboardOpen}
-        <div
-          on:click={() => (isLeaderboardOpen = false)}
-          on:keydown={() => (isLeaderboardOpen = false)}
-        >
+      {#if appState === APPSTATE.LEADERBOARD}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
           <Leaderboard {leaderboard} />
         </div>
       {/if}
-      {#if isFriendOpen}
+      {#if appState === APPSTATE.FRIENDS}
         <div
           on:click={() => {
-            isFriendOpen = false;
+            resetAppState();
             clearInterval(friendsInterval);
           }}
           on:keydown={() => {
-            isFriendOpen = false;
+            resetAppState();
             clearInterval(friendsInterval);
           }}
         >
           <Friends {friends} {invits} />
         </div>
       {/if}
-      {#if isHistoryOpen}
-        <div
-          on:click={() => (isHistoryOpen = false)}
-          on:keydown={() => (isHistoryOpen = false)}
-        >
+      {#if appState === APPSTATE.HISTORY}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
           <MatchHistory {matches} />
         </div>
       {/if}
-      {#if isProfileOpen}
-        <div
-          on:click={() => (isProfileOpen = false)}
-          on:keydown={() => (isProfileOpen = false)}
-        >
+      {#if appState === APPSTATE.PROFILE}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
           <Profile user={$store} edit={1} />
         </div>
       {/if}
-      {#if isIdProfileOpen}
-        <div
-          on:click={() => (isIdProfileOpen = false)}
-          on:keydown={() => (isIdProfileOpen = false)}
-        >
+      {#if appState === APPSTATE.PROFILE_ID}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
           <Profile user={userProfile} edit={0} />
         </div>
       {/if}
@@ -261,7 +251,7 @@
         <button on:click={impersonate}>Impersonate</button>
         <button on:click={() => (fakemenu = false)}>No impersonate</button>
       {:else}
-        <Pong bind:this={pong} {fakeUser} />
+        <Pong bind:this={pong} {appState} {setAppState} {fakeUser} />
       {/if}
     {/if}
   </div>
