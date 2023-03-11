@@ -2,168 +2,169 @@ import {
   BadRequestException,
   Catch,
   Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { EntityNotFoundError, QueryFailedError, Repository } from "typeorm";
-import { User } from "./entity/user.entity";
-import { type UserDto } from "./dto/user.dto";
-import { type Channel } from "src/chat/entity/channel.entity";
-import type Result from "src/pong/entity/result.entity";
-import { Cron } from "@nestjs/schedule";
+  NotFoundException
+} from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm'
+import { User } from './entity/user.entity'
+import { type UserDto } from './dto/user.dto'
+import { type Channel } from 'src/chat/entity/channel.entity'
+import type Result from 'src/pong/entity/result.entity'
+import { Cron } from '@nestjs/schedule'
 
 @Injectable()
 @Catch(QueryFailedError, EntityNotFoundError)
 export class UsersService {
-  constructor(
+  constructor (
     @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) {}
 
-  save(user: User) {
-    this.usersRepository.save(user);
+  save (user: User) {
+    this.usersRepository.save(user)
   }
 
-  async findUsers(): Promise<User[]> {
-    return await this.usersRepository.find({});
+  async findUsers (): Promise<User[]> {
+    return await this.usersRepository.find({})
   }
 
-  async findUserByName(username: string): Promise<User | null> {
+  async findUserByName (username: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({
       where: { username },
-      relations: { results: true },
-    });
-    return user;
+      relations: { results: true }
+    })
+    return user
   }
 
-  @Cron("0 * * * * *")
-  async updateStatus() {
-    const users = await this.usersRepository.find({});
+  @Cron('0 * * * * *')
+  async updateStatus () {
+    const users = await this.usersRepository.find({})
     users.forEach((usr) => {
       if (Date.now() - usr.lastAccess > 60000) {
-        usr.status = "offline";
-        this.usersRepository.save(usr);
+        usr.status = 'offline'
+        this.usersRepository.save(usr)
       }
-    });
+    })
   }
 
-  async findUser(ftId: number): Promise<User | null> {
-    const user = await this.usersRepository.findOneBy({ ftId });
-    if (user == null) return null;
-    user.lastAccess = Date.now();
-    user.status = "online";
-    this.usersRepository.save(user);
-    return user;
+  async findUser (ftId: number): Promise<User | null> {
+    const user = await this.usersRepository.findOneBy({ ftId })
+    if (user == null) return null
+    user.lastAccess = Date.now()
+    user.status = 'online'
+    this.usersRepository.save(user)
+    return user
   }
 
-  async findOnlineUsers(): Promise<User[]> {
-    return await this.usersRepository.find({ where: { status: "online" } });
+  async findOnlineUsers (): Promise<User[]> {
+    return await this.usersRepository.find({ where: { status: 'online' } })
   }
 
-  async create(userData: UserDto) {
+  async create (userData: UserDto) {
     try {
-      const newUser = this.usersRepository.create(userData);
-      return await this.usersRepository.save(newUser);
+      const newUser = this.usersRepository.create(userData)
+      return await this.usersRepository.save(newUser)
     } catch (err) {
-      throw new Error(`Error creating user ${err}`);
+      throw new Error(`Error creating user ${err}`)
     }
   }
 
-  async findOnlineInChannel(channel: Channel): Promise<User[]> {
+  async findOnlineInChannel (channel: Channel): Promise<User[]> {
     return await this.usersRepository
-      .createQueryBuilder("user")
-      .where("user.channel = :chan", { chan: channel })
-      .andWhere("user.status := status)", { status: "online" })
-      .getMany();
+      .createQueryBuilder('user')
+      .where('user.channel = :chan', { chan: channel })
+      .andWhere('user.status := status)', { status: 'online' })
+      .getMany()
   }
 
-  async update(user: User, changes: UserDto): Promise<User | null> {
-    this.usersRepository.merge(user, changes);
-    return await this.usersRepository.save(user);
+  async update (user: User, changes: UserDto): Promise<User | null> {
+    this.usersRepository.merge(user, changes)
+    return await this.usersRepository.save(user)
   }
 
-  async addAvatar(ftId: number, filename: string) {
+  async addAvatar (ftId: number, filename: string) {
     return await this.usersRepository.update(
       { ftId },
       {
-        avatar: filename,
+        avatar: filename
       }
-    );
+    )
   }
 
-  async getFriends(ftId: number): Promise<User[]> {
+  async getFriends (ftId: number): Promise<User[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
-        friends: true,
-      },
-    });
-    if (user != null) return user.friends;
-    return [];
+        friends: true
+      }
+    })
+    if (user != null) return user.friends
+    return []
   }
 
-  async getInvits(ftId: number): Promise<User[]> {
+  async getInvits (ftId: number): Promise<User[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
-        followers: true,
-      },
-    });
-    if (user != null) return user.followers;
-    return [];
+        followers: true
+      }
+    })
+    if (user != null) return user.followers
+    return []
   }
 
-  async getResults(ftId: number): Promise<Result[]> {
+  async getResults (ftId: number): Promise<Result[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
         results: {
-          players: true,
-        },
-      },
-    });
-    if (user != null) return user.results;
-    return [];
+          players: true
+        }
+      }
+    })
+    if (user != null) return user.results
+    return []
   }
 
-  async getLeaderboard(): Promise<User[]> {
+  async getLeaderboard (): Promise<User[]> {
     return await this.usersRepository.find({
       order: {
-        winrate: "DESC",
-      },
-    });
+        winrate: 'DESC'
+      }
+    })
   }
 
-  async getRank(ftId: number): Promise<number> {
-    const leader = await this.getLeaderboard();
-    return leader.findIndex((user) => user.ftId === ftId);
+  async getRank (ftId: number): Promise<number> {
+    const leader = await this.getLeaderboard()
+    return leader.findIndex((user) => user.ftId === ftId)
   }
 
-  async invit(ftId: number, targetFtId: number): Promise<any> {
+  async invit (ftId: number, targetFtId: number): Promise<any> {
     const user: User = (await this.usersRepository.findOne({
       where: { ftId },
       relations: {
         followers: true,
-        friends: true,
-      },
-    }))!;
-    if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1)
-      return new BadRequestException("You are already friends.");
+        friends: true
+      }
+    }))!
+    if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1) {
+      return new BadRequestException('You are already friends.')
+    }
     const target = (await this.usersRepository.findOne({
       where: { ftId: targetFtId },
       relations: {
         followers: true,
-        friends: true,
-      },
-    }))!;
+        friends: true
+      }
+    }))!
     const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
-    );
+    )
     if (id !== -1) {
-      user.friends.push(target);
-      if (user.ftId !== target.ftId) target.friends.push(user);
-      user.followers.slice(id, 1);
-      await this.usersRepository.save(user);
-    } else target.followers.push(user);
-    await this.usersRepository.save(target);
+      user.friends.push(target)
+      if (user.ftId !== target.ftId) target.friends.push(user)
+      user.followers.slice(id, 1)
+      await this.usersRepository.save(user)
+    } else target.followers.push(user)
+    await this.usersRepository.save(target)
   }
 }

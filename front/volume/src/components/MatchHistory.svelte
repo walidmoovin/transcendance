@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
-  import type user from "./Profile.svelte";
+  import type Player from "./Profile.svelte";
   export interface Match {
-    players: Array<user>;
+    players: Array<Player>;
     score: Array<number>;
     date: Date;
   }

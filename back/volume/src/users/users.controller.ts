@@ -137,12 +137,12 @@ export class UsersController {
     @FtUser() profile: Profile,
       @Param('username') username: string
   ): Promise<NotFoundException | null | undefined> {
-    const target = (await this.usersService.findUserByName(username))!;
+    const target = (await this.usersService.findUserByName(username))!
 
-    if (!target)
-      throw new BadRequestException("Target unknown.")
-    if (profile.id === target.ftId)
+    if (!target) throw new BadRequestException('Target unknown.')
+    if (profile.id === target.ftId) {
       throw new BadRequestException("You can't invit yourself.")
+    }
 
     return await this.usersService.invit(profile.id, target.id)
   }

@@ -1,7 +1,7 @@
-
 <script lang="ts">
-  import type Player from './Profile.svelte'
-  export let leaderboard: Array<Player> = [];
+  import type { Player } from "./Profile.svelte";
+
+  export let leaderboard: Array<Player>;
 </script>
 
 <div class="overlay">

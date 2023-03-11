@@ -17,7 +17,7 @@
   import type { SpectateType } from "./components/Spectate.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
 
-  import { store, getUser, login, logout, API_URL } from "./Auth";
+  import { store, getUser, login, API_URL } from "./Auth";
   import FakeLogin from "./FakeLogin.svelte";
 
   // PROFILE
@@ -27,7 +27,6 @@
   setInterval(() => {
     getUser();
   }, 15000);
-
   let isProfileOpen = false;
   function clickProfile() {
     isProfileOpen = true;
@@ -51,17 +50,17 @@
   // HISTORY
   let matches: Array<Match>;
   let isHistoryOpen = false;
-  function clickHistory() {
+  async function clickHistory() {
     isHistoryOpen = true;
-    getHistory();
+    matches = await getHistory();
   }
 
-  export async function getHistory(): Promise<void> {
+  export async function getHistory(): Promise<Array<Match>> {
     let response = await fetch(API_URL + "/history/" + $store.ftId, {
       credentials: "include",
       mode: "cors",
     });
-    matches = await response.json();
+    return await response.json();
   }
 
   // FRIENDS
@@ -130,7 +129,8 @@
     selectedChannel = channel;
   };
 
-  let leaderboard: Player[] = [];
+  let leaderboard: Array<Player> = [];
+
   export async function getLeader(): Promise<Player[]> {
     let response = await fetch(API_URL + "/leaderboard", {
       credentials: "include",
