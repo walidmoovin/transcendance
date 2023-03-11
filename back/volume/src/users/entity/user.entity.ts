@@ -6,7 +6,6 @@ import {
   ManyToMany,
   JoinTable
 } from 'typeorm'
-import { randomUUID } from 'crypto'
 
 import Message from 'src/chat/entity/message.entity'
 import Channel from 'src/chat/entity/channel.entity'
@@ -23,7 +22,7 @@ export class User {
   @Column({ unique: true })
     ftId: number
 
-  @Column({ unique: true, default: randomUUID() })
+  @Column({ unique: true})
     socketKey: string
 
   @Column({ unique: true })

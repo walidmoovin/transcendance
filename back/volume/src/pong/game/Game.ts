@@ -112,7 +112,7 @@ export class Game {
 
   async stop (): Promise<void> {
     if (this.timer !== null) {
-      await this.pongService.saveResult(this.players)
+      await this.pongService.saveResult(this.players, this.ranked)
       if (this.players.length !== 0) {
         this.gameStoppedCallback(this.players[0].name)
       }
