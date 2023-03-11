@@ -108,8 +108,7 @@
   }
 
   async function onSocketOpen() {
-    if (!fakeUser)
-      await getUser();
+    if (!fakeUser) await getUser();
     void logIn();
     connected = true;
   }

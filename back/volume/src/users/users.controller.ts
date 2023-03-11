@@ -11,8 +11,7 @@ import {
   Res,
   StreamableFile,
   BadRequestException,
-  Redirect,
-  type NotFoundException
+  Redirect
 } from '@nestjs/common'
 
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -136,14 +135,14 @@ export class UsersController {
   async invitUser (
     @FtUser() profile: Profile,
       @Param('username') username: string
-  ): Promise<NotFoundException | null | undefined> {
-    const target = (await this.usersService.findUserByName(username))!
-
-    if (!target) throw new BadRequestException('Target unknown.')
+  ): Promise<BadRequestException | null> {
+    const target: User | null = await this.usersService.findUserByName(
+      username
+    )
+    if (target == null) throw new BadRequestException('Target unknown.')
     if (profile.id === target.ftId) {
       throw new BadRequestException("You can't invit yourself.")
     }
-
     return await this.usersService.invit(profile.id, target.id)
   }
 
@@ -172,12 +171,12 @@ export class UsersController {
 
   @Post(':id')
   @UseGuards(AuthenticatedGuard)
-  async createById (@Body() payload: UserDto): Promise<User | null> {
+  async createById (@Body() payload: UserDto): Promise<void> {
     const user = await this.usersService.findUser(payload.ftId)
     if (user != null) {
-      return await this.usersService.update(user, payload)
+      await this.usersService.update(user, payload)
     } else {
-      return await this.usersService.create(payload)
+      await this.usersService.create(payload)
     }
   }
 
@@ -192,8 +191,9 @@ export class UsersController {
   async updateUser (
     @Body() payload: UserDto,
       @FtUser() profile: Profile
-  ): Promise<User | null> {
-    const user = (await this.usersService.findUser(profile.id))!
+  ): Promise<BadRequestException | User | null> {
+    const user = await this.usersService.findUser(profile.id)
+    if (user == null) throw new BadRequestException('User not found.')
     return await this.usersService.update(user, payload)
   }
 }

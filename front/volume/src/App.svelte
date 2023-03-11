@@ -159,9 +159,9 @@
       username: "test",
       socketKey: "42",
     };
-    store.set(user)
-    fakeUser = true
-    fakemenu = false 
+    store.set(user);
+    fakeUser = true;
+    fakemenu = false;
   }
 </script>
 
@@ -259,7 +259,7 @@
       {#if fakemenu}
         <FakeLogin username={usernameFake} ftId={ftIdFake} />
         <button on:click={impersonate}>Impersonate</button>
-        <button on:click={() => fakemenu = false}>No impersonate</button>
+        <button on:click={() => (fakemenu = false)}>No impersonate</button>
       {:else}
         <Pong bind:this={pong} {fakeUser} />
       {/if}

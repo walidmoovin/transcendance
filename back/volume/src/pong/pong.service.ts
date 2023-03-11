@@ -23,7 +23,7 @@ export class PongService {
     player.winrate = (100 * player.wins) / player.matchs
     player.rank = (await this.usersService.getRank(player.ftId)) + 1
     player.results.push(result)
-    this.usersService.save(player)
+    await this.usersService.save(player)
   }
 
   async saveResult (players: Player[]): Promise<void> {

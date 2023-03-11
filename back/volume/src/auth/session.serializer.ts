@@ -4,11 +4,6 @@ import { type Profile } from 'passport-42'
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
-  // useless constructor?
-  constructor () {
-    super()
-  }
-
   serializeUser (
     user: Profile,
     done: (err: Error | null, user: Profile) => void

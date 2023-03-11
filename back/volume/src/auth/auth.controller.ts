@@ -5,6 +5,15 @@ import { Profile } from 'passport-42'
 import { FtOauthGuard, AuthenticatedGuard } from './42-auth.guard'
 import { FtUser } from './42.decorator'
 
+const frontHost =
+  process.env.HOST !== undefined && process.env.HOST !== ''
+    ? process.env.HOST
+    : 'localhost'
+const frontPort =
+  process.env.PORT !== undefined && process.env.HOST !== ''
+    ? process.env.PORT
+    : '80'
+
 @Controller('log')
 export class AuthController {
   @Get('in')
@@ -13,7 +22,7 @@ export class AuthController {
 
   @Get('inReturn')
   @UseGuards(FtOauthGuard)
-  @Redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}`)
+  @Redirect(`http://${frontHost}:${frontPort}`)
   ftAuthCallback (
     @Res({ passthrough: true }) response: Response,
       @Req() request: Request
@@ -29,7 +38,7 @@ export class AuthController {
   }
 
   @Get('out')
-  @Redirect(`http://${process.env.HOST}:${process.env.FRONT_PORT}`)
+  @Redirect(`http://${frontHost}:${frontPort}`)
   logOut (@Req() req: Request): any {
     req.logOut(function (err) {
       if (err != null) return err

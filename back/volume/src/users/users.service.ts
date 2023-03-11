@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Catch,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common'
+import { BadRequestException, Catch, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm'
 import { User } from './entity/user.entity'
@@ -19,8 +14,8 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) {}
 
-  save (user: User) {
-    this.usersRepository.save(user)
+  async save (user: User): Promise<void> {
+    await this.usersRepository.save(user)
   }
 
   async findUsers (): Promise<User[]> {
@@ -36,12 +31,14 @@ export class UsersService {
   }
 
   @Cron('0 * * * * *')
-  async updateStatus () {
+  async updateStatus (): Promise<void> {
     const users = await this.usersRepository.find({})
     users.forEach((usr) => {
       if (Date.now() - usr.lastAccess > 60000) {
         usr.status = 'offline'
-        this.usersRepository.save(usr)
+        this.usersRepository.save(usr).catch((err) => {
+          console.log(err)
+        })
       }
     })
   }
@@ -51,7 +48,7 @@ export class UsersService {
     if (user == null) return null
     user.lastAccess = Date.now()
     user.status = 'online'
-    this.usersRepository.save(user)
+    await this.usersRepository.save(user)
     return user
   }
 
@@ -59,12 +56,12 @@ export class UsersService {
     return await this.usersRepository.find({ where: { status: 'online' } })
   }
 
-  async create (userData: UserDto) {
+  async create (userData: UserDto): Promise<BadRequestException | User> {
     try {
       const newUser = this.usersRepository.create(userData)
       return await this.usersRepository.save(newUser)
     } catch (err) {
-      throw new Error(`Error creating user ${err}`)
+      throw new BadRequestException('User already exists.')
     }
   }
 
@@ -81,21 +78,14 @@ export class UsersService {
     return await this.usersRepository.save(user)
   }
 
-  async addAvatar (ftId: number, filename: string) {
-    return await this.usersRepository.update(
-      { ftId },
-      {
-        avatar: filename
-      }
-    )
+  async addAvatar (ftId: number, filename: string): Promise<void> {
+    await this.usersRepository.update({ ftId }, { avatar: filename })
   }
 
   async getFriends (ftId: number): Promise<User[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
-      relations: {
-        friends: true
-      }
+      relations: { friends: true }
     })
     if (user != null) return user.friends
     return []
@@ -139,23 +129,25 @@ export class UsersService {
   }
 
   async invit (ftId: number, targetFtId: number): Promise<any> {
-    const user: User = (await this.usersRepository.findOne({
+    const user: User | null = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
         followers: true,
         friends: true
       }
-    }))!
+    })
+    if (user == null) throw new BadRequestException('User not found.')
     if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1) {
       return new BadRequestException('You are already friends.')
     }
-    const target = (await this.usersRepository.findOne({
+    const target: User | null = await this.usersRepository.findOne({
       where: { ftId: targetFtId },
       relations: {
         followers: true,
         friends: true
       }
-    }))!
+    })
+    if (target == null) throw new BadRequestException('Target not found.')
     const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
     )

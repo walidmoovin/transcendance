@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { Point, Rect } from "./utils";
   import type { Map } from "./Map";
-  import { DEFAULT_BALL_SIZE, DEFAULT_MAP_SIZE } from "./constants";
+  import { DEFAULT_BALL_SIZE } from "./constants";
   import { Ball } from "./Ball";
 
   export let map: Map;
@@ -49,7 +49,6 @@
   }
 
   function addWall(e: MouseEvent) {
-    const rect: any = gameCanvas.getBoundingClientRect();
     const wall = new Rect(getMapXY(e), new Point(wallWidth, wallHeight));
     const ballSpawnArea = new Rect(
       new Point(map.size.x / 2, map.size.y / 2),
