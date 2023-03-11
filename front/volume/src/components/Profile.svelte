@@ -11,11 +11,13 @@
 </script>
 
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { API_URL, store, logout } from "../Auth";
 
   export let edit: number;
   export let user: any;
 
+  const dispatch = createEventDispatcher();
   async function handleSubmit() {
     let response = await fetch(API_URL, {
       headers: { "content-type": "application/json" },
@@ -69,10 +71,12 @@
       {/if}
     </div>
     <div class="profile-body">
+      <p><button on:click={() => dispatch("view-history", user.ftId)}>View History</button></p>
       <p>Wins: {user.wins}</p>
       <p>Looses: {user.looses}</p>
       <p>Winrate: {user.winrate}%</p>
       <p>Rank: {user.rank}</p>
+    </div>
       {#if edit == 1}
         <form
           id="username-form"
@@ -93,7 +97,6 @@
         </button>
         <button id="logout" type="button" on:click={logout}>Log Out</button>
       {/if}
-    </div>
   </div>
 </div>
 
@@ -143,7 +146,7 @@
     justify-content: center;
   }
 
-  .profile-body > p {
+  .profile-body >p {
     display: flex;
     justify-content: center;
   }

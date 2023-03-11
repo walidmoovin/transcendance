@@ -3,6 +3,7 @@
     HOME = "/",
     PROFILE = "/profile",
     HISTORY = "/history",
+    HISTORY_ID = "/history_id",
     FRIENDS = "/friends",
     SPECTATE = "/spectate",
     CHANNELS = "/channels",
@@ -61,6 +62,7 @@
   setInterval(() => {
     getUser();
   }, 15000);
+
   function clickProfile() {
     setAppState(APPSTATE.PROFILE);
   }
@@ -80,11 +82,12 @@
   }
 
   // HISTORY
-  let matches: Array<Match>;
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);
     matches = await getHistory();
   }
+
+  let matches: Array<Match>;
 
   export async function getHistory(): Promise<Array<Match>> {
     let response = await fetch(API_URL + "/rankedHistory/", {
@@ -94,19 +97,29 @@
     return await response.json();
   }
 
+  async function openIdHistory(event: CustomEvent<string>) {
+    console.log("Opening history: " + event.detail);
+    const res = await fetch(API_URL + "/history/" + event.detail, {
+      credentials: "include",
+      mode: "cors",
+    });
+    matches = await res.json();
+    setAppState(APPSTATE.HISTORY_ID);
+  }
+
   // FRIENDS
   let friends: Friend[] = [];
   let invits: Friend[] = [];
   let friendsInterval: ReturnType<typeof setInterval>;
 
-  export async function getFriends(): Promise<Friend[]> {
+  async function getFriends(): Promise<Friend[]> {
     let response = await fetch(API_URL + "/friends", {
       credentials: "include",
       mode: "cors",
     });
     return await response.json();
   }
-  export async function getInvits(): Promise<Friend[]> {
+  async function getInvits(): Promise<Friend[]> {
     let response = await fetch(API_URL + "/invits", {
       credentials: "include",
       mode: "cors",
@@ -235,14 +248,23 @@
           <MatchHistory {matches} />
         </div>
       {/if}
+      {#if appState === APPSTATE.HISTORY_ID}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
+          <MatchHistory {matches} />
+        </div>
+      {/if}
       {#if appState === APPSTATE.PROFILE}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Profile user={$store} edit={1} />
+          <Profile user={$store} edit={1}
+              on:view-history={openIdHistory}
+          />
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE_ID}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Profile user={userProfile} edit={0} />
+          <Profile user={userProfile} edit={0}
+              on:view-history={openIdHistory}
+          />
         </div>
       {/if}
 
