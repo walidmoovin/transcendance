@@ -121,13 +121,15 @@ export class UsersController {
   async getAvatar (
     @FtUser() profile: Profile,
       @Res({ passthrough: true }) response: Response
-  ): Promise<StreamableFile | null> {
+  ): Promise<StreamableFile> {
     return await this.getAvatarById(profile.id, response)
   }
 
   @Get('user/:name')
-  async getUserByName (@Param('name') username: string): Promise<User | null> {
-    return await this.usersService.findUserByName(username)
+  async getUserByName (@Param('name') username: string): Promise<User> {
+    const user = await this.usersService.findUserByName(username)
+    user.socketKey = ''
+    return user
   }
 
   @Get('invit/:username')
@@ -135,7 +137,7 @@ export class UsersController {
   async invitUser (
     @FtUser() profile: Profile,
       @Param('username') username: string
-  ): Promise<BadRequestException | null> {
+  ): Promise<void> {
     const target: User | null = await this.usersService.findUserByName(
       username
     )
@@ -143,16 +145,16 @@ export class UsersController {
     if (profile.id === target.ftId) {
       throw new BadRequestException("You can't invit yourself.")
     }
-    return await this.usersService.invit(profile.id, target.id)
+    await this.usersService.invit(profile.id, target.id)
   }
 
   @Get('avatar/:id')
   async getAvatarById (
     @Param('id', ParseIntPipe) ftId: number,
       @Res({ passthrough: true }) response: Response
-  ): Promise<StreamableFile | null> {
+  ): Promise<StreamableFile> {
     const user = await this.usersService.findUser(ftId)
-    if (user == null) return null
+    if (!user) throw new BadRequestException('User unknown.')
     const filename = user.avatar
     const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({
@@ -166,7 +168,9 @@ export class UsersController {
   async getUserById (
     @Param('id', ParseIntPipe) ftId: number
   ): Promise<User | null> {
-    return await this.usersService.findUser(ftId)
+    const user = await this.usersService.findUser(ftId)
+    user.socketKey = ''
+    return user
   }
 
   @Post(':id')

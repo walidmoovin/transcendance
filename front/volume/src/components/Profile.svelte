@@ -50,7 +50,7 @@
         <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
       {:else}
         <form
-          action={`${API_URL}/avatar/${user.id}`}
+          action={`${API_URL}/avatar`}
           method="post"
           enctype="multipart/form-data"
           id="upload_avatar"
@@ -59,6 +59,7 @@
             type="file"
             id="avatar-input"
             name="avatar"
+            accept="image/png, image/gif, image/jpeg"
             on:change={submitAvatar}
           />
         </form>
