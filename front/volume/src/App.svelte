@@ -18,7 +18,6 @@
   import FakeLogin from "./FakeLogin.svelte";
 
   // PROFILE
-
   onMount(() => {
     getUser();
   });
@@ -33,7 +32,7 @@
 
   let userProfile;
   let isIdProfileOpen = false;
-  async function openIdProfile(event) {
+  async function openIdProfile(event: CustomEvent<string>) {
     console.log("Opening profile: " + event.detail);
     isIdProfileOpen = true;
     const res = await fetch(API_URL + "/user/" + event.detail, {
@@ -47,7 +46,6 @@
   }
 
   // HISTORY
-
   let matches: Array<Match>;
   let isHistoryOpen = false;
   function clickHistory() {
@@ -55,7 +53,7 @@
     getHistory();
   }
 
-  export async function getHistory(): Promise<Match[]> {
+  export async function getHistory(): Promise<void> {
     let response = await fetch(API_URL + "/history/" + $store.ftId, {
       credentials: "include",
       mode: "cors",
@@ -64,7 +62,6 @@
   }
 
   // FRIENDS
-
   let friends: Friend[] = [];
   let invits: Friend[] = [];
   let friendsInterval: ReturnType<typeof setInterval>;
@@ -146,6 +143,10 @@
     leaderboard = await getLeader();
   }
 
+  // GAME
+  let pong: Pong;
+
+  // FAKE LOGIN
   let usernameFake = "test";
   let ftIdFake = "42";
   let fakemenu = true;
@@ -184,6 +185,7 @@
               chatMessages={selectedChannel.messages}
               on:view-profile={openIdProfile}
               on:add-friend={addFriend}
+              on:invite-to-game={pong.inviteToGame}
             />
           </div>
         {/if}
@@ -256,7 +258,7 @@
         <button on:click={impersonate}>Impersonate</button>
         <button on:click={() => fakemenu = false}>No impersonate</button>
       {:else}
-        <Pong {fakeUser} />
+        <Pong bind:this={pong} {fakeUser} />
       {/if}
     {/if}
   </div>

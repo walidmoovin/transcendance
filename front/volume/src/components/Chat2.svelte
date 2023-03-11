@@ -50,8 +50,8 @@
         <p class="message">
           <span
             class="message-name"
-            on:click={openProfile(message.author)}
-            on:keydown={openProfile(message.author)}
+            on:click={() => openProfile(message.author)}
+            on:keydown={() => openProfile(message.author)}
             style="cursor: pointer;"
           >
             {message.author}

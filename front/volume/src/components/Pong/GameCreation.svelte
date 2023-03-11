@@ -7,13 +7,13 @@
   import { store } from "../../Auth";
 
   export let socket: WebSocket;
+  export let invitedUsername: string;
 
   let map: Map = new Map(DEFAULT_MAP_SIZE.clone(), []);
-  let otherUsername: string = "Garfield";
 
   function createGame() {
     const data: GameCreationDto = {
-      playerNames: [$store.username, otherUsername],
+      playerNames: [$store.username, invitedUsername],
       map,
     };
     socket.send(formatWebsocketData(GAME_EVENTS.CREATE_GAME, data));
@@ -23,9 +23,9 @@
 <div class="overlay">
   <div class="window" on:click|stopPropagation on:keydown|stopPropagation>
     Friend:
-    <input bind:value={otherUsername} />
+    <input bind:value={invitedUsername} />
     <button on:click={createGame}>
-      Create game vs {otherUsername}
+      Create game vs {invitedUsername}
     </button>
     <MapCustomization {map} />
   </div>

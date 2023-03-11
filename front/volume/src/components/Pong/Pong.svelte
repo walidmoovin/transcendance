@@ -11,7 +11,12 @@
   import { getUser, store } from "../../Auth";
   import ColorPicker from "./ColorPicker.svelte";
 
-  export let fakeUser;
+  export function inviteToGame(event: CustomEvent<string>) {
+    createMatchWindow = true;
+    invitedUsername = event.detail;
+  }
+
+  export let fakeUser: boolean;
 
   const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT
@@ -31,6 +36,7 @@
   let renderCanvas: HTMLCanvasElement;
   let canvas: HTMLCanvasElement;
   let context: CanvasRenderingContext2D;
+  let invitedUsername: string = "";
 
   function setupSocket(
     _renderCanvas: HTMLCanvasElement,
@@ -102,7 +108,8 @@
   }
 
   async function onSocketOpen() {
-    await getUser();
+    if (!fakeUser)
+      await getUser();
     void logIn();
     connected = true;
   }
@@ -173,7 +180,7 @@
         on:click={() => (createMatchWindow = false)}
         on:keydown={() => (createMatchWindow = false)}
       >
-        <GameCreation {socket} />
+        <GameCreation {socket} {invitedUsername} />
       </div>
     {:else if spectateWindow}
       <div
