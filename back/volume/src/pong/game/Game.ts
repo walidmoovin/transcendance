@@ -100,7 +100,7 @@ export class Game {
     if (this.timer === null && this.players.length === 2) {
       this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
       this.players.forEach((p) => {
-        this.pongService.setInGame(p.name)
+        void this.pongService.setInGame(p.name)
         p.newGame()
       })
       this.playing = true

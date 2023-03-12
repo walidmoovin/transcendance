@@ -32,6 +32,5 @@ export class Player {
   newGame (): void {
     this.score = 0
     this.paddle = new Paddle(this.paddleCoords, this.mapSize)
-
   }
 }

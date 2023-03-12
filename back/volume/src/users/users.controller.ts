@@ -138,12 +138,13 @@ export class UsersController {
     @FtUser() profile: Profile,
       @Param('username') username: string
   ): Promise<void> {
-    const target: User | null = await this.usersService.findUserByName( username )
-    if (!target) throw new BadRequestException(`User ${username} not found.`)
-    if (+profile.id === target.ftId)
-      throw new BadRequestException("You can't invit yourself.")
-    const ret: string = await this.usersService.invit(profile.id, target.ftId);
-    if (ret !== "OK") throw new BadRequestException(ret)
+    const target: User | null = await this.usersService.findUserByName(username)
+    if (target === null) throw new BadRequestException(`User ${username} not found.`)
+    if (+profile.id === target.ftId) {
+      throw new BadRequestException('You can\'t invite yourself.')
+    }
+    const ret: string = await this.usersService.invit(profile.id, target.ftId)
+    if (ret !== 'OK') throw new BadRequestException(ret)
   }
 
   @Get('avatar/:id')
@@ -151,12 +152,12 @@ export class UsersController {
     @Param('id', ParseIntPipe) ftId: number,
       @Res({ passthrough: true }) response: Response
   ): Promise<StreamableFile> {
-    const user = await this.usersService.findUser(ftId)
-    if (!user) throw new BadRequestException('User unknown.')
+    const user: User | null = await this.usersService.findUser(ftId)
+    if (user === null) throw new BadRequestException('User unknown.')
     const filename = user.avatar
     const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({
-      'Content-Diposition': `inline; filename="${filename}"`,
+      'Content-Diposition': `inline; filename='${filename}'`,
       'Content-Type': 'image/jpg'
     })
     return new StreamableFile(stream)
@@ -167,7 +168,7 @@ export class UsersController {
     @Param('id', ParseIntPipe) ftId: number
   ): Promise<User | null> {
     const user = await this.usersService.findUser(ftId)
-    if (!user) throw new BadRequestException('User unknown.')
+    if (user == null) throw new BadRequestException('User unknown.')
     user.socketKey = ''
     return user
   }

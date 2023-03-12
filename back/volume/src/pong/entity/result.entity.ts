@@ -13,7 +13,7 @@ export default class Result {
   @PrimaryGeneratedColumn()
     id: number
 
-  @Column()
+  @Column({ default: false })
     ranked: boolean
 
   @ManyToMany(() => User, (player: User) => player.results, { cascade: true })

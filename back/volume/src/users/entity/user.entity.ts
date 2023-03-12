@@ -22,7 +22,7 @@ export class User {
   @Column({ unique: true })
     ftId: number
 
-  @Column({ unique: true})
+  @Column({ unique: true })
     socketKey: string
 
   @Column({ unique: true })

@@ -21,18 +21,19 @@ export class PongService {
     player.winrate = (100 * player.wins) / player.matchs
     player.rank = (await this.usersService.getRank(player.ftId)) + 1
   }
-  async updatePlayer (i: number, result: Result) {
+
+  async updatePlayer (i: number, result: Result): Promise<void> {
     const player: User | null = result.players[i]
     if (player == null) return
-    if (result.ranked) this.updateStats(player, i, result)
+    if (result.ranked) await this.updateStats(player, i, result)
     player.results.push(result)
-    player.status = "online" 
+    player.status = 'online'
     await this.usersService.save(player)
   }
 
   async setInGame (playerName: string): Promise<void> {
     const player = await this.usersService.findUserByName(playerName)
-    player.status = "in-game"
+    player.status = 'in-game'
     await this.usersService.save(player)
   }
 
@@ -41,7 +42,7 @@ export class PongService {
     const ply = new Array<User | null>()
     ply.push(await this.usersService.findUserByName(players[0].name))
     ply.push(await this.usersService.findUserByName(players[1].name))
-    result.ranked = ranked;
+    result.ranked = ranked
     result.players = ply
     result.score = [players[0].score, players[1].score]
     await this.resultsRepository.save(result)
@@ -51,9 +52,9 @@ export class PongService {
 
   async getRankedHistory (): Promise<Result[]> {
     return await this.resultsRepository.find({
-      where: { ranked: true},
+      where: { ranked: true },
       relations: {
-        players: true,
+        players: true
       },
       order: { date: 'DESC' }
     })
