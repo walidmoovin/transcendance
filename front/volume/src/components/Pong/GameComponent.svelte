@@ -49,7 +49,7 @@
   }
 
   .renderCanvas {
-    max-width: 1000px;
+    max-width: 60vw;
     width: 100%;
     height: auto;
     padding-left: 0;
