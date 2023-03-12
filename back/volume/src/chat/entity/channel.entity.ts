@@ -22,7 +22,7 @@ export class Channel {
 
   @ManyToMany(() => User)
   @JoinTable()
-    owners: User[]
+    owner: User
 
   @ManyToMany(() => User)
   @JoinTable()

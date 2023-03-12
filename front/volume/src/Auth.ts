@@ -29,6 +29,17 @@ export function login() {
   window.location.replace(API_URL + "/log/in");
 }
 
+export function verify() {
+  fetch(API_URL + "/log/verify", {
+    method: "get",
+    mode: "cors",
+    credentials: "include",
+  });
+  alert(
+    "We have sent you an email to verify your account. Check the mailbox which is linked to your 42's profile."
+  );
+}
+
 export function logout() {
   window.location.replace(API_URL + "/log/out");
   store.set(null);

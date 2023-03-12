@@ -37,6 +37,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       newUser.ftId = profile.id as number
       newUser.username = profile.username
       newUser.avatar = `${ftId}.jpg`
+      newUser.email = profile.emails[0].value
       void this.usersService.create(newUser)
       const file = createWriteStream(`avatars/${ftId}.jpg`)
       get(profile._json.image.versions.small, function (response) {

@@ -19,8 +19,8 @@
     if (response.ok) {
       alert("Invitation send.");
     } else {
-      const error = (await response.json()).message
-      alert("Invitation failed: " +  error);;
+      const error = (await response.json()).message;
+      alert("Invitation failed: " + error);
     }
   }
 </script>

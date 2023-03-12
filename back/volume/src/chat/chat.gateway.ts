@@ -61,9 +61,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): Promise<Channel | null> {
     const channel = new Channel()
     channel.name = channeldto.name
-    const owner = await this.userService.findUser(channeldto.owner)
-    if (owner == null) return null
-    channel.owners.push(owner)
+    // const owner = await this.userService.findUser(channeldto.owner)
+    // if (owner == null) return null
+    // channel.owners.push(owner)
     channel.password = channeldto.password
     /// ...///
     return await this.chatService.createChannel(channel, socket.data.user)

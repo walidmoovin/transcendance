@@ -32,7 +32,7 @@
   import type { Friend } from "./components/Friends.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
 
-  import { store, getUser, login, API_URL } from "./Auth";
+  import { store, getUser, login, verify, API_URL } from "./Auth";
   import FakeLogin from "./FakeLogin.svelte";
 
   // Single Page Application config
@@ -197,6 +197,8 @@
   <div>
     {#if $store === null}
       <h1><button type="button" on:click={login}>Log In</button></h1>
+    {:else if $store.twoFA === true && $store.isVerified === false}
+      <h1><button type="button" on:click={verify}>verify</button></h1>
     {:else}
       <Navbar
         {clickProfile}
@@ -255,9 +257,7 @@
       {/if}
       {#if appState === APPSTATE.PROFILE}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Profile user={$store} edit={1}
-              on:view-history={openIdHistory}
-          />
+          <Profile user={$store} edit={1} on:view-history={openIdHistory} />
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE_ID}

@@ -17,6 +17,12 @@ export class UserDto {
 
   @IsOptional()
   readonly avatar: string
+
+  @IsOptional()
+  readonly authToken: string
+
+  @IsOptional()
+  readonly isVerified: boolean
 }
 
 export class AvatarUploadDto {

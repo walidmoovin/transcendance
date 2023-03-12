@@ -41,6 +41,7 @@ export class UsersService {
     const users = await this.usersRepository.find({})
     users.forEach((usr) => {
       if (Date.now() - usr.lastAccess > 60000) {
+        usr.isVerified = false
         usr.status = 'offline'
         this.usersRepository.save(usr).catch((err) => {
           console.log(err)
@@ -161,21 +162,33 @@ export class UsersService {
         friends: true
       }
     })
-    if (target === null) return 'Target not found.'
+    if (target == null) return 'Target not found.'
     const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
     )
-    if (target.followers.findIndex((follower) => follower.ftId === user.ftId) !== -1) {
+    if (
+      target.followers.findIndex((follower) => follower.ftId === user.ftId) !== -1
+    ) {
       return 'Invitation already sent.'
-    } else if (user.followers.findIndex((follower) => follower.ftId === targetFtId) !== -1) {
+    } else if (
+      user.followers.findIndex((follower) => follower.ftId === targetFtId) !== -1
+    ) {
       user.friends.push(target)
       target.friends.push(user)
       user.followers.slice(id, 1)
       await this.usersRepository.save(user)
-    } else {
-      target.followers.push(user)
-    }
+    } else target.followers.push(user)
     await this.usersRepository.save(target)
     return 'OK'
+  }
+
+  async findByCode (code: string) {
+    const user = await this.usersRepository.findOneBy({ authToken: code })
+    if (user == null) throw new BadRequestException('User not found')
+    return user
+  }
+
+  async turnOnTwoFactorAuthentication (ftId: number) {
+    return await this.usersRepository.update({ ftId }, { twoFA: true})
   }
 }

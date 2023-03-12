@@ -6,7 +6,7 @@
     matchs: number;
     winrate: number;
     rank: number;
-    is2faEnabled: boolean;
+    twoFA: boolean;
   }
 </script>
 
@@ -35,7 +35,16 @@
 
   async function handle2fa(event: Event) {
     event.preventDefault();
-    alert("Trying to " + (user.is2faEnabled ? "disable" : "enable") + " 2FA");
+    let response = await fetch(API_URL, {
+      headers: { "content-type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(user),
+      credentials: "include",
+    });
+    if (response.ok) {
+      alert("Succefully " + (user.twoFA ? "disabled" : "enabled") + " 2FA");
+      user.twoFA = !user.twoFA;
+    }
   }
 </script>
 
@@ -66,32 +75,36 @@
       {/if}
     </div>
     <div class="profile-body">
-      <p><button on:click={() => dispatch("view-history", user.ftId)}>View History</button></p>
+      <p>
+        <button on:click={() => dispatch("view-history", user.ftId)}
+          >View History</button
+        >
+      </p>
       <p>Wins: {user.wins}</p>
       <p>Looses: {user.looses}</p>
       <p>Winrate: {user.winrate}%</p>
       <p>Rank: {user.rank}</p>
     </div>
-      {#if edit == 1}
-        <form
-          id="username-form"
-          class="username"
-          on:submit|preventDefault={handleSubmit}
+    {#if edit == 1}
+      <form
+        id="username-form"
+        class="username"
+        on:submit|preventDefault={handleSubmit}
+      >
+        <input type="text" id="username" bind:value={user.username} />
+        <button type="submit" class="username" form="username-form"
+          >Change</button
         >
-          <input type="text" id="username" bind:value={user.username} />
-          <button type="submit" class="username" form="username-form"
-            >Change</button
-          >
-        </form>
-        <button type="button" on:click={handle2fa}>
-          {#if user.is2faEnabled}
-            Disable 2FA
-          {:else}
-            Enable user.2FA
-          {/if}
-        </button>
-        <button id="logout" type="button" on:click={logout}>Log Out</button>
-      {/if}
+      </form>
+      <button type="button" on:click={handle2fa}>
+        {#if user.twoFA}
+          Disable 2FA
+        {:else}
+          Enable 2FA
+        {/if}
+      </button>
+      <button id="logout" type="button" on:click={logout}>Log Out</button>
+    {/if}
   </div>
 </div>
 
@@ -141,7 +154,7 @@
     justify-content: center;
   }
 
-  .profile-body >p {
+  .profile-body > p {
     display: flex;
     justify-content: center;
   }

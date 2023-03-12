@@ -23,7 +23,7 @@ import { UserDto, AvatarUploadDto } from './dto/user.dto'
 import { PongService } from 'src/pong/pong.service'
 
 import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
-import { FtUser } from 'src/auth/42.decorator'
+import { Profile42 } from 'src/auth/42.decorator'
 import { Profile } from 'passport-42'
 
 import { ApiBody, ApiConsumes } from '@nestjs/swagger'
@@ -51,13 +51,13 @@ export class UsersController {
 
   @Get('friends')
   @UseGuards(AuthenticatedGuard)
-  async getFriends (@FtUser() profile: Profile): Promise<User[]> {
+  async getFriends (@Profile42() profile: Profile): Promise<User[]> {
     return await this.usersService.getFriends(profile.id)
   }
 
   @Get('invits')
   @UseGuards(AuthenticatedGuard)
-  async getInvits (@FtUser() profile: Profile): Promise<User[]> {
+  async getInvits (@Profile42() profile: Profile): Promise<User[]> {
     return await this.usersService.getInvits(profile.id)
   }
 
@@ -110,7 +110,7 @@ export class UsersController {
     type: AvatarUploadDto
   })
   async changeAvatar (
-    @FtUser() profile: Profile,
+    @Profile42() profile: Profile,
       @UploadedFile() file: Express.Multer.File
   ): Promise<void> {
     if (file === undefined) return
@@ -120,7 +120,7 @@ export class UsersController {
   @Get('avatar')
   @UseGuards(AuthenticatedGuard)
   async getAvatar (
-    @FtUser() profile: Profile,
+    @Profile42() profile: Profile,
       @Res({ passthrough: true }) response: Response
   ): Promise<StreamableFile> {
     return await this.getAvatarById(profile.id, response)
@@ -136,7 +136,7 @@ export class UsersController {
   @Get('invit/:username')
   @UseGuards(AuthenticatedGuard)
   async invitUser (
-    @FtUser() profile: Profile,
+    @Profile42() profile: Profile,
       @Param('username') username: string
   ): Promise<void> {
     const target: User | null = await this.usersService.findUserByName(username)
@@ -187,7 +187,7 @@ export class UsersController {
 
   @Get()
   @UseGuards(AuthenticatedGuard)
-  async getUser (@FtUser() profile: Profile): Promise<User | null> {
+  async getUser (@Profile42() profile: Profile): Promise<User | null> {
     return await this.usersService.findUser(profile.id)
   }
 
@@ -195,7 +195,7 @@ export class UsersController {
   @UseGuards(AuthenticatedGuard)
   async updateUser (
     @Body() payload: UserDto,
-      @FtUser() profile: Profile
+      @Profile42() profile: Profile
   ): Promise<BadRequestException | User | null> {
     const user = await this.usersService.findUser(profile.id)
     if (user == null) throw new BadRequestException('User not found.')

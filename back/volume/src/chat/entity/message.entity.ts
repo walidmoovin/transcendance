@@ -28,7 +28,7 @@ export class Message {
     channel: Channel
 
   @CreateDateColumn()
-    created_at: Date
+    createdAt: Date
 }
 
 export default Message

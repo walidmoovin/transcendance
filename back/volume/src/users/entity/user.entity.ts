@@ -23,6 +23,18 @@ export class User {
     ftId: number
 
   @Column({ unique: true })
+    email: string
+
+  @Column({ select: false, nullable: true })
+    authToken: string
+
+  @Column({ default: false })
+    twoFA: boolean
+
+  @Column({ default: false, nullable: true })
+    isVerified: boolean
+
+  @Column({ unique: true })
     socketKey: string
 
   @Column({ unique: true })
