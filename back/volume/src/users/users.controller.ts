@@ -97,7 +97,7 @@ export class UsersController {
       }),
       fileFilter: (request: Request, file: Express.Multer.File, callback) => {
         if (!file.mimetype.includes('image')) {
-          callback(new BadRequestException('Provide a valid image'), false)
+          callback(null, false)
           return
         }
         callback(null, true)
@@ -113,6 +113,7 @@ export class UsersController {
     @FtUser() profile: Profile,
       @UploadedFile() file: Express.Multer.File
   ): Promise<void> {
+    if (file === undefined) return
     await this.usersService.addAvatar(profile.id, file.filename)
   }
 

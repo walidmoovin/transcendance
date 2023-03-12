@@ -17,6 +17,8 @@
   export let edit: number;
   export let user: any;
 
+  let avatarForm: HTMLFormElement;
+
   const dispatch = createEventDispatcher();
   async function handleSubmit() {
     let response = await fetch(API_URL, {
@@ -35,13 +37,6 @@
     event.preventDefault();
     alert("Trying to " + (user.is2faEnabled ? "disable" : "enable") + " 2FA");
   }
-
-  function submitAvatar() {
-    let form: HTMLFormElement = <HTMLFormElement>(
-      document.getElementById("upload_avatar")
-    );
-    form.submit();
-  }
 </script>
 
 <div class="overlay">
@@ -55,14 +50,14 @@
           action={`${API_URL}/avatar`}
           method="post"
           enctype="multipart/form-data"
-          id="upload_avatar"
+          bind:this={avatarForm}
         >
           <input
             type="file"
             id="avatar-input"
             name="avatar"
             accept="image/png, image/gif, image/jpeg"
-            on:change={submitAvatar}
+            on:change={() => avatarForm.submit()}
           />
         </form>
         <label class="img-class" for="avatar-input">
