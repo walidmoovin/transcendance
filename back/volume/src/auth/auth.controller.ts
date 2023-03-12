@@ -51,16 +51,16 @@ export class AuthController {
   @Get('/verify')
   @UseGuards(AuthenticatedGuard)
   @Redirect(`http://${frontHost}:${frontPort}`)
-  async VerifyEmail (@Profile42() profile: Profile) {
+  async VerifyEmail (@Profile42() profile: Profile): Promise<void> {
     const ftId: number = profile.id
     const user = await this.usersService.findUser(ftId)
     if (user == null) throw new Error('User not found')
-    this.authService.sendConfirmationEmail(user)
+    await this.authService.sendConfirmationEmail(user)
   }
 
   @Post('/verify')
   @Redirect(`http://${frontHost}:${frontPort}`)
-  async Verify (@Body() body: any) {
+  async Verify (@Body() body: any): Promise<void> {
     await this.authService.verifyAccount(body.code)
   }
 

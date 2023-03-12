@@ -167,11 +167,13 @@ export class UsersService {
       (follower) => follower.ftId === targetFtId
     )
     if (
-      target.followers.findIndex((follower) => follower.ftId === user.ftId) !== -1
+      target.followers.findIndex((follower) => follower.ftId === user.ftId) !==
+      -1
     ) {
       return 'Invitation already sent.'
     } else if (
-      user.followers.findIndex((follower) => follower.ftId === targetFtId) !== -1
+      user.followers.findIndex((follower) => follower.ftId === targetFtId) !==
+      -1
     ) {
       user.friends.push(target)
       target.friends.push(user)
@@ -182,13 +184,13 @@ export class UsersService {
     return 'OK'
   }
 
-  async findByCode (code: string) {
+  async findByCode (code: string): Promise<User> {
     const user = await this.usersRepository.findOneBy({ authToken: code })
     if (user == null) throw new BadRequestException('User not found')
     return user
   }
 
-  async turnOnTwoFactorAuthentication (ftId: number) {
-    return await this.usersRepository.update({ ftId }, { twoFA: true})
+  async turnOnTwoFactorAuthentication (ftId: number): Promise<void> {
+    await this.usersRepository.update({ ftId }, { twoFA: true })
   }
 }

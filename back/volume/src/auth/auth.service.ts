@@ -1,8 +1,7 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { type User } from 'src/users/entity/user.entity'
 import { UsersService } from 'src/users/users.service'
 import { MailerService } from '@nestjs-modules/mailer'
-import { UserDto } from 'src/users/dto/user.dto'
 
 @Injectable()
 export class AuthService {
@@ -11,7 +10,7 @@ export class AuthService {
     private readonly mailerService: MailerService
   ) {}
 
-  async sendConfirmedEmail (user: User) {
+  async sendConfirmedEmail (user: User): Promise<void> {
     const { email, username } = user
     await this.mailerService.sendMail({
       to: email,
@@ -24,9 +23,9 @@ export class AuthService {
     })
   }
 
-  async sendConfirmationEmail (user: User) {
+  async sendConfirmationEmail (user: User): Promise<void> {
     user.authToken = Math.floor(10000 + Math.random() * 90000).toString()
-    this.usersService.save(user)
+    await this.usersService.save(user)
     await this.mailerService.sendMail({
       to: user.email,
       subject: 'Welcome to ft_transcendence! Confirm Email',
@@ -40,12 +39,6 @@ export class AuthService {
 
   async verifyAccount (code: string): Promise<boolean> {
     const user = await this.usersService.findByCode(code)
-    if (!user) {
-      throw new HttpException(
-        'Verification code has expired or not found',
-        HttpStatus.UNAUTHORIZED
-      )
-    }
     user.authToken = ''
     user.isVerified = true
     await this.usersService.save(user)
