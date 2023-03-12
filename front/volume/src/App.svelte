@@ -261,7 +261,7 @@
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE_ID}
-        <div on:click={resetAppState} on:keydown={resetAppState}>
+        <div on:click={() => setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)} on:keydown={() => setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}>
           <Profile user={userProfile} edit={0}
               on:view-history={openIdHistory}
           />

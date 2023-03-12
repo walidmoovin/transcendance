@@ -3,10 +3,9 @@
 
   export let username;
   export let ftId;
-  let result = null;
 
   async function doPost() {
-    const res = await fetch(API_URL + "/" + ftId, {
+    await fetch(API_URL + "/" + ftId, {
       method: "POST",
       credentials: "include",
       mode: "cors",
@@ -20,10 +19,6 @@
         avatar: "no avatar",
       }),
     });
-
-    const json = await res.json();
-    result = JSON.stringify(json);
-    console.log(result);
   }
 </script>
 
@@ -31,5 +26,4 @@
   <input bind:value={username} />
   <input bind:value={ftId} />
   <button type="button" on:click={doPost}> Post it. </button>
-  <p>Result: {result}</p>
 </div>
