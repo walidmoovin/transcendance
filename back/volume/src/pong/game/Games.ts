@@ -111,13 +111,16 @@ export class Games {
     socket: WebSocket,
     uuid: string,
     name: string
-  ): void {
+  ): boolean {
+    let succeeded: boolean = false
     const gameIndex: number | undefined =
       this.playerNameToGameIndex.get(nameToSpectate)
     if (gameIndex !== undefined) {
       this.playerNameToGameIndex.set(name, gameIndex)
       this.games[gameIndex].addSpectator(socket, uuid, name)
+      succeeded = true
     }
+    return succeeded
   }
 
   async leaveGame (name: string): Promise<void> {

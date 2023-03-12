@@ -190,8 +190,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let succeeded: boolean = false
     const name: string | undefined = this.socketToPlayerName.get(client)
     if (name !== undefined) {
-      this.games.spectateGame(playerToSpectate.value, client, client.id, name)
-      succeeded = true
+      succeeded = this.games.spectateGame(playerToSpectate.value, client, client.id, name)
     }
     return { event: GAME_EVENTS.SPECTATE, data: succeeded }
   }

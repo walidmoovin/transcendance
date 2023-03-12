@@ -15,7 +15,7 @@
       body: JSON.stringify({
         ftId,
         username,
-        socketKey: "42",
+        socketKey: ftId,
         avatar: "no avatar",
       }),
     });

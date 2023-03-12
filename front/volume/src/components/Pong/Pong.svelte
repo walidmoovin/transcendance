@@ -95,9 +95,6 @@
       } else if (event == GAME_EVENTS.SPECTATE) {
         if (data) {
           gamePlaying = true;
-          setInterval(() => {
-            updateGameInfo();
-          }, 1000);
         }
       } else if (event == GAME_EVENTS.READY) {
         game.youAreReady = true;

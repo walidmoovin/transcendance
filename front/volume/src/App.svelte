@@ -184,8 +184,8 @@
   let fakeUser = false;
   function impersonate() {
     const user = {
-      username: "test",
-      socketKey: "42",
+      username: usernameFake,
+      socketKey: ftIdFake,
     };
     store.set(user);
     fakeUser = true;
@@ -269,7 +269,7 @@
       {/if}
 
       {#if fakemenu}
-        <FakeLogin username={usernameFake} ftId={ftIdFake} />
+        <FakeLogin bind:username={usernameFake} bind:ftId={ftIdFake} />
         <button on:click={impersonate}>Impersonate</button>
         <button on:click={() => (fakemenu = false)}>No impersonate</button>
       {:else}
