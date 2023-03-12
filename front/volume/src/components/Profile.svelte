@@ -35,6 +35,7 @@
 
   async function handle2fa(event: Event) {
     event.preventDefault();
+    user.twoFA = !user.twoFA;
     let response = await fetch(API_URL, {
       headers: { "content-type": "application/json" },
       method: "POST",
@@ -42,8 +43,7 @@
       credentials: "include",
     });
     if (response.ok) {
-      alert("Succefully " + (user.twoFA ? "disabled" : "enabled") + " 2FA");
-      user.twoFA = !user.twoFA;
+      alert("Succefully " + (user.twoFA ? "enabled" : "disabled") + " 2FA");
     }
   }
 </script>
