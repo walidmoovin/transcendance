@@ -95,6 +95,7 @@
       drawMap();
     }}>Clear all walls</button
   >
+  <br />
   <canvas
     bind:this={gameCanvas}
     on:click={(e) => click(e, false)}
@@ -107,6 +108,8 @@
   .renderCanvas {
     width: 100%;
     height: 100%;
+    max-width: 600px;
+    max-height: 60vh;
   }
 
   .title {

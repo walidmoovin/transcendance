@@ -57,4 +57,10 @@
     max-width: 100%;
     margin-bottom: 1rem;
   }
+
+  @media (max-width: 768px) {
+    .window {
+      width: 80vw;
+    }
+  }
 </style>
