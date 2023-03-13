@@ -71,11 +71,13 @@
             {#each data as match}
               <tr>
                 <td>{displayDate(match.date.toString())}</td>
-                <td
-                  >{match.players[0].username}<br />{match.players[1]
-                    .username}</td
-                >
-                <td>{match.score[0]}<br />{match.score[1]}</td>
+                {#if match?.players[0]?.username && match?.players[1]?.username}
+                  <td
+                    >{match.players[0].username}<br />{match.players[1]
+                      .username}</td
+                  >
+                  <td>{match.score[0]}<br />{match.score[1]}</td>
+                {/if}
               </tr>
             {/each}
           </tbody>
