@@ -7,7 +7,7 @@
 
   const dispatch = createEventDispatcher();
   let isLoadMore = false;
-  let component;
+  let component: HTMLDivElement;
 
   $: {
     if (component) {
@@ -17,11 +17,11 @@
     }
   }
 
-  const onScroll = (e) => {
-    const element = e.target;
+  const onScroll = (e: Event) => {
+    const element = e.target as HTMLDivElement;
     const offset = horizontal
-      ? e.target.scrollWidth - e.target.clientWidth - e.target.scrollLeft
-      : e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop;
+      ? element.scrollWidth - element.clientWidth - element.scrollLeft
+      : element.scrollHeight - element.clientHeight - element.scrollTop;
     if (offset <= threshold) {
       if (!isLoadMore && hasMore) dispatch("loadMore");
       isLoadMore = true;

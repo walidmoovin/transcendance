@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { formatWebsocketData } from "./utils";
   import { Map } from "./Map";
   import { DEFAULT_MAP_SIZE, GAME_EVENTS } from "./constants";
   import MapCustomization from "./MapCustomization.svelte";
   import type { GameCreationDto } from "./dtos/GameCreationDto";
   import { store } from "../../Auth";
+  import type { Socket } from "socket.io-client";
 
-  export let socket: WebSocket;
+  export let socket: Socket;
   export let invitedUsername: string;
 
   let map: Map = new Map(DEFAULT_MAP_SIZE.clone(), []);
@@ -16,7 +16,7 @@
       playerNames: [$store.username, invitedUsername],
       map,
     };
-    socket.send(formatWebsocketData(GAME_EVENTS.CREATE_GAME, data));
+    socket.emit(GAME_EVENTS.CREATE_GAME, data);
   }
 </script>
 

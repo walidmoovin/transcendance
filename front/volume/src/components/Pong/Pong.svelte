@@ -1,7 +1,6 @@
 <script lang="ts">
   import { GAME_EVENTS } from "./constants";
   import { Game } from "./Game";
-  import { formatWebsocketData } from "./utils";
   import GameCreation from "./GameCreation.svelte";
   import GameComponent from "./GameComponent.svelte";
   import type { StringDto } from "./dtos/StringDto";
@@ -10,6 +9,9 @@
   import { getUser, store } from "../../Auth";
   import ColorPicker from "./ColorPicker.svelte";
   import { APPSTATE } from "../../App.svelte";
+  import { io, Socket } from "socket.io-client";
+  import type { GameUpdate } from "./dtos/GameUpdate";
+  import type { GameInfo } from "./dtos/GameInfo";
 
   export function inviteToGame(event: CustomEvent<string>) {
     setAppState(APPSTATE.CREATE_GAME);
@@ -28,7 +30,7 @@
   let connected: boolean = false;
   let loggedIn: boolean = false;
   let failedLogIn: boolean = false;
-  let socket: WebSocket;
+  let socket: Socket;
   let elementsColor: string = "#FFFFFF";
   let backgroundColor: string = "#000000";
   let game: Game;
@@ -42,7 +44,7 @@
     _canvas: HTMLCanvasElement,
     _context: CanvasRenderingContext2D
   ) {
-    socket = new WebSocket(SERVER_URL);
+    socket = io(SERVER_URL);
     renderCanvas = _renderCanvas;
     canvas = _canvas;
     context = _context;
@@ -54,53 +56,52 @@
       backgroundColor
     );
 
-    socket.onmessage = function (e) {
-      const event_json = JSON.parse(e.data);
-      const event = event_json.event;
-      const data = event_json.data;
-
-      if (event == GAME_EVENTS.START_GAME) {
-        game.start(socket);
-      } else if (event == GAME_EVENTS.GAME_TICK) {
-        game.update(data);
-      } else if (event == GAME_EVENTS.GET_GAME_INFO) {
-        if (data && data.gameId != game.id) {
-          if (gamePlaying && data.gameId == "") {
-            resetMenus();
-            gamePlaying = false;
-          }
-          if (data.yourPaddleIndex !== -2) {
-            gamePlaying = true;
-            game.setInfo(data);
-          }
+    socket.on(GAME_EVENTS.START_GAME, () => {
+      game.start(socket);
+    });
+    socket.on(GAME_EVENTS.GAME_TICK, (data: GameUpdate) => {
+      game.update(data);
+    });
+    socket.on(GAME_EVENTS.GET_GAME_INFO, (data: GameInfo) => {
+      if (data && data.gameId != game.id) {
+        if (gamePlaying && data.gameId == "") {
+          resetMenus();
+          gamePlaying = false;
         }
-      } else if (event == GAME_EVENTS.REGISTER_PLAYER) {
-        if (data) {
-          loggedIn = true;
-          setInterval(() => {
-            updateGameInfo();
-          }, 1000);
-        } else {
-          failedLogIn = true;
+        if (data.yourPaddleIndex !== -2) {
+          gamePlaying = true;
+          game.setInfo(data);
         }
-      } else if (event == GAME_EVENTS.CREATE_GAME) {
-        if (data) gamePlaying = true;
-      } else if (event == GAME_EVENTS.MATCHMAKING) {
-        if (data.matchmaking && appState !== APPSTATE.MATCHMAKING) {
-          setAppState(APPSTATE.MATCHMAKING);
-        } else if (!data.matchmaking && appState === APPSTATE.MATCHMAKING) {
-          setAppState(APPSTATE.HOME);
-        }
-      } else if (event == GAME_EVENTS.READY) {
-        game.youAreReady = true;
-      } else {
-        console.log(
-          "Unknown event from server: " + event + " with data " + data
-        );
       }
-    };
-    socket.onopen = onSocketOpen;
-    socket.onclose = onSocketClose;
+    });
+    socket.on(GAME_EVENTS.REGISTER_PLAYER, (succeeded: boolean) => {
+      if (succeeded) {
+        loggedIn = true;
+        setInterval(() => {
+          updateGameInfo();
+        }, 1000);
+      } else {
+        failedLogIn = true;
+      }
+    });
+    socket.on(GAME_EVENTS.CREATE_GAME, (succeeded: boolean) => {
+      if (succeeded) {
+        gamePlaying = true;
+      }
+    });
+    socket.on(GAME_EVENTS.MATCHMAKING, (data: MatchmakingDto) => {
+      if (data.matchmaking && appState !== APPSTATE.MATCHMAKING) {
+        setAppState(APPSTATE.MATCHMAKING);
+      } else if (!data.matchmaking && appState === APPSTATE.MATCHMAKING) {
+        setAppState(APPSTATE.HOME);
+      }
+    });
+    socket.on(GAME_EVENTS.READY, (succeeded: boolean) => {
+      game.youAreReady = succeeded;
+    });
+
+    socket.on("connect", onSocketOpen);
+    socket.on("disconnect", onSocketClose);
   }
 
   async function onSocketOpen() {
@@ -115,7 +116,7 @@
   }
 
   function updateGameInfo() {
-    socket.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO));
+    socket.emit(GAME_EVENTS.GET_GAME_INFO);
   }
 
   async function logIn() {
@@ -123,17 +124,17 @@
       playerName: { value: $store.username },
       socketKey: { value: $store.socketKey },
     };
-    socket.send(formatWebsocketData(GAME_EVENTS.REGISTER_PLAYER, data));
+    socket.emit(GAME_EVENTS.REGISTER_PLAYER, data);
   }
 
   function startMatchmaking() {
     const data: MatchmakingDto = { matchmaking: true };
-    socket.send(formatWebsocketData(GAME_EVENTS.MATCHMAKING, data));
+    socket.emit(GAME_EVENTS.MATCHMAKING, data);
   }
 
   function stopMatchmaking() {
     const data: MatchmakingDto = { matchmaking: false };
-    socket.send(formatWebsocketData(GAME_EVENTS.MATCHMAKING, data));
+    socket.emit(GAME_EVENTS.MATCHMAKING, data);
   }
 
   function resetMenus() {
@@ -148,7 +149,7 @@
   }
 
   $: {
-    if (socket && socket.readyState) {
+    if (socket && socket.connected) {
       if (appState === APPSTATE.MATCHMAKING) {
         startMatchmaking();
       } else if (appState !== APPSTATE.MATCHMAKING) {

@@ -84,10 +84,3 @@ export class Rect {
     return false;
   }
 }
-
-export function formatWebsocketData(event: string, data?: any): string {
-  return JSON.stringify({
-    event,
-    data,
-  });
-}

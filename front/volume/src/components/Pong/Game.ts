@@ -1,10 +1,11 @@
+import type { Socket } from "socket.io-client";
 import { Ball } from "./Ball";
 import { GAME_EVENTS } from "./constants";
 import type { GameInfo } from "./dtos/GameInfo";
 import type { GameUpdate } from "./dtos/GameUpdate";
 import { Paddle } from "./Paddle";
 import { Player } from "./Player";
-import { formatWebsocketData, Point, Rect } from "./utils";
+import { Point, Rect } from "./utils";
 
 const FPS = import.meta.env.VITE_FRONT_FPS;
 
@@ -87,11 +88,11 @@ export class Game {
     console.log("Game updated!");
   }
 
-  start(socket: WebSocket) {
+  start(socket: Socket) {
     this.renderCanvas.addEventListener("pointermove", (e) => {
       this.my_paddle.move(e);
       const data: Point = this.my_paddle.rect.center;
-      socket.send(formatWebsocketData(GAME_EVENTS.PLAYER_MOVE, data));
+      socket.emit(GAME_EVENTS.PLAYER_MOVE, data);
     });
     console.log("Game started!");
   }

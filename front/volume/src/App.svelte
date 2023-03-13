@@ -71,7 +71,7 @@
     setAppState(APPSTATE.HISTORY);
   }
 
-  async function openIdHistory(event: CustomEvent<string>) {
+  async function openIdHistory() {
     setAppState(APPSTATE.HISTORY_ID);
   }
 

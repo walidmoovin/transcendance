@@ -1,5 +1,5 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common'
-import { type WebSocket } from 'ws'
+import { Socket } from 'socket.io'
 import {
   ConnectedSocket,
   MessageBody,
@@ -8,10 +8,8 @@ import {
   SubscribeMessage,
   WebSocketGateway
 } from '@nestjs/websockets'
-import { randomUUID } from 'crypto'
 
 import { Games } from './game/Games'
-import { formatWebsocketData } from './game/utils'
 import { GAME_EVENTS } from './game/constants'
 import { GameCreationDtoValidated } from './dtos/GameCreationDtoValidated'
 import { type Game } from './game/Game'
@@ -23,11 +21,9 @@ import { MatchmakingDtoValidated } from './dtos/MatchmakingDtoValidated'
 import { PongService } from './pong.service'
 import { UsersService } from 'src/users/users.service'
 
-interface WebSocketWithId extends WebSocket {
-  id: string
-}
-
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: { origin: /^(http|ws):\/\/localhost(:\d+)?$/ }
+})
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor (
     private readonly pongService: PongService,
@@ -35,25 +31,18 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   private readonly games: Games = new Games(this.pongService)
-  private readonly socketToPlayerName = new Map<WebSocketWithId, string>()
+  private readonly socketToPlayerName = new Map<Socket, string>()
   private readonly matchmakingQueue = new MatchmakingQueue(this.games)
 
   playerIsRegistered (name: string): boolean {
     return Array.from(this.socketToPlayerName.values()).includes(name)
   }
 
-  @UsePipes(new ValidationPipe({ whitelist: true }))
-  handleConnection (
-    @ConnectedSocket()
-      client: WebSocketWithId
-  ): void {
-    const uuid = randomUUID()
-    client.id = uuid
-  }
+  handleConnection (): void {}
 
   handleDisconnect (
     @ConnectedSocket()
-      client: WebSocketWithId
+      client: Socket
   ): void {
     const name: string | undefined = this.socketToPlayerName.get(client)
     const game: Game | undefined = this.games.playerGame(name)
@@ -71,7 +60,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(GAME_EVENTS.REGISTER_PLAYER)
   async registerPlayer (
     @ConnectedSocket()
-      client: WebSocketWithId,
+      client: Socket,
       @MessageBody('playerName') playerName: StringDtoValidated,
       @MessageBody('socketKey') socketKey: StringDtoValidated
   ): Promise<{ event: string, data: boolean }> {
@@ -92,15 +81,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(GAME_EVENTS.GET_GAME_INFO)
-  getPlayerCount (@ConnectedSocket() client: WebSocketWithId): void {
+  getPlayerCount (@ConnectedSocket() client: Socket): void {
     const name: string | undefined = this.socketToPlayerName.get(client)
     if (name !== undefined) {
-      client.send(
-        formatWebsocketData(
-          GAME_EVENTS.GET_GAME_INFO,
-          this.games.getGameInfo(name)
-        )
-      )
+      client.emit(GAME_EVENTS.GET_GAME_INFO, this.games.getGameInfo(name))
     }
   }
 
@@ -108,7 +92,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(GAME_EVENTS.PLAYER_MOVE)
   movePlayer (
     @ConnectedSocket()
-      client: WebSocketWithId,
+      client: Socket,
       @MessageBody() position: PointDtoValidated
   ): void {
     const realPosition: PointDtoValidated = plainToClass(
@@ -123,7 +107,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(GAME_EVENTS.CREATE_GAME)
   createGame (
     @ConnectedSocket()
-      client: WebSocketWithId,
+      client: Socket,
       @MessageBody() gameCreationDto: GameCreationDtoValidated
   ): { event: string, data: boolean } {
     const realGameCreationDto: GameCreationDtoValidated = plainToClass(
@@ -132,14 +116,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     )
 
     if (this.socketToPlayerName.size >= 2) {
-      const player1Socket: WebSocketWithId | undefined = Array.from(
+      const player1Socket: Socket | undefined = Array.from(
         this.socketToPlayerName.keys()
       ).find(
         (key) =>
           this.socketToPlayerName.get(key) ===
           realGameCreationDto.playerNames[0]
       )
-      const player2Socket: WebSocketWithId | undefined = Array.from(
+      const player2Socket: Socket | undefined = Array.from(
         this.socketToPlayerName.keys()
       ).find(
         (key) =>
@@ -153,6 +137,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         (client.id === player1Socket.id || client.id === player2Socket.id) &&
         player1Socket.id !== player2Socket.id
       ) {
+        this.matchmakingQueue.removePlayer(realGameCreationDto.playerNames[0])
+        this.matchmakingQueue.removePlayer(realGameCreationDto.playerNames[1])
+
         const ranked = false
         this.games.newGame(
           [player1Socket, player2Socket],
@@ -169,7 +156,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(GAME_EVENTS.READY)
   ready (
     @ConnectedSocket()
-      client: WebSocketWithId
+      client: Socket
   ): { event: string, data: boolean } {
     let succeeded: boolean = false
     const name: string | undefined = this.socketToPlayerName.get(client)
@@ -184,7 +171,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(GAME_EVENTS.MATCHMAKING)
   updateMatchmaking (
     @ConnectedSocket()
-      client: WebSocketWithId,
+      client: Socket,
       @MessageBody() matchmakingUpdateData: MatchmakingDtoValidated
   ): { event: string, data: MatchmakingDtoValidated } {
     let matchmaking: boolean = false
@@ -207,7 +194,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(GAME_EVENTS.LEAVE_GAME)
   leaveGame (
     @ConnectedSocket()
-      client: WebSocketWithId
+      client: Socket
   ): void {
     const name: string | undefined = this.socketToPlayerName.get(client)
     if (name !== undefined) {

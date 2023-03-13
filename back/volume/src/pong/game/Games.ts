@@ -1,4 +1,4 @@
-import { type WebSocket } from 'ws'
+import { type Socket } from 'socket.io'
 import { Game } from './Game'
 import { Point } from './utils'
 import { type MapDtoValidated as GameMap } from '../dtos/MapDtoValidated'
@@ -19,7 +19,7 @@ export class Games {
   private readonly games = new Array<Game>()
 
   newGame (
-    sockets: WebSocket[],
+    sockets: Socket[],
     uuids: string[],
     gameCreationDto: GameCreationDtoValidated,
     ranked: boolean

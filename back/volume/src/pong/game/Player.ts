@@ -1,9 +1,9 @@
-import { type WebSocket } from 'ws'
+import { type Socket } from 'socket.io'
 import { Paddle } from './Paddle'
 import { type Point } from './utils'
 
 export class Player {
-  socket: WebSocket
+  socket: Socket
   uuid: string
   name: string
   ready: boolean
@@ -13,7 +13,7 @@ export class Player {
   score: number
 
   constructor (
-    socket: WebSocket,
+    socket: Socket,
     uuid: string,
     name: string,
     paddleCoords: Point,

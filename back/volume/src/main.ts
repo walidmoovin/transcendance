@@ -1,5 +1,3 @@
-import { WsAdapter } from '@nestjs/platform-ws'
-
 import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
@@ -7,6 +5,7 @@ import * as session from 'express-session'
 import * as passport from 'passport'
 import { type NestExpressApplication } from '@nestjs/platform-express'
 import * as cookieParser from 'cookie-parser'
+import { IoAdapter } from '@nestjs/platform-socket.io'
 
 async function bootstrap (): Promise<void> {
   const logger = new Logger()
@@ -37,7 +36,7 @@ async function bootstrap (): Promise<void> {
   app.use(passport.initialize())
   app.use(passport.session())
   app.enableCors(cors)
-  app.useWebSocketAdapter(new WsAdapter(app))
+  app.useWebSocketAdapter(new IoAdapter(app))
   await app.listen(port)
   logger.log(`Application listening on port ${port}`)
 }

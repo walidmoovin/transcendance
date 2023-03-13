@@ -26,7 +26,7 @@
 </script>
 
 <script lang="ts">
-  import {onMount, onDestroy} from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { API_URL, store } from "../Auth";
 
   let friends: Friend[] = [];
@@ -55,11 +55,11 @@
       getFriends();
       getInvits();
     }, 5000);
-  })
+  });
 
   onDestroy(() => {
     clearInterval(friendsInterval);
-  })
+  });
 </script>
 
 <div class="overlay">
@@ -68,25 +68,25 @@
       <h2>{$store.username} friends:</h2>
       {#if friends.length > 0}
         <div class="friends-list">
-        {#each friends as friend}
-          <li>
-            <span>{friend.username} is {friend.status}</span>
-          </li>
-        {/each}
-        />
-      </div>
+          {#each friends as friend}
+            <li>
+              <span>{friend.username} is {friend.status}</span>
+            </li>
+          {/each}
+          />
+        </div>
       {:else}
         <p>No friends to display</p>
       {/if}
       <h2>{$store.username} invits:</h2>
       {#if invits.length > 0}
-      <div class="invits-list">
-        {#each invits as invit}
-          <li>
-            <span>{invit.username} invited you to be friend.</span>
-          </li>
-        {/each}
-      </div>
+        <div class="invits-list">
+          {#each invits as invit}
+            <li>
+              <span>{invit.username} invited you to be friend.</span>
+            </li>
+          {/each}
+        </div>
       {:else}
         <p>No invitations to display</p>
       {/if}
@@ -125,7 +125,7 @@
 
   .friends-list,
   .invits-list {
-      overflow-y: scroll;
-      max-height: 200px;
+    overflow-y: scroll;
+    max-height: 200px;
   }
 </style>

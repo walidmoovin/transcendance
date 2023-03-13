@@ -4,10 +4,8 @@ import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm'
 import { User } from './entity/user.entity'
 import { type UserDto } from './dto/user.dto'
 import { type Channel } from 'src/chat/entity/channel.entity'
-import type Result from 'src/pong/entity/result.entity'
 import { Cron } from '@nestjs/schedule'
 import { randomUUID } from 'crypto'
-import { Paginate, PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 
 @Injectable()
 @Catch(QueryFailedError, EntityNotFoundError)

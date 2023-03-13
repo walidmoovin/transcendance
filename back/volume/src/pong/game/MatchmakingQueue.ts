@@ -1,18 +1,18 @@
-import { type WebSocket } from 'ws'
+import { type Socket } from 'socket.io'
 import { type GameCreationDtoValidated } from '../dtos/GameCreationDtoValidated'
 import { DEFAULT_MAP_SIZE } from './constants'
 import { type Games } from './Games'
 
 export class MatchmakingQueue {
   games: Games
-  queue: Array<{ name: string, socket: WebSocket, uuid: string }>
+  queue: Array<{ name: string, socket: Socket, uuid: string }>
 
   constructor (games: Games) {
     this.games = games
     this.queue = []
   }
 
-  addPlayer (name: string, socket: WebSocket, uuid: string): void {
+  addPlayer (name: string, socket: Socket, uuid: string): void {
     if (!this.isInQueue(name)) {
       console.log('Adding player to queue: ', name)
       this.queue.push({ name, socket, uuid })

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { ArrayContains, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { UsersService } from 'src/users/users.service'
 import Result from './entity/result.entity'
 import type User from 'src/users/entity/user.entity'
@@ -56,7 +56,7 @@ export class PongService {
     ftId: number
   ): Promise<Paginated<Result>> {
     let queryBuilder
-    if (ftId != 0) {
+    if (ftId !== 0) {
       queryBuilder = this.resultsRepository
         .createQueryBuilder('result')
         .innerJoin('result.players', 'player', 'player.ftId = :ftId', { ftId })

@@ -1,8 +1,8 @@
 <script lang="ts">
+  import type { Socket } from "socket.io-client";
   import { onMount } from "svelte";
   import { GAME_EVENTS } from "./constants";
   import type { Game } from "./Game";
-  import { formatWebsocketData } from "./utils";
 
   export let gamePlaying: boolean;
   export let setupSocket: (
@@ -10,7 +10,7 @@
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D
   ) => void;
-  export let socket: WebSocket;
+  export let socket: Socket;
   export let game: Game;
 
   let gameCanvas: HTMLCanvasElement;
@@ -28,14 +28,10 @@
 
 <div hidden={!gamePlaying} class="gameDiv">
   {#if game && !game.ranked}
-    <button
-      on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.LEAVE_GAME))}
-      >Leave</button
-    >
+    <button on:click={() => socket.emit(GAME_EVENTS.LEAVE_GAME)}>Leave</button>
     <button
       disabled={game.youAreReady}
-      on:click={() => socket.send(formatWebsocketData(GAME_EVENTS.READY))}
-      >Ready</button
+      on:click={() => socket.emit(GAME_EVENTS.READY)}>Ready</button
     >
   {/if}
   <canvas hidden bind:this={gameCanvas} />
