@@ -84,12 +84,12 @@ export class Game {
       this.players[playerIndex].ready = true
       console.log(`${this.players[playerIndex].name} is ready`)
       if (this.players.length === 2 && this.players.every((p) => p.ready)) {
-        this.start()
+        void this.start()
       }
     }
   }
 
-  private start (): void {
+  private async start (): Promise<void> {
     if (this.timer === null && this.players.length === 2) {
       this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
       this.players.forEach((p) => {
@@ -98,8 +98,9 @@ export class Game {
       })
       this.playing = true
       this.broadcastGame(formatWebsocketData(GAME_EVENTS.START_GAME))
+      console.log(`Game ${this.id} starting in 3 seconds`)
+      await new Promise((resolve) => setTimeout(resolve, 3000))
       this.timer = setInterval(this.gameLoop.bind(this), 1000 / GAME_TICKS)
-      console.log(`Game ${this.id} started`)
     }
   }
 

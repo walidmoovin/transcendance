@@ -1,7 +1,7 @@
 import { type Paddle } from './Paddle'
 import { type Point, Rect } from './utils'
 import { type MapDtoValidated } from '../dtos/MapDtoValidated'
-import { DEFAULT_BALL_SIZE, DEFAULT_BALL_INITIAL_SPEED } from './constants'
+import { DEFAULT_BALL_SIZE, DEFAULT_BALL_INITIAL_SPEED, GAME_TICKS } from './constants'
 
 export class Ball {
   rect: Rect
@@ -9,6 +9,7 @@ export class Ball {
   speed: Point
   spawn: Point
   indexPlayerScored: number
+  timeoutTime: number
 
   constructor (
     spawn: Point,
@@ -20,6 +21,7 @@ export class Ball {
     this.initial_speed = speed
     this.spawn = spawn.clone()
     this.indexPlayerScored = -1
+    this.timeoutTime = 0
   }
 
   getIndexPlayerScored (): number {
@@ -29,9 +31,14 @@ export class Ball {
   update (canvasRect: Rect, paddles: Paddle[], map: MapDtoValidated): void {
     if (!canvasRect.contains_x(this.rect)) {
       this.indexPlayerScored = this.playerScored()
+      this.timeoutTime = 2000
     } else {
       this.indexPlayerScored = -1
-      this.move(canvasRect, paddles, map)
+      if (this.timeoutTime <= 0) {
+        this.move(canvasRect, paddles, map)
+      } else {
+        this.timeoutTime -= 1000 / GAME_TICKS
+      }
     }
   }
 
