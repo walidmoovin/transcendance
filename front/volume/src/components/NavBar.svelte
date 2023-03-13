@@ -82,6 +82,7 @@
     align-items: center;
     background-color: #f5f5f5;
     padding: 1rem;
+    max-height: 5vh;
   }
 
   .navigation-bar ul {
@@ -118,6 +119,7 @@
       flex-direction: column;
       align-items: stretch;
       padding: 0;
+      max-height: none;
     }
 
     .navigation-bar ul {

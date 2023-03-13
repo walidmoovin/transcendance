@@ -49,8 +49,8 @@
   }
 
   .renderCanvas {
-    max-width: 60vw;
     width: 100%;
+    max-height: 70vh;
     height: auto;
     padding-left: 0;
     padding-right: 0;
@@ -58,5 +58,6 @@
     margin-right: auto;
     display: block;
     touch-action: none;
+    object-fit: contain;
   }
 </style>
