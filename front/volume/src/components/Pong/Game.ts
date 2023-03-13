@@ -12,6 +12,7 @@ export class Game {
   renderCanvas: HTMLCanvasElement;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
+  ballLastVelocity: Point;
   ball: Ball;
   players: Player[];
   my_paddle: Paddle;
@@ -22,6 +23,10 @@ export class Game {
   backgroundColor: string;
   ranked: boolean;
   youAreReady: boolean;
+
+  private readonly score_audio = new Audio('audio/score.wav');
+  private readonly paddle_hit_audio = new Audio('audio/paddle_hit.wav');
+  private readonly edge_hit_audio = new Audio('audio/edge_hit.wav');
 
   constructor(
     renderCanvas: HTMLCanvasElement,
@@ -83,14 +88,12 @@ export class Game {
   }
 
   start(socket: WebSocket) {
-    // if (this.my_paddle) {
     this.renderCanvas.addEventListener("pointermove", (e) => {
       this.my_paddle.move(e);
       const data: Point = this.my_paddle.rect.center;
       socket.send(formatWebsocketData(GAME_EVENTS.PLAYER_MOVE, data));
     });
     console.log("Game started!");
-    // }
   }
 
   update(data: GameUpdate) {
@@ -101,8 +104,21 @@ export class Game {
       if (this.players[1].paddle != this.my_paddle) {
         this.players[1].paddle.rect.center = data.paddlesPositions[1];
       }
+
+      if (data.ballSpeed.x * this.ball.speed.x < 0) {
+        this.paddle_hit_audio.play();
+      }
+      if (data.ballSpeed.y * this.ball.speed.y < 0) {
+        this.edge_hit_audio.play();
+      }
+      this.ball.speed = data.ballSpeed;
+      
       this.ball.rect.center = data.ballPosition;
+
       for (let i = 0; i < data.scores.length; i++) {
+        if (this.players[i].score != data.scores[i]) {
+          this.score_audio.play();
+        }
         this.players[i].score = data.scores[i];
       }
     }

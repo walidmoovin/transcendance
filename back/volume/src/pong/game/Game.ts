@@ -157,6 +157,7 @@ export class Game {
 
     const data: GameUpdate = {
       paddlesPositions: this.players.map((p) => p.paddle.rect.center),
+      ballSpeed: this.ball.speed,
       ballPosition: this.ball.rect.center,
       scores: this.players.map((p) => p.score)
     }
