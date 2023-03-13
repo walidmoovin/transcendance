@@ -13,6 +13,7 @@ import {
   BadRequestException,
   Redirect
 } from '@nestjs/common'
+import { PaginateQuery, type Paginated, Paginate } from 'nestjs-paginate'
 
 import { FileInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
@@ -73,18 +74,21 @@ export class UsersController {
     return await this.usersService.getRank(id)
   }
 
-  @Get('rankedHistory')
+  @Get('globalHistory')
   @UseGuards(AuthenticatedGuard)
-  async getRankedHistory (): Promise<Result[]> {
-    return await this.pongService.getRankedHistory()
+  async getGlobalHistory (
+    @Paginate() query: PaginateQuery
+  ): Promise<Paginated<Result>> {
+    return await this.pongService.getHistory(query, 0)
   }
 
   @Get('history/:id')
   @UseGuards(AuthenticatedGuard)
   async getHistoryById (
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<Result[]> {
-    return await this.pongService.getHistoryById(id)
+    @Param('id', ParseIntPipe) id: number,
+      @Paginate() query: PaginateQuery
+  ): Promise<Paginated<Result>> {
+    return await this.pongService.getHistory(query, id)
   }
 
   @Post('avatar')

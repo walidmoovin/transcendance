@@ -6,23 +6,56 @@
     date: Date;
     ranked: boolean;
   }
+  import { API_URL } from "../Auth";
 </script>
 
 <script lang="ts">
+  import InfiniteScroll from "./infiniteScroll.svelte";
+  import { onMount } from "svelte";
+
   export let username: string = "Global";
-  export let matches: Array<Match> = [];
   function displayDate(str: string) {
     const splitT = str.split("T");
     const splitDate = splitT[0].split("-");
     const splitDot = splitT[1].split(".");
     return `${splitDate[1]}/${splitDate[2]}-${splitDot[0]}`;
   }
+  let page = 1;
+  let data = [];
+  let newBatch = [];
+
+  async function fetchData() {
+    if (username === "Global") {
+      const response = await fetch(`${API_URL}/globalHistory?page=${page}`, {
+        credentials: "include",
+        mode: "cors",
+      });
+      newBatch = (await response.json()).data;
+    } else {
+      let response = await fetch(`${API_URL}/user/${username}`);
+      if (response.ok) {
+        let user = await response.json();
+        response = await fetch(`${API_URL}/history/${user.ftId}?page=${page}`, {
+          credentials: "include",
+          mode: "cors",
+        });
+      }
+      newBatch = (await response.json()).data;
+    }
+    page++;
+  }
+
+  onMount(() => {
+    fetchData();
+  });
+
+  $: data = [...data, ...newBatch];
 </script>
 
 <div class="overlay">
   <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
-      {#if matches.length > 0}
+      {#if data.length > 0}
         <table>
           <thead>
             <tr>
@@ -35,7 +68,7 @@
               <td>Players</td>
               <td>Scores</td>
             </tr>
-            {#each matches.slice(0, 10) as match}
+            {#each data as match}
               <tr>
                 <td>{displayDate(match.date.toString())}</td>
                 <td
@@ -51,6 +84,11 @@
         <p>No matches to display</p>
       {/if}
     </div>
+    <InfiniteScroll
+      hasMore={newBatch.length > 0}
+      threshold={10}
+      on:loadMore={fetchData}
+    />
   </div>
 </div>
 
@@ -76,6 +114,8 @@
     width: 300px;
     display: flex;
     justify-content: center;
+    max-height: 500px;
+    overflow-x: scroll;
   }
 
   td {
