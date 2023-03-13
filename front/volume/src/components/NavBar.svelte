@@ -6,7 +6,6 @@
     import.meta.env.VITE_BACK_PORT;
   export let links = [
     { text: "Home" },
-    { text: "Spectate" },
     { text: "Channels" },
     { text: "History" },
     { text: "Friends" },

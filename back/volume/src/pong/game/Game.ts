@@ -11,7 +11,6 @@ import {
   GAME_TICKS
 } from './constants'
 import { randomUUID } from 'crypto'
-import { Spectator } from './Spectator'
 import { type MapDtoValidated } from '../dtos/MapDtoValidated'
 import { type GameUpdate } from '../dtos/GameUpdate'
 import { type GameInfo } from '../dtos/GameInfo'
@@ -23,7 +22,6 @@ export class Game {
   map: MapDtoValidated
   ball: Ball
   players: Player[] = []
-  spectators: Spectator[] = []
   playing: boolean
   ranked: boolean
   gameStoppedCallback: (name: string) => void
@@ -62,11 +60,6 @@ export class Game {
       winScore: DEFAULT_WIN_SCORE,
       ranked: this.ranked
     }
-  }
-
-  addSpectator (socket: WebSocket, uuid: string, name: string): void {
-    this.spectators.push(new Spectator(socket, uuid, name))
-    console.log(`Added spectator ${name}`)
   }
 
   private addPlayer (socket: WebSocket, uuid: string, name: string): void {
@@ -135,9 +128,6 @@ export class Game {
   private broadcastGame (data: string): void {
     this.players.forEach((p) => {
       p.socket.send(data)
-    })
-    this.spectators.forEach((s) => {
-      s.socket.send(data)
     })
   }
 

@@ -5,7 +5,6 @@
   import GameCreation from "./GameCreation.svelte";
   import GameComponent from "./GameComponent.svelte";
   import type { StringDto } from "./dtos/StringDto";
-  import SpectateFriend from "./SpectateFriend.svelte";
   import Matchmaking from "./Matchmaking.svelte";
   import type { MatchmakingDto } from "./dtos/MatchmakingDto";
   import { getUser, store } from "../../Auth";
@@ -92,10 +91,6 @@
         } else if (!data.matchmaking && appState === APPSTATE.MATCHMAKING) {
           setAppState(APPSTATE.HOME);
         }
-      } else if (event == GAME_EVENTS.SPECTATE) {
-        if (data) {
-          gamePlaying = true;
-        }
       } else if (event == GAME_EVENTS.READY) {
         game.youAreReady = true;
       } else {
@@ -173,9 +168,6 @@
     <button on:click={() => setAppState(APPSTATE.CREATE_GAME)}
       >Play with a friend</button
     >
-    <button on:click={() => setAppState(APPSTATE.SPECTATE_GAME)}
-      >Spectate a friend</button
-    >
     <label for="colorPicker">Elements color:</label>
     <ColorPicker bind:color={elementsColor} />
     <label for="colorPicker">Background color:</label>
@@ -191,13 +183,6 @@
         on:keydown={() => setAppState(APPSTATE.HOME)}
       >
         <GameCreation {socket} {invitedUsername} />
-      </div>
-    {:else if appState === APPSTATE.SPECTATE_GAME}
-      <div
-        on:click={() => setAppState(APPSTATE.HOME)}
-        on:keydown={() => setAppState(APPSTATE.HOME)}
-      >
-        <SpectateFriend {socket} />
       </div>
     {/if}
   {:else if !connected}
