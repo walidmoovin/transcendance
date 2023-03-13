@@ -10,12 +10,12 @@ import { MailerModule } from '@nestjs-modules/mailer'
 import { AuthService } from './auth.service'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 
-const mail_user =
-  process.env.MAIL_USER && process.env.MAIL_USER !== ''
+const mailUser =
+  process.env.MAIL_USER !== null && process.env.MAIL_USER !== ''
     ? process.env.MAIL_USER
     : ''
-const mail_pass =
-  process.env.MAIL_PASSWORD && process.env.MAIL_PASSWORD !== ''
+const mailPass =
+  process.env.MAIL_PASSWORD !== null && process.env.MAIL_PASSWORD !== ''
     ? process.env.MAIL_PASSWORD
     : ''
 
@@ -32,8 +32,8 @@ const mail_pass =
       transport: {
         service: 'gmail',
         auth: {
-          user: mail_user,
-          pass: mail_pass
+          user: mailUser,
+          pass: mailPass
         }
       },
       template: {

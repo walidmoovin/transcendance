@@ -254,7 +254,10 @@
         </div>
       {/if}
       {#if appState === APPSTATE.HISTORY_ID}
-        <div on:click={() => setAppState(APPSTATE.PROFILE)} on:keydown={() => setAppState(APPSTATE.PROFILE)}>
+        <div
+          on:click={() => setAppState(APPSTATE.PROFILE)}
+          on:keydown={() => setAppState(APPSTATE.PROFILE)}
+        >
           <MatchHistory username={$store.username} {matches} />
         </div>
       {/if}
@@ -264,9 +267,16 @@
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE_ID}
-        <div on:click={() => setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)} on:keydown={() => setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}>
-          <Profile user={userProfile} edit={0}
-              on:view-history={openIdHistory}
+        <div
+          on:click={() =>
+            setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
+          on:keydown={() =>
+            setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
+        >
+          <Profile
+            user={userProfile}
+            edit={0}
+            on:view-history={openIdHistory}
           />
         </div>
       {/if}
