@@ -83,7 +83,7 @@
 <div>
   <div class="title">Map Customization:</div>
   <div>
-    PC: Right click to add walls, left click to remove walls.
+    PC: Left click to add walls, right click to remove walls.
     <br />
     Mobile: Click to add walls
     <br />
