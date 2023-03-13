@@ -45,6 +45,8 @@
   function openProfile(username: string) {
     showProfileMenu = true;
     selectedUser = username;
+    showChatMembers = false;
+    showChannelSettings = false;
   }
   function closeProfileMenu() {
     showProfileMenu = false;
@@ -57,6 +59,7 @@
   let showChatMembers = false;
   function toggleChatMembers() {
     showChatMembers = !showChatMembers;
+    showChannelSettings = false;
   }
   let chatMembers: Array<User> = [
     { username: "user1" },
@@ -77,6 +80,123 @@
   //   });
   //   chatMembers = await res.json();
   // }
+
+  //--------------------------------------------------------------------------------/
+
+  let showChannelSettings = false;
+  function toggleChannelSettings() {
+    showChannelSettings = !showChannelSettings;
+    showChatMembers = false;
+  }
+
+  //--------------------------------------------------------------------------------/
+
+  const blockUser = async (username : string) => {
+  };
+
+  //--------------------------------------------------------------------------------/
+
+  const banUser = async (username : string) => {
+    // const prompt = window.prompt("Enter ban duration in seconds");
+    // const res1 = await fetch(API_URL + "/user/" + username, {
+    //   mode: "cors",
+    // });
+    // const data1 = await res1.json();
+
+    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/ban", {
+    //   method: "POST",
+    //   mode: "cors",
+    // });
+    // const data2 = await res2.json();
+    // if (res2.ok) {
+    //   alert("User banned");
+    // } else {
+    //   alert("Failed to ban user");
+    // }
+  };
+
+  //--------------------------------------------------------------------------------/
+
+  const kickUser = async (username : string) => {
+    // set-up channel joining and kicking
+    // const res1 = await fetch(API_URL + "/user/" + username, {
+    //   mode: "cors",
+    // });
+    // const data1 = await res1.json();
+
+    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/kick", {
+    //   method: "POST",
+    //   mode: "cors",
+    // });
+    // const data2 = await res2.json();
+    // if (res2.ok) {
+    //   alert("User kicked");
+    // } else {
+    //   alert("Failed to kick user");
+    // }
+  };
+
+  //--------------------------------------------------------------------------------/
+
+  const muteUser = async (username : string) => {
+    // use minutes prompt to determine mute duration
+    // const prompt = window.prompt("Enter mute duration in seconds");
+    // const res1 = await fetch(API_URL + "/user/" + username, {
+    //   mode: "cors",
+    // });
+    // const data1 = await res1.json();
+
+    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/mute", {
+    //   method: "POST",
+    //   mode: "cors",
+    // });
+    // const data2 = await res2.json();
+    // if (res2.ok) {
+    //   alert("User muted");
+    // } else {
+    //   alert("Failed to mute user");
+    // }
+  };
+
+  //--------------------------------------------------------------------------------/
+
+  const adminUser = async (username : string) => {
+    // const res1 = await fetch(API_URL + "/user/" + username, {
+    //   mode: "cors",
+    // });
+    // const data1 = await res1.json();
+
+    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/admin", {
+    //   method: "POST",
+    //   mode: "cors",
+    // });
+    // const data2 = await res2.json();
+    // if (res2.ok) {
+    //   alert("User admined");
+    // } else {
+    //   alert("Failed to admin user");
+    // }
+  };
+
+  //--------------------------------------------------------------------------------/
+
+  const removeAdminUser = async (username : string) => {
+    // const res1 = await fetch(API_URL + "/user/" + username, {
+    //   mode: "cors",
+    // });
+    // const data1 = await res1.json();
+
+    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/admin", {
+    //   method: "DELETE",
+    //   mode: "cors",
+    // });
+    // const data2 = await res2.json();
+    // if (res2.ok) {
+    //   alert("User admin removed");
+    // } else {
+    //   alert("Failed to remove admin user");
+    // }
+  };
 
   //--------------------------------------------------------------------------------/
 </script>
@@ -125,7 +245,8 @@
             >
           </li>
           <li>
-            <button on:click={() => dispatch("block-user", selectedUser)}
+            <!-- block only if not blocked -->
+            <button on:click={() => blockUser(selectedUser)}
               >Block User</button
             >
           </li>
@@ -155,14 +276,32 @@
               <li>
                 <p>
                   {member.username}
-                  <button>ban</button>
-                  <button>kick</button>
-                  <button>mute</button>
-                  <button>admin</button>
-                </p>
+                  <button on:click={() => banUser(member.username)}>ban</button>
+                  <button on:click={() => kickUser(member.username)}>kick</button>
+                  <button on:click={() => muteUser(member.username)}>mute</button>
+                  <button on:click={() => adminUser(member.username)}>promote</button>
+                  <button on:click={() => removeAdminUser(member.username)}>demote</button>
+                  <p> ----------------------------------------------------------------------------------- </p>
               </li>
             {/each}
           </ul>
+        </div>
+      </div>
+    {/if}
+    <button
+      on:click|stopPropagation={toggleChannelSettings}
+      on:keydown|stopPropagation>Channel Settings</button
+    >
+    {#if showChannelSettings}
+      <div
+        class="channelSettings"
+        on:click|stopPropagation
+        on:keydown|stopPropagation
+      >
+        <div>
+          <button>Change Password</button>
+          <button>Set Password</button>
+          <button>Remove Password</button>
         </div>
       </div>
     {/if}
@@ -212,6 +351,20 @@
   }
 
   .chatMembers button {
-    width: 3.5rem;
+    width: 6rem;
+  }
+
+  .channelSettings {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 1rem;
+    max-height: 100px;
+    overflow-y: scroll;
+  }
+
+  .channelSettings button {
+    width: 5rem;
   }
 </style>

@@ -5,16 +5,29 @@
     name: string;
     privacy: string;
     password: string;
-    messages: Array<chatMessagesType>;
+    owner: string;
   }
+  import { onMount } from "svelte";
+  import { API_URL, store } from "../Auth";
+  import { dataset_dev } from "svelte/internal";
 </script>
 
 <script lang="ts">
+
   //--------------------------------------------------------------------------------/
 
   export let channels: Array<ChannelsType> = [];
+  // onMount(async () => {
+  //   const res = await fetch(API_URL + "/channels" + $store.ftId, {
+  //     method: "GET",
+  //     mode: "cors",
+  //   });
+  //   const data = await res.json();
+  //   channels = data;
+  // });
 
   //--------------------------------------------------------------------------------/
+
   export let onSelectChannel: (channel: ChannelsType) => void;
   const selectChat = (id: string) => {
     const channel = channels.find((c) => c.id === id);
@@ -25,7 +38,7 @@
 
   //--------------------------------------------------------------------------------/
 
-  const createChannel = () => {
+  const createChannel = async () => {
     const name = prompt("Enter a name for the new channel:");
     if (name) {
       const privacy = prompt(
@@ -45,21 +58,41 @@
         const newChannel: ChannelsType = {
           id: Math.random().toString(),
           name,
-          privacy,
+          owner: $store.username,
           password,
-          messages: [],
+          privacy,
         };
+        // const response = await fetch(API_URL + "/channels" + $store.ftId , {
+        //   method: "POST",
+        //   mode: "cors",
+        //   body: JSON.stringify(newChannel),
+        // });
+        // const data = await response.json();
+        // if (data.ok) {
+        //   channels = [newChannel, ...channels];
+        // } else {
+        //   alert("Error creating channel");
+        // }
         channels = [newChannel, ...channels];
       }
     }
-    // TODO: save to database
   };
 
   //--------------------------------------------------------------------------------/
 
-  const removeChannel = (id: string) => {
+  const removeChannel = async (id: string) => {
     let string = prompt("type 'delete' to delete this channel");
     if (string === "delete") {
+      // const response = await fetch(API_URL + "/channels" + $store.ftId + "/" + id, {
+      //   method: "DELETE",
+      //   mode: "cors",
+      // });
+      // const data = await response.json();
+      // if (data.ok) {
+      //   channels = channels.filter((c) => c.id !== id);
+      // } else {
+      //   alert("Error deleting channel");
+      // }
       channels = channels.filter((c) => c.id !== id);
     }
     // TODO: save to database

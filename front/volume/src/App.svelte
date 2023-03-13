@@ -86,17 +86,7 @@
   function clickChannels() {
     setAppState(APPSTATE.CHANNELS);
   }
-  let channels: Array<ChannelsType> = [
-    { id: "1", name: "General", messages: [], privacy: "public", password: "" },
-    {
-      id: "2",
-      name: "Lobby",
-      messages: [],
-      privacy: "private",
-      password: "test",
-    },
-    { id: "3", name: "Game", messages: [], privacy: "private", password: "" },
-  ];
+  let channels: Array<ChannelsType> = [];
   let selectedChannel: ChannelsType;
   const handleSelectChannel = (channel: ChannelsType) => {
     selectedChannel = channel;
@@ -151,7 +141,6 @@
           on:keydown={() => setAppState(APPSTATE.CHANNELS)}
         >
           <Chat
-            chatMessages={selectedChannel.messages}
             on:view-profile={openIdProfile}
             on:add-friend={addFriend}
             on:invite-to-game={pong.inviteToGame}
