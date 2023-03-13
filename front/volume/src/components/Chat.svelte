@@ -79,6 +79,19 @@
   // }
 
   //--------------------------------------------------------------------------------/
+
+  const blockUser = async () => {
+    const res = await fetch(API_URL + "/chat/block", {
+      method: "POST",
+      mode: "cors",
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("User blocked");
+    } else {
+      alert("Failed to block user");
+    }
+  }; 
 </script>
 
 <div class="overlay">
