@@ -10,7 +10,11 @@
 </script>
 
 <script lang="ts">
+  //--------------------------------------------------------------------------------/
+
   export let channels: Array<ChannelsType> = [];
+
+  //--------------------------------------------------------------------------------/
   export let onSelectChannel: (channel: ChannelsType) => void;
   const selectChat = (id: string) => {
     const channel = channels.find((c) => c.id === id);
@@ -18,6 +22,9 @@
       onSelectChannel(channel);
     }
   };
+
+  //--------------------------------------------------------------------------------/
+
   const createChannel = () => {
     const name = prompt("Enter a name for the new channel:");
     if (name) {
@@ -47,6 +54,18 @@
     }
     // TODO: save to database
   };
+
+  //--------------------------------------------------------------------------------/
+
+  const removeChannel = (id: string) => {
+    let string = prompt("type 'delete' to delete this channel");
+    if (string === "delete") {
+      channels = channels.filter((c) => c.id !== id);
+    }
+    // TODO: save to database
+  }
+
+  //--------------------------------------------------------------------------------/
 </script>
 
 <div class="overlay">
@@ -58,7 +77,7 @@
           <li>
             <span>{_channels.name}</span>
             <button on:click={() => selectChat(_channels.id)}>Enter</button>
-          </li>
+            <button on:click={() => removeChannel(_channels.id)} on:keydown={() => removeChannel(_channels.id)}>delete</button>
         {/each}
       {:else}
         <p>No channels available</p>
@@ -76,7 +95,6 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9998;
     display: flex;
     justify-content: center;
     align-items: center;
