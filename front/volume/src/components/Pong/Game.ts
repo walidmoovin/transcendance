@@ -130,13 +130,25 @@ export class Game {
   }
 
   draw() {
+    //Background
     this.context.fillStyle = this.backgroundColor;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+    //Draw lines in middle of game
+    this.context.beginPath();
+    this.context.setLineDash([10, 20]);
+    this.context.moveTo(this.canvas.width / 2, 0);
+    this.context.lineTo(this.canvas.width / 2, this.canvas.height);
+    this.context.strokeStyle = this.elementsColor;
+    this.context.lineWidth = 5;
+    this.context.stroke();
+
+    //Elements
     this.walls.forEach((w) => w.draw(this.context, this.elementsColor));
     this.players.forEach((p) => p.draw(this.context, this.elementsColor));
     this.ball.draw(this.context, this.elementsColor);
 
+    //Score
     const max_width = 50;
     this.context.font = "50px Arial";
     const text_width = this.context.measureText("0").width;
