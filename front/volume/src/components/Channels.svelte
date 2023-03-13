@@ -5,11 +5,11 @@
     name: string;
     privacy: string;
     password: string;
-    messages: Array<chatMessagesType>;
+    owner: string;
   }
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
-    import { dataset_dev } from "svelte/internal";
+  import { dataset_dev } from "svelte/internal";
 </script>
 
 <script lang="ts">
@@ -58,9 +58,9 @@
         const newChannel: ChannelsType = {
           id: Math.random().toString(),
           name,
-          privacy,
+          owner: $store.username,
           password,
-          messages: [],
+          privacy,
         };
         // const response = await fetch(API_URL + "/channels" + $store.ftId , {
         //   method: "POST",
@@ -73,6 +73,7 @@
         // } else {
         //   alert("Error creating channel");
         // }
+        channels = [newChannel, ...channels];
       }
     }
   };
