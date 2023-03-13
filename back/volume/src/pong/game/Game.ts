@@ -110,14 +110,6 @@ export class Game {
   }
 
   async stop (): Promise<void> {
-    if (this.waitingForTimeout) {
-      new Promise((resolve) => setTimeout(resolve, 1000))
-        .then(() => {
-          void this.stop()
-        })
-        .catch(() => {})
-    }
-
     if (this.timer !== null) {
       await this.pongService.saveResult(this.players, this.ranked)
       if (this.players.length !== 0) {
