@@ -25,12 +25,9 @@
   import Leaderboard from "./components/Leaderboard.svelte";
 
   import Pong from "./components/Pong/Pong.svelte";
-  import type { Player } from "./components/Profile.svelte";
-  import type { Match } from "./components/MatchHistory.svelte";
-  import type { Friend } from "./components/Friends.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
 
-  import { store, getUser, login, verify, API_URL } from "./Auth";
+  import { store, getUser, login, verify } from "./Auth";
   import FakeLogin from "./FakeLogin.svelte";
 
   // Single Page Application config
@@ -53,7 +50,6 @@
     history.pushState({ appState }, "", appState);
   }
 
-  // PROFILE
   onMount(() => {
     getUser();
   });
@@ -62,21 +58,15 @@
   }, 15000);
 
   function clickProfile() {
-    userProfile = $store;
     setAppState(APPSTATE.PROFILE);
   }
 
-  let userProfile: Player;
+  let profileUsername: string;
   async function openIdProfile(event: CustomEvent<string>) {
-    console.log("Opening profile: " + event.detail);
-    const res = await fetch(API_URL + "/user/" + event.detail, {
-      mode: "cors",
-    });
-    userProfile = await res.json();
+    profileUsername = event.detail;
     setAppState(APPSTATE.PROFILE_ID);
   }
 
-  // HISTORY
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);
   }
@@ -85,37 +75,14 @@
     setAppState(APPSTATE.HISTORY_ID);
   }
 
-  // FRIENDS
-  let friends: Friend[] = [];
-  let invits: Friend[] = [];
-  let friendsInterval: ReturnType<typeof setInterval>;
-
-  async function getFriends(): Promise<Friend[]> {
-    let response = await fetch(API_URL + "/friends", {
-      credentials: "include",
-      mode: "cors",
-    });
-    return await response.json();
-  }
-  async function getInvits(): Promise<Friend[]> {
-    let response = await fetch(API_URL + "/invits", {
-      credentials: "include",
-      mode: "cors",
-    });
-    return await response.json();
-  }
-
   async function clickFriends() {
     setAppState(APPSTATE.FRIENDS);
-    friends = await getFriends();
-    invits = await getInvits();
-    friendsInterval = setInterval(async () => {
-      friends = await getFriends();
-      invits = await getInvits();
-    }, 5000);
   }
 
-  // CHANNELS
+  async function clickLeaderboard() {
+    setAppState(APPSTATE.LEADERBOARD);
+  }
+
   function clickChannels() {
     setAppState(APPSTATE.CHANNELS);
   }
@@ -135,22 +102,6 @@
     selectedChannel = channel;
     setAppState(APPSTATE.CHANNELS + "#" + channel.name);
   };
-
-  // LEADERBOARD
-  let leaderboard: Array<Player> = [];
-
-  export async function getLeader(): Promise<Player[]> {
-    let response = await fetch(API_URL + "/leaderboard", {
-      credentials: "include",
-      mode: "cors",
-    });
-    return await response.json();
-  }
-
-  async function clickLeaderboard() {
-    leaderboard = await getLeader();
-    setAppState(APPSTATE.LEADERBOARD);
-  }
 
   // GAME
   let pong: Pong;
@@ -214,21 +165,12 @@
     {/if}
     {#if appState === APPSTATE.LEADERBOARD}
       <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Leaderboard {leaderboard} />
+        <Leaderboard />
       </div>
     {/if}
     {#if appState === APPSTATE.FRIENDS}
-      <div
-        on:click={() => {
-          resetAppState();
-          clearInterval(friendsInterval);
-        }}
-        on:keydown={() => {
-          resetAppState();
-          clearInterval(friendsInterval);
-        }}
-      >
-        <Friends {friends} {invits} />
+      <div on:click={resetAppState} on:keydown={resetAppState}>
+        <Friends />
       </div>
     {/if}
     {#if appState === APPSTATE.HISTORY}
@@ -241,12 +183,12 @@
         on:click={() => setAppState(APPSTATE.PROFILE)}
         on:keydown={() => setAppState(APPSTATE.PROFILE)}
       >
-        <MatchHistory username={userProfile.username} />
+        <MatchHistory username={profileUsername} />
       </div>
     {/if}
     {#if appState === APPSTATE.PROFILE}
       <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Profile user={userProfile} edit={1} on:view-history={openIdHistory} />
+        <Profile on:view-history={openIdHistory} />
       </div>
     {/if}
     {#if appState === APPSTATE.PROFILE_ID}
@@ -256,7 +198,7 @@
         on:keydown={() =>
           setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
       >
-        <Profile user={userProfile} edit={0} on:view-history={openIdHistory} />
+        <Profile username={profileUsername} on:view-history={openIdHistory} />
       </div>
     {/if}
 

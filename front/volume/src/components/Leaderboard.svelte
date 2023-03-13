@@ -1,7 +1,21 @@
 <script lang="ts">
   import type { Player } from "./Profile.svelte";
+  import { onMount } from "svelte";
+  import { API_URL } from "../Auth";
 
-  export let leaderboard: Array<Player>;
+  let leaderboard: Array<Player> = [];
+
+  async function getLeader(): Promise<void> {
+    let response = await fetch(API_URL + "/leaderboard", {
+      credentials: "include",
+      mode: "cors",
+    });
+    leaderboard = await response.json();
+  }
+
+  onMount(() => {
+    getLeader();
+  });
 </script>
 
 <div class="overlay">
@@ -21,13 +35,13 @@
             <td>Matchs</td>
             <td>Winrates</td>
           </tr>
-          {#each leaderboard.slice(0, 10) as player}
+          {#each leaderboard as player}
             <tr>
               <td>{player.rank}</td>
               <td>{player.username}</td>
               <td>{player.wins}</td>
               <td>{player.matchs}</td>
-              <td>{player.winrate}%</td>
+              <td>{player.winrate.toFixed(2)}%</td>
             </tr>
           {/each}
         </tbody>
@@ -60,6 +74,8 @@
     width: 300px;
     display: flex;
     justify-content: center;
+    max-height: 500px;
+    overflow-y: scroll;
   }
 
   td {

@@ -115,7 +115,7 @@
     display: flex;
     justify-content: center;
     max-height: 500px;
-    overflow-x: scroll;
+    overflow-y: scroll;
   }
 
   td {

@@ -11,13 +11,29 @@
 </script>
 
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
   import { API_URL, store, logout } from "../Auth";
 
-  export let edit: number;
-  export let user: any;
+  export let username: string = $store.username;
+
+  let edit: boolean = true;
+  let user: any = $store;
 
   let avatarForm: HTMLFormElement;
+
+  async function getUser() {
+    if (username !== $store.username) {
+      edit = false;
+      const res = await fetch(API_URL + "/user/" + username, {
+        mode: "cors",
+      });
+      user = res.json();
+    }
+  }
+
+  onMount(() => {
+    getUser();
+  });
 
   const dispatch = createEventDispatcher();
   async function handleSubmit() {
@@ -52,7 +68,7 @@
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <h3>===| <mark>{user.username}'s Profile</mark> |===</h3>
     <div class="profile-header">
-      {#if edit == 0}
+      {#if edit}
         <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
       {:else}
         <form
@@ -82,10 +98,10 @@
       </p>
       <p>Wins: {user.wins}</p>
       <p>Looses: {user.looses}</p>
-      <p>Winrate: {user.winrate}%</p>
+      <p>Winrate: {user.winrate.toFixed(2)}%</p>
       <p>Rank: {user.rank}</p>
     </div>
-    {#if edit == 1}
+    {#if edit}
       <form
         id="username-form"
         class="username"

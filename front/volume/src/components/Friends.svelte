@@ -26,32 +26,67 @@
 </script>
 
 <script lang="ts">
-  import { API_URL } from "../Auth";
+  import {onMount, onDestroy} from "svelte";
+  import { API_URL, store } from "../Auth";
 
-  export let friends: Friend[];
-  export let invits: Friend[];
+  let friends: Friend[] = [];
+  let invits: Friend[] = [];
+  let friendsInterval: ReturnType<typeof setInterval>;
+
+  async function getFriends(): Promise<void> {
+    let response = await fetch(API_URL + "/friends", {
+      credentials: "include",
+      mode: "cors",
+    });
+    friends = await response.json();
+  }
+  async function getInvits(): Promise<void> {
+    let response = await fetch(API_URL + "/invits", {
+      credentials: "include",
+      mode: "cors",
+    });
+    invits = await response.json();
+  }
+
+  onMount(() => {
+    getFriends();
+    getInvits();
+    friendsInterval = setInterval(async () => {
+      getFriends();
+      getInvits();
+    }, 5000);
+  })
+
+  onDestroy(() => {
+    clearInterval(friendsInterval);
+  })
 </script>
 
 <div class="overlay">
   <div class="friends" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
+      <h2>{$store.username} friends:</h2>
       {#if friends.length > 0}
-        <h2>Monkey friends</h2>
-        {#each friends.slice(0, 10) as friend}
+        <div class="friends-list">
+        {#each friends as friend}
           <li>
             <span>{friend.username} is {friend.status}</span>
           </li>
         {/each}
+        />
+      </div>
       {:else}
         <p>No friends to display</p>
       {/if}
+      <h2>{$store.username} invits:</h2>
       {#if invits.length > 0}
-        <h2>Monkey invits</h2>
-        {#each invits.slice(0, 10) as invit}
+      <div class="invits-list">
+        {#each invits as invit}
           <li>
             <span>{invit.username} invited you to be friend.</span>
           </li>
         {/each}
+      </div>
       {:else}
         <p>No invitations to display</p>
       {/if}
@@ -86,5 +121,11 @@
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
+  }
+
+  .friends-list,
+  .invits-list {
+      overflow-y: scroll;
+      max-height: 200px;
   }
 </style>
