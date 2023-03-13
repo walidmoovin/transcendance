@@ -34,7 +34,7 @@ export class User {
   @Column({ default: false, nullable: true })
     isVerified: boolean
 
-  @Column({ unique: true })
+  @Column('uuid',{ unique: true })
     socketKey: string
 
   @Column({ unique: true })
