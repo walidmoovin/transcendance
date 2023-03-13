@@ -191,10 +191,15 @@
   }
 </script>
 
-<main>
   <div>
     {#if $store === null}
-      <h1><button type="button" on:click={login}>Log In</button></h1>
+      <div class="login-div">
+        <h3 class="test">
+          Please log in with 42 api to access the website.
+        </h3>
+        <img class="img-42" src="https://translate.intra.42.fr/assets/42_logo-7dfc9110a5319a308863b96bda33cea995046d1731cebb735e41b16255106c12.svg" alt="logo_42">
+        <button class="login-button" type="button" on:click={login}>Log In</button>
+      </div>
     {:else if $store.twoFA === true && $store.isVerified === false}
       <h1><button type="button" on:click={verify}>verify</button></h1>
     {:else}
@@ -275,7 +280,23 @@
       {/if}
     {/if}
   </div>
-</main>
 
 <style>
+  .login-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10vh;
+  }
+
+  .img-42 {
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+    width: 64px;
+    height: 64px;
+  }
+
+  .login-button {
+    display: inline;
+  }
 </style>

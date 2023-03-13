@@ -23,7 +23,7 @@
 <div class="overlay">
   <div class="window" on:click|stopPropagation on:keydown|stopPropagation>
     Friend:
-    <input bind:value={invitedUsername} />
+    <input class="name-input" bind:value={invitedUsername} />
     <button on:click={createGame}>
       Create game vs {invitedUsername}
     </button>
@@ -50,7 +50,11 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 1rem;
-    width: 80vw;
-    height: 80vh;
+    width: 50vw;
+  }
+
+  .name-input {
+    max-width: 100%;
+    margin-bottom: 1rem;
   }
 </style>

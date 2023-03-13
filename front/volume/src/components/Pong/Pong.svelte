@@ -168,11 +168,17 @@
     <button on:click={() => setAppState(APPSTATE.CREATE_GAME)}
       >Play with a friend</button
     >
-    <label for="colorPicker">Elements color:</label>
-    <ColorPicker bind:color={elementsColor} />
-    <label for="colorPicker">Background color:</label>
-    <ColorPicker bind:color={backgroundColor} />
-
+    <div>
+      <h3>Color your game!</h3>
+      <div>
+        <label class="color-label" for="colorPicker">Elements color:</label>
+        <ColorPicker bind:color={elementsColor} />
+      </div>
+      <div>
+        <label class="color-label" for="colorPicker">Background color:</label>
+        <ColorPicker bind:color={backgroundColor} />
+      </div>
+    </div>
     {#if appState === APPSTATE.MATCHMAKING}
       <div on:click={stopMatchmaking} on:keydown={stopMatchmaking}>
         <Matchmaking {stopMatchmaking} />
@@ -210,5 +216,9 @@
     font-size: 1.5rem;
     padding: 1rem 2rem;
     margin-bottom: 1rem;
+  }
+
+  .color-label {
+    display: inline;
   }
 </style>

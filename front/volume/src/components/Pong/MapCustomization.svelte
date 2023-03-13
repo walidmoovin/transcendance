@@ -81,13 +81,19 @@
 </script>
 
 <div>
-  <h1>Map Customization:</h1>
-  Right click to add walls, left click to remove walls. (Max {MAX_WALLS} walls)
+  <div class="title">Map Customization:</div>
+  <div>
+    PC: Right click to add walls, left click to remove walls.
+    <br />
+    Mobile: Click to add walls
+    <br />
+    (Maximum {MAX_WALLS} walls)
+  </div>
   <button
     on:click={() => {
       map.walls = [];
       drawMap();
-    }}>Clear</button
+    }}>Clear all walls</button
   >
   <canvas
     bind:this={gameCanvas}
@@ -101,5 +107,9 @@
   .renderCanvas {
     width: 100%;
     height: 100%;
+  }
+
+  .title {
+    font-weight: bold;
   }
 </style>

@@ -2,9 +2,7 @@
   export let color: string;
 </script>
 
-<div>
-  <input type="color" bind:value={color} />
-</div>
+<input class="color-input" type="color" bind:value={color} />
 
 <style>
 </style>
