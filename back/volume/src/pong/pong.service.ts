@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { ArrayContains, Repository } from 'typeorm'
 import { UsersService } from 'src/users/users.service'
 import Result from './entity/result.entity'
 import type User from 'src/users/entity/user.entity'
 import { type Player } from './game/Player'
+import { type PaginateQuery, paginate, type Paginated } from 'nestjs-paginate'
 
 @Injectable()
 export class PongService {
@@ -50,18 +51,27 @@ export class PongService {
     await this.updatePlayer(1, result)
   }
 
-  async getRankedHistory (): Promise<Result[]> {
-    return await this.resultsRepository.find({
-      where: { ranked: true },
-      relations: {
-        players: true
-      },
-      order: { date: 'DESC' }
-    })
-  }
+  async getHistory (
+    query: PaginateQuery,
+    ftId: number
+  ): Promise<Paginated<Result>> {
+    let queryBuilder
+    if (ftId != 0) {
+      queryBuilder = this.resultsRepository
+        .createQueryBuilder('result')
+        .innerJoin('result.players', 'player', 'player.ftId = :ftId', { ftId })
+    } else {
+      queryBuilder = this.resultsRepository
+        .createQueryBuilder('result')
+        .where('result.ranked = :ranked', { ranked: true })
+    }
 
-  async getHistoryById (ftId: number): Promise<Result[]> {
-    const results = await this.usersService.getResultsById(ftId)
-    return results.sort((a, b) => (a.date < b.date ? 1 : -1))
+    return await paginate(query, queryBuilder, {
+      nullSort: 'last',
+      relations: ['players'],
+      defaultSortBy: [['date', 'DESC']],
+      sortableColumns: ['date'],
+      maxLimit: 10
+    })
   }
 }

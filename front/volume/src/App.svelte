@@ -62,6 +62,7 @@
   }, 15000);
 
   function clickProfile() {
+    userProfile = $store;
     setAppState(APPSTATE.PROFILE);
   }
 
@@ -69,11 +70,7 @@
   async function openIdProfile(event: CustomEvent<string>) {
     console.log("Opening profile: " + event.detail);
     const res = await fetch(API_URL + "/user/" + event.detail, {
-      method: "get",
       mode: "cors",
-      cache: "no-cache",
-      redirect: "follow",
-      referrerPolicy: "no-referrer",
     });
     userProfile = await res.json();
     setAppState(APPSTATE.PROFILE_ID);
@@ -82,26 +79,9 @@
   // HISTORY
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);
-    matches = await getHistory();
-  }
-
-  let matches: Array<Match>;
-
-  export async function getHistory(): Promise<Array<Match>> {
-    let response = await fetch(API_URL + "/rankedHistory/", {
-      credentials: "include",
-      mode: "cors",
-    });
-    return await response.json();
   }
 
   async function openIdHistory(event: CustomEvent<string>) {
-    console.log("Opening history: " + event.detail);
-    const res = await fetch(API_URL + "/history/" + event.detail, {
-      credentials: "include",
-      mode: "cors",
-    });
-    matches = await res.json();
     setAppState(APPSTATE.HISTORY_ID);
   }
 
@@ -250,7 +230,7 @@
       {/if}
       {#if appState === APPSTATE.HISTORY}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <MatchHistory {matches} />
+          <MatchHistory />
         </div>
       {/if}
       {#if appState === APPSTATE.HISTORY_ID}
@@ -258,12 +238,16 @@
           on:click={() => setAppState(APPSTATE.PROFILE)}
           on:keydown={() => setAppState(APPSTATE.PROFILE)}
         >
-          <MatchHistory username={$store.username} {matches} />
+          <MatchHistory username={userProfile.username} />
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Profile user={$store} edit={1} on:view-history={openIdHistory} />
+          <Profile
+            user={userProfile}
+            edit={1}
+            on:view-history={openIdHistory}
+          />
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE_ID}

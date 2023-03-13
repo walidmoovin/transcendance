@@ -7,6 +7,7 @@ import { type Channel } from 'src/chat/entity/channel.entity'
 import type Result from 'src/pong/entity/result.entity'
 import { Cron } from '@nestjs/schedule'
 import { randomUUID } from 'crypto'
+import { Paginate, PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 
 @Injectable()
 @Catch(QueryFailedError, EntityNotFoundError)
@@ -114,15 +115,6 @@ export class UsersService {
     })
     if (user == null) throw new BadRequestException('User not found.')
     return user.followers
-  }
-
-  async getResultsById (ftId: number): Promise<Result[]> {
-    const user = await this.usersRepository.findOne({
-      where: { ftId },
-      relations: { results: { players: true } }
-    })
-    if (user == null) throw new BadRequestException('User not found.')
-    return user.results
   }
 
   async getLeaderboard (): Promise<User[]> {
