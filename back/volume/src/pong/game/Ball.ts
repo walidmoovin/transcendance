@@ -1,7 +1,11 @@
 import { type Paddle } from './Paddle'
 import { type Point, Rect } from './utils'
 import { type MapDtoValidated } from '../dtos/MapDtoValidated'
-import { DEFAULT_BALL_SIZE, DEFAULT_BALL_INITIAL_SPEED, GAME_TICKS } from './constants'
+import {
+  DEFAULT_BALL_SIZE,
+  DEFAULT_BALL_INITIAL_SPEED,
+  GAME_TICKS
+} from './constants'
 
 export class Ball {
   rect: Rect

@@ -63,7 +63,7 @@
       channels = channels.filter((c) => c.id !== id);
     }
     // TODO: save to database
-  }
+  };
 
   //--------------------------------------------------------------------------------/
 </script>
@@ -77,8 +77,11 @@
           <li>
             <span>{_channels.name}</span>
             <button on:click={() => selectChat(_channels.id)}>Enter</button>
-            <button on:click={() => removeChannel(_channels.id)} on:keydown={() => removeChannel(_channels.id)}>delete</button>
-        {/each}
+            <button
+              on:click={() => removeChannel(_channels.id)}
+              on:keydown={() => removeChannel(_channels.id)}>delete</button
+            >
+          </li>{/each}
       {:else}
         <p>No channels available</p>
       {/if}

@@ -9,7 +9,7 @@
   import type { Player } from "./Profile.svelte";
   interface User {
     username: string;
-  } 
+  }
 </script>
 
 <script lang="ts">
@@ -59,16 +59,16 @@
     showChatMembers = !showChatMembers;
   }
   let chatMembers: Array<User> = [
-    { username: "user1"},
-    { username: "user2"},
-    { username: "user3"},
-    { username: "user4"},
-    { username: "user5"},
-    { username: "user6"},
-    { username: "user7"},
-    { username: "user8"},
-    { username: "user9"},
-  ]
+    { username: "user1" },
+    { username: "user2" },
+    { username: "user3" },
+    { username: "user4" },
+    { username: "user5" },
+    { username: "user6" },
+    { username: "user7" },
+    { username: "user8" },
+    { username: "user9" },
+  ];
   // let chatMembers: Array<Player> = [];
   // async function getChatMembers() {
   //   console.log("Getting chat members");
@@ -105,19 +105,29 @@
       >
         <ul>
           <li>
-            <button on:click={() => dispatch("send-message", selectedUser)}>Send Message</button>
+            <button on:click={() => dispatch("send-message", selectedUser)}
+              >Send Message</button
+            >
           </li>
           <li>
-            <button on:click={() => dispatch("view-profile", selectedUser)}>View Profile</button>
+            <button on:click={() => dispatch("view-profile", selectedUser)}
+              >View Profile</button
+            >
           </li>
           <li>
-            <button on:click={() => dispatch("add-friend", selectedUser)}>Add Friend</button>
+            <button on:click={() => dispatch("add-friend", selectedUser)}
+              >Add Friend</button
+            >
           </li>
           <li>
-            <button on:click={() => dispatch("invite-to-game", selectedUser)}>Invite to Game</button>
+            <button on:click={() => dispatch("invite-to-game", selectedUser)}
+              >Invite to Game</button
+            >
           </li>
           <li>
-            <button on:click={() => dispatch("block-user", selectedUser)}>Block User</button>
+            <button on:click={() => dispatch("block-user", selectedUser)}
+              >Block User</button
+            >
           </li>
           <li><button on:click={closeProfileMenu}>Close</button></li>
         </ul>
@@ -129,9 +139,16 @@
         <img src="img/send.png" alt="send" />
       </button>
     </form>
-    <button on:click|stopPropagation={toggleChatMembers} on:keydown|stopPropagation>Chat Members</button>
+    <button
+      on:click|stopPropagation={toggleChatMembers}
+      on:keydown|stopPropagation>Chat Members</button
+    >
     {#if showChatMembers}
-      <div class="chatMembers" on:click|stopPropagation on:keydown|stopPropagation>
+      <div
+        class="chatMembers"
+        on:click|stopPropagation
+        on:keydown|stopPropagation
+      >
         <div>
           <ul>
             {#each chatMembers as member}
@@ -141,7 +158,7 @@
                   <button>ban</button>
                   <button>kick</button>
                   <button>mute</button>
-                  <button>admin</button>                  
+                  <button>admin</button>
                 </p>
               </li>
             {/each}

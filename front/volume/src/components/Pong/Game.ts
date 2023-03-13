@@ -24,9 +24,9 @@ export class Game {
   ranked: boolean;
   youAreReady: boolean;
 
-  private readonly score_audio = new Audio('audio/score.wav');
-  private readonly paddle_hit_audio = new Audio('audio/paddle_hit.wav');
-  private readonly edge_hit_audio = new Audio('audio/edge_hit.wav');
+  private readonly score_audio = new Audio("audio/score.wav");
+  private readonly paddle_hit_audio = new Audio("audio/paddle_hit.wav");
+  private readonly edge_hit_audio = new Audio("audio/edge_hit.wav");
 
   constructor(
     renderCanvas: HTMLCanvasElement,
@@ -112,7 +112,7 @@ export class Game {
         this.edge_hit_audio.play();
       }
       this.ball.speed = data.ballSpeed;
-      
+
       this.ball.rect.center = data.ballPosition;
 
       for (let i = 0; i < data.scores.length; i++) {
