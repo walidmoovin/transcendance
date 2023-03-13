@@ -1,10 +1,11 @@
 import { type Paddle } from './Paddle'
-import { Point, Rect } from './utils'
+import { type Point, Rect } from './utils'
 import { type MapDtoValidated } from '../dtos/MapDtoValidated'
-import { DEFAULT_BALL_SIZE } from './constants'
+import { DEFAULT_BALL_SIZE, DEFAULT_BALL_INITIAL_SPEED } from './constants'
 
 export class Ball {
   rect: Rect
+  initial_speed: Point
   speed: Point
   spawn: Point
   indexPlayerScored: number
@@ -12,10 +13,11 @@ export class Ball {
   constructor (
     spawn: Point,
     size: Point = DEFAULT_BALL_SIZE,
-    speed: Point = new Point(10, 2)
+    speed: Point = DEFAULT_BALL_INITIAL_SPEED
   ) {
     this.rect = new Rect(spawn, size)
     this.speed = speed
+    this.initial_speed = speed
     this.spawn = spawn.clone()
     this.indexPlayerScored = -1
   }
@@ -73,6 +75,11 @@ export class Ball {
 
     this.rect.center = this.spawn.clone()
     this.speed.x = this.speed.x * -1
+    if (this.speed.x < 0) {
+      this.speed.y = -this.initial_speed.y
+    } else {
+      this.speed.y = this.initial_speed.y
+    }
 
     return indexPlayerScored
   }
