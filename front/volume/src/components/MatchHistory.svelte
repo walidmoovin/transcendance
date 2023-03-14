@@ -3,7 +3,7 @@
   export interface Match {
     players: Array<Player>;
     score: Array<number>;
-    date: Date;
+    date: string;
     ranked: boolean;
   }
   import { API_URL } from "../Auth";
@@ -14,25 +14,25 @@
   import { onMount } from "svelte";
 
   export let username: string = "Global";
-  function displayDate(str: string) {
+  function formatDate(str: string) {
     const splitT = str.split("T");
     const splitDate = splitT[0].split("-");
     const splitDot = splitT[1].split(".");
     return `${splitDate[1]}/${splitDate[2]}-${splitDot[0]}`;
   }
-  let page = 1;
-  let data = [];
-  let newBatch = [];
+  let page: number = 1;
+  let data: Array<Match> = [];
+  let newBatch: Array<Match> = [];
 
   async function fetchData() {
+    let response;
     if (username === "Global") {
-      const response = await fetch(`${API_URL}/globalHistory?page=${page}`, {
+      response = await fetch(`${API_URL}/globalHistory?page=${page}`, {
         credentials: "include",
         mode: "cors",
       });
-      newBatch = (await response.json()).data;
     } else {
-      let response = await fetch(`${API_URL}/user/${username}`);
+      response = await fetch(`${API_URL}/user/${username}`);
       if (response.ok) {
         let user = await response.json();
         response = await fetch(`${API_URL}/history/${user.ftId}?page=${page}`, {
@@ -40,8 +40,21 @@
           mode: "cors",
         });
       }
-      newBatch = (await response.json()).data;
     }
+    let tmp = await response.json();
+    newBatch = tmp.data.map((match: Match) => {
+      return {
+        players: match.players,
+        score: match.score,
+        date: 
+          new Date(match.date).toLocaleString("fr-FR", {
+            timeZone: "Europe/Paris",
+            dateStyle: "short",
+            timeStyle: "short",
+          }),
+        ranked: match.ranked,
+      };
+    });
     page++;
   }
 
@@ -70,7 +83,7 @@
             </tr>
             {#each data as match}
               <tr>
-                <td>{displayDate(match.date.toString())}</td>
+                <td>{match.date}</td>
                 {#if match?.players[0]?.username && match?.players[1]?.username}
                   <td
                     >{match.players[0].username}<br />{match.players[1]
