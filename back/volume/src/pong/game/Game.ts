@@ -109,17 +109,18 @@ export class Game {
     }
   }
 
-  async stop (): Promise<void> {
-    if (this.timer !== null) {
-      await this.pongService.saveResult(this.players, this.ranked)
-      if (this.players.length !== 0) {
-        this.gameStoppedCallback(this.players[0].name)
-      }
-
+  stop (): void {
+    if (this.timer !== null && this.playing) {
+      this.playing = false
       clearInterval(this.timer)
       this.timer = null
-      this.players = []
-      this.playing = false
+      this.pongService.saveResult(this.players, this.ranked).then(() => {
+        this.gameStoppedCallback(this.players[0].name)
+        this.players = []
+      }).catch(() => {
+        this.gameStoppedCallback(this.players[0].name)
+        this.players = []
+      })
     }
   }
 
@@ -161,7 +162,7 @@ export class Game {
       this.players[indexPlayerScored].score += 1
       if (this.players[indexPlayerScored].score >= DEFAULT_WIN_SCORE) {
         console.log(`${this.players[indexPlayerScored].name} won`)
-        void this.stop()
+        this.stop()
       }
     }
 

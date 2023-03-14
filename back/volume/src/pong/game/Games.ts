@@ -109,7 +109,7 @@ export class Games {
   async leaveGame (name: string): Promise<void> {
     const game: Game | undefined = this.playerGame(name)
     if (game !== undefined && !game.ranked) {
-      await game.stop()
+      game.stop()
       this.deleteGame(name)
     }
   }

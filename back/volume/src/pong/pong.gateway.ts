@@ -47,7 +47,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const name: string | undefined = this.socketToPlayerName.get(client)
     const game: Game | undefined = this.games.playerGame(name)
     if (game?.isPlaying() !== undefined) {
-      void game.stop()
+      game.stop()
     }
     if (name !== undefined) {
       console.log('Disconnected ', this.socketToPlayerName.get(client))
