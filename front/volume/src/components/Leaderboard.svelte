@@ -6,7 +6,7 @@
   let leaderboard: Array<Player> = [];
 
   async function getLeader(): Promise<void> {
-    let response = await fetch(API_URL + "/leaderboard", {
+    let response = await fetch(API_URL + "/users/leaderboard", {
       credentials: "include",
       mode: "cors",
     });

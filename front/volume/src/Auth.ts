@@ -12,7 +12,7 @@ export const API_URL = `http://${import.meta.env.VITE_HOST}:${
 }`;
 
 export async function getUser() {
-  const res = await fetch(API_URL, {
+  const res = await fetch(API_URL + "/users", {
     method: "get",
     mode: "cors",
     cache: "no-cache",

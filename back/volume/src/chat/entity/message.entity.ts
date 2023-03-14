@@ -5,30 +5,27 @@ import {
   JoinColumn,
   JoinTable,
   ManyToOne,
-  PrimaryGeneratedColumn
-} from 'typeorm'
-
-import { User } from 'src/users/entity/user.entity'
-import { Channel } from './channel.entity'
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import User from 'src/users/entity/user.entity';
+import Channel from './channel.entity';
 
 @Entity()
-export class Message {
+export default class Message {
   @PrimaryGeneratedColumn()
-    id: number
+  id: number;
 
   @Column()
-    text: string
+  text: string;
 
-  @ManyToOne(() => User, (author: User) => author.messages)
+  @ManyToOne(() => User, (user) => user.messages)
   @JoinColumn()
-    author: User
+  author: User;
 
-  @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
+  @ManyToOne(() => Channel, (channel) => channel.messages)
   @JoinTable()
-    channel: Channel
+  channel: Channel;
 
   @CreateDateColumn()
-    createdAt: Date
+  created_at: Date;
 }
-
-export default Message

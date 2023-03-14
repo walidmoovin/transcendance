@@ -1,103 +1,96 @@
 <script lang="ts" context="module">
-  import type { chatMessagesType } from "./Chat.svelte";
   export interface ChannelsType {
-    id: string;
+    id: number;
     name: string;
-    privacy: string;
+    isPrivate: boolean;
     password: string;
-    owner: string;
+    owner: number;
   }
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
-  import { dataset_dev } from "svelte/internal";
 </script>
-
 <script lang="ts">
-  //--------------------------------------------------------------------------------/
+//--------------------------------------------------------------------------------/
 
-  export let channels: Array<ChannelsType> = [];
-  // onMount(async () => {
-  //   const res = await fetch(API_URL + "/channels" + $store.ftId, {
-  //     method: "GET",
-  //     mode: "cors",
-  //   });
-  //   const data = await res.json();
-  //   channels = data;
-  // });
+let channels: Array<ChannelsType> = [];
+onMount(async () => {
+  const res = await fetch(API_URL + "/channels", {
+    credentials: "include",
+    mode: "cors",
+  });
+  if (res.ok) channels = await res.json();
+});
 
-  //--------------------------------------------------------------------------------/
+//--------------------------------------------------------------------------------/
 
-  export let onSelectChannel: (channel: ChannelsType) => void;
-  const selectChat = (id: string) => {
-    const channel = channels.find((c) => c.id === id);
-    if (channel) {
-      onSelectChannel(channel);
+export let onSelectChannel: (channel: ChannelsType) => void;
+const selectChat = (id: number) => {
+  const channel = channels.find((c) => c.id === id);
+  if (channel) {
+    onSelectChannel(channel);
+  }
+};
+
+//--------------------------------------------------------------------------------/
+const createChannel = async () => {
+  const name = prompt("Enter a name for the new channel:");
+  if (name) {
+    const privacy = prompt("Enter a privacy setting for the new channel (public/private):");
+    if (privacy !== "public" && privacy !== "private") {
+      alert("Invalid privacy setting");
     }
-  };
-
-  //--------------------------------------------------------------------------------/
-
-  const createChannel = async () => {
-    const name = prompt("Enter a name for the new channel:");
-    if (name) {
-      const privacy = prompt(
-        "Enter a privacy setting for the new channel (public/private):"
-      );
-      if (privacy !== "public" && privacy !== "private") {
-        alert("Invalid privacy setting");
-      }
-      let password = "";
-      if (privacy === "private") {
-        password = prompt("Enter a password for the new channel:");
-        if (!password) {
-          alert("Invalid password");
-        }
-      }
-      if (privacy === "public" || password) {
-        const newChannel: ChannelsType = {
-          id: Math.random().toString(),
-          name,
-          owner: $store.username,
-          password,
-          privacy,
-        };
-        // const response = await fetch(API_URL + "/channels" + $store.ftId , {
-        //   method: "POST",
-        //   mode: "cors",
-        //   body: JSON.stringify(newChannel),
-        // });
-        // const data = await response.json();
-        // if (data.ok) {
-        //   channels = [newChannel, ...channels];
-        // } else {
-        //   alert("Error creating channel");
-        // }
-        channels = [newChannel, ...channels];
+    let password = "";
+    if (privacy === "private") {
+      password = prompt("Enter a password for the new channel:");
+      if (!password) {
+        alert("Invalid password");
       }
     }
-  };
-
-  //--------------------------------------------------------------------------------/
-
-  const removeChannel = async (id: string) => {
-    let string = prompt("type 'delete' to delete this channel");
-    if (string === "delete") {
-      // const response = await fetch(API_URL + "/channels" + $store.ftId + "/" + id, {
-      //   method: "DELETE",
-      //   mode: "cors",
-      // });
-      // const data = await response.json();
-      // if (data.ok) {
-      //   channels = channels.filter((c) => c.id !== id);
-      // } else {
-      //   alert("Error deleting channel");
-      // }
-      channels = channels.filter((c) => c.id !== id);
+    if (privacy === "public" || password) {
+      const response = await fetch(API_URL + "/channels" , {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify( {
+          name: name,
+          owner: $store.ftId,
+          password: password || "",
+          isPrivate: privacy === "private"
+        }),
+      });
+      if (response.ok) {
+        channels.push(await response.json());
+      } else {
+        alert("Error creating channel");
+      }
     }
-    // TODO: save to database
-  };
+  }
+};
 
-  //--------------------------------------------------------------------------------/
+//--------------------------------------------------------------------------------/
+
+const removeChannel = async (id: number) => {
+  let string = prompt("type 'delete' to delete this channel");
+  if (string === "delete") {
+    // const response = await fetch(API_URL + "/channels/" + channel.id, {
+    //   method: "DELETE",
+    //   mode: "cors",
+    // });
+    // const data = await response.json();
+    // if (data.ok) {
+    //   channels = channels.filter((c) => c.id !== id);
+    // } else {
+    //   alert("Error deleting channel");
+    // }
+    channels = channels.filter((c) => c.id !== id);
+  }
+};
+
+//--------------------------------------------------------------------------------/
+
 </script>
 
 <div class="overlay">
@@ -106,14 +99,14 @@
       {#if channels.length > 0}
         <h2>Channels</h2>
         {#each channels.slice(0, 10) as _channels}
-          <li>
-            <span>{_channels.name}</span>
-            <button on:click={() => selectChat(_channels.id)}>Enter</button>
-            <button
-              on:click={() => removeChannel(_channels.id)}
-              on:keydown={() => removeChannel(_channels.id)}>delete</button
-            >
-          </li>{/each}
+        <li>
+          <span>{_channels.name}</span>
+          <button on:click={() => selectChat(_channels.id)}>Enter</button>
+          <button
+            on:click={() => removeChannel(_channels.id)}
+            on:keydown={() => removeChannel(_channels.id)}>delete</button
+          >
+        </li>{/each}
       {:else}
         <p>No channels available</p>
       {/if}
@@ -134,7 +127,6 @@
     justify-content: center;
     align-items: center;
   }
-
   .channels {
     background-color: #fff;
     border: 1px solid #ccc;

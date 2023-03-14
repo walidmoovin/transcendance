@@ -1,11 +1,12 @@
 import { BadRequestException, Catch, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm'
-import { User } from './entity/user.entity'
-import { type UserDto } from './dto/user.dto'
-import { type Channel } from 'src/chat/entity/channel.entity'
 import { Cron } from '@nestjs/schedule'
 import { randomUUID } from 'crypto'
+
+import { type UserDto } from './dto/user.dto'
+import type Channel from 'src/chat/entity/channel.entity'
+import User from './entity/user.entity'
 
 @Injectable()
 @Catch(QueryFailedError, EntityNotFoundError)
@@ -149,7 +150,7 @@ export class UsersService {
       where: { ftId: targetFtId },
       relations: {
         followers: true,
-        friends: true
+       friends: true
       }
     })
     if (target == null) return 'Target not found.'
@@ -167,7 +168,7 @@ export class UsersService {
     ) {
       user.friends.push(target)
       target.friends.push(user)
-      user.followers = user.followers.slice(id, 1)
+      user.followers = user.followers.splice(id, 1)
       await this.usersRepository.save(user)
     } else target.followers.push(user)
     await this.usersRepository.save(target)

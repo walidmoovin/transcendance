@@ -69,7 +69,8 @@ export class User {
     messages: Message[]
 
   @ManyToMany(() => Channel, (channel: Channel) => channel.users)
-    rooms: Channel[]
+  @JoinTable()
+    channels: Channel[]
 
   @ManyToMany(() => User)
   @JoinTable()

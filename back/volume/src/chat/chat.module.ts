@@ -6,8 +6,9 @@ import { UsersModule } from 'src/users/users.module'
 //import { ChatGateway } from './chat.gateway'
 import { ChatController } from './chat.controller'
 import { ChannelService } from './chat.service'
-import { Channel } from './entity/channel.entity'
-import { Message } from './entity/message.entity'
+
+import Channel from './entity/channel.entity'
+import Message from './entity/message.entity'
 
 @Module({
   imports: [

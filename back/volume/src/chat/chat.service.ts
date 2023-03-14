@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Channel } from './entity/channel.entity';
-import { User } from 'src/users/entity/user.entity';
 import { Repository } from 'typeorm';
+
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UsersService } from 'src/users/users.service';
+
+import User from 'src/users/entity/user.entity';
+import Channel from './entity/channel.entity';
+import { classToPlain, plainToClass } from 'class-transformer';
 
 @Injectable()
 export class ChannelService {
@@ -15,24 +18,22 @@ export class ChannelService {
   ) {}
 
   async createChannel(channel: CreateChannelDto): Promise<Channel> {
-    const newChannel = this.ChannelRepository.create({
-      name: channel.name,
-      password: channel.password,
-    });
     let user: User| null = await this.usersService.findUser(channel.owner);
     if (user == null) throw new NotFoundException(`User #${channel.owner} not found`)
-    newChannel.owner = user;
+    const newChannel = plainToClass(Channel, channel);
     return await this.ChannelRepository.save(newChannel);
   }
 
   async getChannelsForUser(ftId: number): Promise<Array<Channel>> {
-    const query = await this.ChannelRepository.createQueryBuilder('room')
+    let rooms: Array<Channel> = [];
+    rooms = [...await this.ChannelRepository.createQueryBuilder('room')
+      .where('room.isPrivate = false').getMany()]
+    rooms = [...rooms, ...await this.ChannelRepository.createQueryBuilder('room')
+      .where('room.isPrivate = true')
       .innerJoin('room.users', 'users')
       .where('users.ftId = :ftId', { ftId })
-      .leftJoinAndSelect('room.users', 'all_users')
-      .orderBy('room.id', 'DESC') // TODO: order by last message
-      .getRawMany();
-    return query; //where userId is in User[] of channel?
+      .getMany()]
+    return rooms;
   }
 
   async addUserToChannel(channel: Channel, user: User): Promise<Channel> {

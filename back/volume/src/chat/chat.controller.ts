@@ -5,46 +5,30 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
+  UseGuards,
 } from "@nestjs/common";
-//import { channel, Channel } from "diagnostics_channel";
-import { Channel } from './entity/channel.entity';
-import { ChannelService } from "./chat.service";
-import { CreateChannelDto } from "./dto/create-channel.dto";
+import { AuthenticatedGuard } from "src/auth/42-auth.guard";
 import { UsersService } from "src/users/users.service";
+import { ChannelService } from "./chat.service";
+
+import { CreateChannelDto } from "./dto/create-channel.dto";
 import { UpdateChannelDto } from "./dto/update-channel.dto";
-import { User } from "src/users/entity/user.entity";
 
-@Controller("chat")
+import User from "src/users/entity/user.entity";
+import Channel from "./entity/channel.entity";
+import { Profile42 } from "src/auth/42.decorator";
+import { Profile } from "passport-42";
+
+@Controller("channels")
 export class ChatController {
-  private readonly channelService: ChannelService;
-  private readonly usersService: UsersService;
+  constructor(
+    private readonly channelService: ChannelService,
+    private readonly usersService: UsersService
+  ) {}
 
-  @Get("channels/:id")
-  getChannelsForUser(@Param("id") id: number): Promise<Array<Channel>> {
-    return this.channelService.getChannelsForUser(id);
-  }
-
-  @Post("channels")
-  async createChannel(@Body() channel: CreateChannelDto) {
-    return await this.channelService.createChannel(channel);
-  }
-
-  @Delete("channels/:id")
-  async deleteChannel(@Param("id") id: number) {
-    return await this.channelService.removeChannel(id);
-  }
-
-  @Post("channels/:id/owner")
-  async moveOwner(@Param("id") id: number, @Body() userId: number) {
-    const channel = await this.channelService.getChannel(id);
-    const user: User | null = await this.usersService.findUser(userId);
-    if (user == null) throw new NotFoundException(`User #${userId} not found`);
-    channel.owner = user;
-    this.channelService.update(channel);
-  }
-
-  @Post("channels/:id/admin")
+  @Post(":id/admin")
   async addAdmin(@Param("id") id: number, @Body() userId: number) {
     const channel = await this.channelService.getChannel(id);
     const user: User | null = await this.usersService.findUser(userId);
@@ -53,16 +37,16 @@ export class ChatController {
     this.channelService.update(channel);
   }
 
-  @Delete("channels/:id/admin")
+  @Delete(":id/admin")
   async removeAdmin(@Param("id") id: number, @Body() userId: number) {
     const channel = await this.channelService.getChannel(id);
-    channel.admins = channel.admins.filter((a) => {
-      return a.ftId !== userId;
+    channel.admins = channel.admins.filter((usr: User) => {
+      return usr.ftId !== userId;
     });
     this.channelService.update(channel);
   }
 
-  @Post("channels/:id/ban")
+  @Post(":id/ban")
   async addBan(@Param("id") id: number, @Body() userId: number) {
     const channel = await this.channelService.getChannel(id);
     const user: User | null = await this.usersService.findUser(userId);
@@ -71,29 +55,37 @@ export class ChatController {
     this.channelService.update(channel);
   }
 
-  @Delete("channels/:id/ban")
-  async removeBan(@Param("id") id: number, @Body() userId: number) {
-    const channel = await this.channelService.getChannel(id);
-    channel.banned = channel.banned.filter((a) => {
-      return a.ftId !== userId;
-    });
-    this.channelService.update(channel);
-  }
-
-  @Post("channels/:id/mute")
+  @Post(":id/mute")
   async addMute(@Param("id") id: number, @Body() userId: number) {
     const channel = await this.channelService.getChannel(id);
     const user: User | null = await this.usersService.findUser(userId);
     if (user == null) throw new NotFoundException(`User #${userId} not found`);
-    channel.mute.push(user);
+    channel.muted.push(user);
     this.channelService.update(channel);
   }
-  @Delete("channels/:id/mute")
+
+  @Delete(":id/mute")
   async removeMute(@Param("id") id: number, @Body() userId: number) {
     const channel = await this.channelService.getChannel(id);
-    channel.mute = channel.mute.filter((a) => {
-      return a.ftId !== userId;
+    channel.muted = channel.muted.filter((usr: User) => {
+      return usr.ftId !== userId;
     });
     this.channelService.update(channel);
+  }
+
+  @Delete(":id")
+  async deleteChannel(@Param("id") id: number) {
+    return await this.channelService.removeChannel(id);
+  }
+
+  @Get()
+  @UseGuards(AuthenticatedGuard)
+  getChannelsForUser(@Profile42() profile: Profile): Promise<Array<Channel>> {
+    return this.channelService.getChannelsForUser(profile.id);
+  }
+
+  @Post()
+  async createChannel(@Body() channel: CreateChannelDto) {
+    return await this.channelService.createChannel(channel);
   }
 }
