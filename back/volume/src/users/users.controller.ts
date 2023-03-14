@@ -13,7 +13,6 @@ import {
   BadRequestException,
   Redirect
 } from '@nestjs/common'
-import { PaginateQuery, type Paginated, Paginate } from 'nestjs-paginate'
 
 import { FileInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
@@ -31,14 +30,10 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger'
 import { type Request, Response } from 'express'
 import { createReadStream } from 'fs'
 import { join } from 'path'
-import type Result from 'src/pong/entity/result.entity'
 
-@Controller()
+@Controller('users')
 export class UsersController {
-  constructor (
-    private readonly usersService: UsersService,
-    private readonly pongService: PongService
-  ) {}
+  constructor (private readonly usersService: UsersService) {}
 
   @Get('all')
   async getAllUsers (): Promise<User[]> {
@@ -68,27 +63,10 @@ export class UsersController {
     return await this.usersService.getLeaderboard()
   }
 
-  @Get('rank/:id')
+  @Get(':id/rank')
   @UseGuards(AuthenticatedGuard)
   async getRank (@Param('id', ParseIntPipe) id: number): Promise<number> {
     return await this.usersService.getRank(id)
-  }
-
-  @Get('globalHistory')
-  @UseGuards(AuthenticatedGuard)
-  async getGlobalHistory (
-    @Paginate() query: PaginateQuery
-  ): Promise<Paginated<Result>> {
-    return await this.pongService.getHistory(query, 0)
-  }
-
-  @Get('history/:id')
-  @UseGuards(AuthenticatedGuard)
-  async getHistoryById (
-    @Param('id', ParseIntPipe) id: number,
-      @Paginate() query: PaginateQuery
-  ): Promise<Paginated<Result>> {
-    return await this.pongService.getHistory(query, id)
   }
 
   @Post('avatar')
@@ -130,16 +108,17 @@ export class UsersController {
     return await this.getAvatarById(profile.id, response)
   }
 
-  @Get('user/:name')
+  @Get(':name/byname')
   async getUserByName (@Param('name') username: string): Promise<User> {
     const user = await this.usersService.findUserByName(username)
     user.socketKey = ''
     return user
   }
 
-  @Get('invit/:id/:username')
+  @Get('invit/:username')
+  @UseGuards(AuthenticatedGuard)
   async invitUser (
-      @Param('id', ParseIntPipe) id:  number,
+    @Profile42() profile: Profile,
       @Param('username') username: string
   ): Promise<void> {
     const target: User | null = await this.usersService.findUserByName(
@@ -148,14 +127,14 @@ export class UsersController {
     if (target === null) {
       throw new BadRequestException(`User ${username} not found.`)
     }
-    if (id === target.ftId) {
+    if (profile.id === target.ftId) {
       throw new BadRequestException("You can't invite yourself.")
     }
-    const ret: string = await this.usersService.invit(id, target.ftId)
+    const ret: string = await this.usersService.invit(profile.id, target.ftId)
     if (ret !== 'OK') throw new BadRequestException(ret)
   }
 
-  @Get('avatar/:id')
+  @Get(':id/avatar')
   async getAvatarById (
     @Param('id', ParseIntPipe) ftId: number,
       @Res({ passthrough: true }) response: Response

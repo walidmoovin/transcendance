@@ -1,20 +1,30 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateChannelDto } from './create-channel.dto';
-import { IsOptional, IsString } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types'
+import { CreateChannelDto } from './create-channel.dto'
+import { IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class UpdateChannelDto extends PartialType(CreateChannelDto) {
-  id: number;
+  id: number
   @IsOptional()
-  users: [number];
+  @IsNumber()
+    users: [number]
+
   @IsOptional()
-  messages: [number];
+  @IsNumber()
+    messages: [number]
+
   @IsOptional()
-  owners: [number]; //user id
+  @IsNumber()
+    owners: [number] // user id
+
   @IsOptional()
-  banned: [number]; //user id
+  @IsNumber()
+    banned: [number] // user id
+
   @IsOptional()
-  muted: [number]; //user id
+  @IsNumber()
+    muted: [number] // user id
+
   @IsString()
   @IsOptional()
-  password: string;
+    password: string
 }

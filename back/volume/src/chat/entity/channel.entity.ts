@@ -2,46 +2,30 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
+import User from 'src/users/entity/user.entity'
+import Message from './message.entity'
 import * as bcrypt from 'bcrypt'
 
-import { User } from 'src/users/entity/user.entity'
-import { Message } from './message.entity'
-
 @Entity()
-export class Channel {
+export default class Channel {
   @PrimaryGeneratedColumn()
     id: number
 
   @Column()
     name: string
 
-  @ManyToMany(() => User)
-  @JoinTable()
-    owner: User
+  @Column({ default: false })
+    isPrivate: boolean
 
-  @ManyToMany(() => User)
-  @JoinTable()
-    admins: User[]
-
-  @ManyToMany(() => User)
-  @JoinTable()
-    users: User[]
-
-  @OneToMany(() => Message, (message: Message) => message.channel)
-    messages: Message[]
-
-  @OneToMany(() => User, (user: User) => user.id) // refuse connection
-    banned: User[]
-
-  @OneToMany(() => User, (user: User) => user.id) // refuse post
-    mute: User[]
-
-  @Column({ select: false })
+  @Column({ select: false, default: '' })
     password: string
 
   @BeforeInsert()
@@ -51,6 +35,27 @@ export class Channel {
       Number(process.env.HASH_SALT)
     )
   }
-}
 
-export default Channel
+  @ManyToMany(() => User)
+  @JoinTable()
+    users: User[]
+
+  @OneToMany(() => Message, (message: Message) => message.channel)
+    messages: Message[]
+
+  @ManyToOne(() => User)
+  @JoinColumn()
+    owner: User
+
+  @ManyToMany(() => User)
+  @JoinTable()
+    admins: User[]
+
+  @ManyToMany(() => User) // refuse connection
+  @JoinTable()
+    banned: User[]
+
+  @ManyToMany(() => User) // refuse post
+  @JoinTable()
+    muted: User[]
+}

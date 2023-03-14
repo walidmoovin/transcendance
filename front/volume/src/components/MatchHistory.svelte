@@ -25,17 +25,17 @@
   let newBatch: Array<Match> = [];
 
   async function fetchData() {
-    let response;
+    let response: Response;
     if (username === "Global") {
-      response = await fetch(`${API_URL}/globalHistory?page=${page}`, {
+      response = await fetch(`${API_URL}/results/global?page=${page}`, {
         credentials: "include",
         mode: "cors",
       });
     } else {
-      response = await fetch(`${API_URL}/user/${username}`);
+      response = await fetch(`${API_URL}/users/${username}/byname`);
       if (response.ok) {
         let user = await response.json();
-        response = await fetch(`${API_URL}/history/${user.ftId}?page=${page}`, {
+        response = await fetch(`${API_URL}/results/${user.ftId}?page=${page}`, {
           credentials: "include",
           mode: "cors",
         });
@@ -46,12 +46,11 @@
       return {
         players: match.players,
         score: match.score,
-        date: 
-          new Date(match.date).toLocaleString("fr-FR", {
-            timeZone: "Europe/Paris",
-            dateStyle: "short",
-            timeStyle: "short",
-          }),
+        date: new Date(match.date).toLocaleString("fr-FR", {
+          timeZone: "Europe/Paris",
+          dateStyle: "short",
+          timeStyle: "short",
+        }),
         ranked: match.ranked,
       };
     });

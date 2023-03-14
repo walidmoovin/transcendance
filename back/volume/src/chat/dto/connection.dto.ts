@@ -1,10 +1,13 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class ConnectionDto {
   @IsNumber()
-  UserId: number;
+    UserId: number
+
   @IsNumber()
-  ChannelId: number;
-  @IsNumber()
-  SocketId: number;
+    ChannelId: number
+
+  @IsString()
+  @IsOptional()
+    pwd: string
 }

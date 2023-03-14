@@ -1,13 +1,28 @@
-import { IsPositive, IsAlpha, IsString, IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer'
+import {
+  IsPositive,
+  IsAlpha,
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean
+} from 'class-validator'
 
 export class CreateChannelDto {
-  @IsString()
-  @IsAlpha()
-  name: string;
-
+  @IsOptional()
   @IsPositive()
-  owner: number;
+    id: number
+
+  @IsString()
+    name: string
+
+  @IsNumber()
+    owner: number
 
   @IsOptional()
-  password: string;
+    password: string
+
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+    isPrivate: boolean
 }

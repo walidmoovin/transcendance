@@ -148,7 +148,7 @@
         </div>
       {:else}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Channels {channels} onSelectChannel={handleSelectChannel} />
+          <Channels onSelectChannel={handleSelectChannel} />
         </div>
       {/if}
     {/if}
