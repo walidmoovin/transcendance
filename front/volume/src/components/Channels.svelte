@@ -13,7 +13,6 @@
 </script>
 
 <script lang="ts">
-
   //--------------------------------------------------------------------------------/
 
   export let channels: Array<ChannelsType> = [];

@@ -13,9 +13,10 @@ export const GAME_EVENTS = {
 }
 
 export const DEFAULT_MAP_SIZE = new Point(500, 400)
-export const DEFAULT_PADDLE_SIZE = new Point(6, 30)
+export const DEFAULT_PADDLE_SIZE = new Point(30, 50)
 export const DEFAULT_BALL_SIZE = new Point(10, 10)
 export const DEFAULT_BALL_INITIAL_SPEED = new Point(10, 2)
-export const DEFAULT_PLAYER_X_OFFSET = 50
+export const DEFAULT_MAX_BALL_SPEED = new Point(30, 20)
+export const DEFAULT_BALL_SPEED_INCREMENT = new Point(0.05, 0)
 export const DEFAULT_WIN_SCORE = 5
 export const GAME_TICKS = 30

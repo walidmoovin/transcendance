@@ -9,7 +9,6 @@ import {
   DEFAULT_BALL_SIZE,
   DEFAULT_MAP_SIZE,
   DEFAULT_PADDLE_SIZE,
-  DEFAULT_PLAYER_X_OFFSET,
   DEFAULT_WIN_SCORE
 } from './constants'
 
@@ -80,7 +79,6 @@ export class Games {
       mapSize: new Point(0, 0),
       walls: [],
       paddleSize: DEFAULT_PADDLE_SIZE,
-      playerXOffset: DEFAULT_PLAYER_X_OFFSET,
       ballSize: DEFAULT_BALL_SIZE,
       winScore: DEFAULT_WIN_SCORE,
       ranked: false

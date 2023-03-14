@@ -6,7 +6,6 @@ export class GameInfo {
   gameId!: string;
   walls!: Rect[];
   paddleSize!: Point;
-  playerXOffset!: number;
   ballSize!: Point;
   winScore!: number;
   ranked!: boolean;

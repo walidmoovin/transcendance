@@ -91,18 +91,16 @@
 
   //--------------------------------------------------------------------------------/
 
-  const blockUser = async (username : string) => {
-  };
+  const blockUser = async (username: string) => {};
 
   //--------------------------------------------------------------------------------/
 
-  const banUser = async (username : string) => {
+  const banUser = async (username: string) => {
     // const prompt = window.prompt("Enter ban duration in seconds");
     // const res1 = await fetch(API_URL + "/user/" + username, {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-
     // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/ban", {
     //   method: "POST",
     //   mode: "cors",
@@ -117,13 +115,12 @@
 
   //--------------------------------------------------------------------------------/
 
-  const kickUser = async (username : string) => {
+  const kickUser = async (username: string) => {
     // set-up channel joining and kicking
     // const res1 = await fetch(API_URL + "/user/" + username, {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-
     // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/kick", {
     //   method: "POST",
     //   mode: "cors",
@@ -138,14 +135,13 @@
 
   //--------------------------------------------------------------------------------/
 
-  const muteUser = async (username : string) => {
+  const muteUser = async (username: string) => {
     // use minutes prompt to determine mute duration
     // const prompt = window.prompt("Enter mute duration in seconds");
     // const res1 = await fetch(API_URL + "/user/" + username, {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-
     // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/mute", {
     //   method: "POST",
     //   mode: "cors",
@@ -160,12 +156,11 @@
 
   //--------------------------------------------------------------------------------/
 
-  const adminUser = async (username : string) => {
+  const adminUser = async (username: string) => {
     // const res1 = await fetch(API_URL + "/user/" + username, {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-
     // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/admin", {
     //   method: "POST",
     //   mode: "cors",
@@ -180,12 +175,11 @@
 
   //--------------------------------------------------------------------------------/
 
-  const removeAdminUser = async (username : string) => {
+  const removeAdminUser = async (username: string) => {
     // const res1 = await fetch(API_URL + "/user/" + username, {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-
     // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/admin", {
     //   method: "DELETE",
     //   mode: "cors",
@@ -246,9 +240,7 @@
           </li>
           <li>
             <!-- block only if not blocked -->
-            <button on:click={() => blockUser(selectedUser)}
-              >Block User</button
-            >
+            <button on:click={() => blockUser(selectedUser)}>Block User</button>
           </li>
           <li><button on:click={closeProfileMenu}>Close</button></li>
         </ul>
@@ -277,11 +269,22 @@
                 <p>
                   {member.username}
                   <button on:click={() => banUser(member.username)}>ban</button>
-                  <button on:click={() => kickUser(member.username)}>kick</button>
-                  <button on:click={() => muteUser(member.username)}>mute</button>
-                  <button on:click={() => adminUser(member.username)}>promote</button>
-                  <button on:click={() => removeAdminUser(member.username)}>demote</button>
-                  <p> ----------------------------------------------------------------------------------- </p>
+                  <button on:click={() => kickUser(member.username)}
+                    >kick</button
+                  >
+                  <button on:click={() => muteUser(member.username)}
+                    >mute</button
+                  >
+                  <button on:click={() => adminUser(member.username)}
+                    >promote</button
+                  >
+                  <button on:click={() => removeAdminUser(member.username)}
+                    >demote</button
+                  >
+                </p>
+                <p>
+                  -----------------------------------------------------------------------------------
+                </p>
               </li>
             {/each}
           </ul>

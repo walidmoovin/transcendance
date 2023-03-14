@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_SIZE } from "./constants";
 import { Point, Rect } from "./utils";
 
 export class Paddle {
@@ -8,7 +9,17 @@ export class Paddle {
   }
 
   draw(context: CanvasRenderingContext2D, color: string) {
-    this.rect.draw(context, color);
+    let offset: number;
+    if (this.rect.center.x < DEFAULT_MAP_SIZE.x / 2) {
+      offset = this.rect.size.x / 3;
+    } else {
+      offset = -(this.rect.size.x / 3);
+    }
+    const render_rect: Rect = new Rect(
+      new Point(this.rect.center.x + offset, this.rect.center.y),
+      new Point(this.rect.size.x / 3, this.rect.size.y)
+    );
+    render_rect.draw(context, "yellow");
   }
 
   move(e: MouseEvent) {

@@ -5,7 +5,6 @@ import { Player } from './Player'
 import {
   DEFAULT_BALL_SIZE,
   DEFAULT_PADDLE_SIZE,
-  DEFAULT_PLAYER_X_OFFSET,
   DEFAULT_WIN_SCORE,
   GAME_EVENTS,
   GAME_TICKS
@@ -57,7 +56,6 @@ export class Game {
       gameId: this.id,
       walls: this.map.walls,
       paddleSize: DEFAULT_PADDLE_SIZE,
-      playerXOffset: DEFAULT_PLAYER_X_OFFSET,
       ballSize: DEFAULT_BALL_SIZE,
       winScore: DEFAULT_WIN_SCORE,
       ranked: this.ranked
@@ -65,10 +63,13 @@ export class Game {
   }
 
   private addPlayer (socket: Socket, uuid: string, name: string): void {
-    let paddleCoords = new Point(DEFAULT_PLAYER_X_OFFSET, this.map.size.y / 2)
+    let paddleCoords = new Point(
+      DEFAULT_PADDLE_SIZE.x / 2,
+      this.map.size.y / 2
+    )
     if (this.players.length === 1) {
       paddleCoords = new Point(
-        this.map.size.x - DEFAULT_PLAYER_X_OFFSET,
+        this.map.size.x - DEFAULT_PADDLE_SIZE.x / 2,
         this.map.size.y / 2
       )
     }
@@ -114,13 +115,16 @@ export class Game {
       this.playing = false
       clearInterval(this.timer)
       this.timer = null
-      this.pongService.saveResult(this.players, this.ranked).then(() => {
-        this.gameStoppedCallback(this.players[0].name)
-        this.players = []
-      }).catch(() => {
-        this.gameStoppedCallback(this.players[0].name)
-        this.players = []
-      })
+      this.pongService
+        .saveResult(this.players, this.ranked)
+        .then(() => {
+          this.gameStoppedCallback(this.players[0].name)
+          this.players = []
+        })
+        .catch(() => {
+          this.gameStoppedCallback(this.players[0].name)
+          this.players = []
+        })
     }
   }
 

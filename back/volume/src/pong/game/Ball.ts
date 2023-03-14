@@ -4,7 +4,9 @@ import { type MapDtoValidated } from '../dtos/MapDtoValidated'
 import {
   DEFAULT_BALL_SIZE,
   DEFAULT_BALL_INITIAL_SPEED,
-  GAME_TICKS
+  GAME_TICKS,
+  DEFAULT_BALL_SPEED_INCREMENT,
+  DEFAULT_MAX_BALL_SPEED
 } from './constants'
 
 export class Ball {
@@ -22,7 +24,7 @@ export class Ball {
   ) {
     this.rect = new Rect(spawn, size)
     this.speed = speed
-    this.initial_speed = speed
+    this.initial_speed = speed.clone()
     this.spawn = spawn.clone()
     this.indexPlayerScored = -1
     this.timeoutTime = 0
@@ -73,6 +75,19 @@ export class Ball {
     }
 
     if (!canvasRect.contains_y(this.rect)) this.speed.y = this.speed.y * -1
+
+    if (this.speed.x > 0 && this.speed.x < DEFAULT_MAX_BALL_SPEED.x) {
+      this.speed.x += DEFAULT_BALL_SPEED_INCREMENT.x
+    }
+    if (this.speed.x < 0 && this.speed.x > -DEFAULT_MAX_BALL_SPEED.x) {
+      this.speed.x -= DEFAULT_BALL_SPEED_INCREMENT.x
+    }
+    if (this.speed.y > 0 && this.speed.y > DEFAULT_MAX_BALL_SPEED.y) {
+      this.speed.y += DEFAULT_MAX_BALL_SPEED.y
+    }
+    if (this.speed.y < 0 && this.speed.y < -DEFAULT_MAX_BALL_SPEED.y) {
+      this.speed.y -= DEFAULT_MAX_BALL_SPEED.y
+    }
     this.rect.center.add_inplace(this.speed)
   }
 
@@ -85,10 +100,11 @@ export class Ball {
     }
 
     this.rect.center = this.spawn.clone()
-    this.speed.x = this.speed.x * -1
     if (this.speed.x < 0) {
+      this.speed.x = this.initial_speed.x
       this.speed.y = -this.initial_speed.y
     } else {
+      this.speed.x = -this.initial_speed.x
       this.speed.y = this.initial_speed.y
     }
 

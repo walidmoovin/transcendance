@@ -62,11 +62,14 @@ export class Game {
       data.ballSize
     );
     const paddle1: Paddle = new Paddle(
-      new Point(data.playerXOffset, this.canvas.height / 2),
+      new Point(data.paddleSize.x / 2, this.canvas.height / 2),
       data.paddleSize
     );
     const paddle2: Paddle = new Paddle(
-      new Point(this.canvas.width - data.playerXOffset, this.canvas.height / 2),
+      new Point(
+        this.canvas.width - data.paddleSize.x / 2,
+        this.canvas.height / 2
+      ),
       data.paddleSize
     );
     this.players = [new Player(paddle1), new Player(paddle2)];
