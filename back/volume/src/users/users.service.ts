@@ -167,7 +167,7 @@ export class UsersService {
     ) {
       user.friends.push(target)
       target.friends.push(user)
-      user.followers.slice(id, 1)
+      user.followers = user.followers.slice(id, 1)
       await this.usersRepository.save(user)
     } else target.followers.push(user)
     await this.usersRepository.save(target)

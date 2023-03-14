@@ -73,7 +73,6 @@
               <span>{friend.username} is {friend.status}</span>
             </li>
           {/each}
-          />
         </div>
       {:else}
         <p>No friends to display</p>

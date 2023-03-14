@@ -1,3 +1,4 @@
+/*
 import { UnauthorizedException, UseGuards } from '@nestjs/common'
 import {
   type OnGatewayConnection,
@@ -99,3 +100,4 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     /// TODO:  Send message to users
   }
 }
+*/

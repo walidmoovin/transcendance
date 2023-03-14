@@ -137,10 +137,9 @@ export class UsersController {
     return user
   }
 
-  @Get('invit/:username')
-  @UseGuards(AuthenticatedGuard)
+  @Get('invit/:id/:username')
   async invitUser (
-    @Profile42() profile: Profile,
+      @Param('id', ParseIntPipe) id:  number,
       @Param('username') username: string
   ): Promise<void> {
     const target: User | null = await this.usersService.findUserByName(
@@ -149,10 +148,10 @@ export class UsersController {
     if (target === null) {
       throw new BadRequestException(`User ${username} not found.`)
     }
-    if (+profile.id === target.ftId) {
+    if (id === target.ftId) {
       throw new BadRequestException("You can't invite yourself.")
     }
-    const ret: string = await this.usersService.invit(profile.id, target.ftId)
+    const ret: string = await this.usersService.invit(id, target.ftId)
     if (ret !== 'OK') throw new BadRequestException(ret)
   }
 

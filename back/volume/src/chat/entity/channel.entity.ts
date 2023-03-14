@@ -26,6 +26,10 @@ export class Channel {
 
   @ManyToMany(() => User)
   @JoinTable()
+    admins: User[]
+
+  @ManyToMany(() => User)
+  @JoinTable()
     users: User[]
 
   @OneToMany(() => Message, (message: Message) => message.channel)
@@ -35,7 +39,7 @@ export class Channel {
     banned: User[]
 
   @OneToMany(() => User, (user: User) => user.id) // refuse post
-    muted: User[]
+    mute: User[]
 
   @Column({ select: false })
     password: string

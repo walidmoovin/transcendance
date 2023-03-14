@@ -1,56 +1,56 @@
-import { Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { type User } from 'src/users/entity/user.entity'
-import { Channel } from './entity/channel.entity'
-import { Message } from './entity/message.entity'
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Channel } from './entity/channel.entity';
+import { User } from 'src/users/entity/user.entity';
+import { Repository } from 'typeorm';
+import { CreateChannelDto } from './dto/create-channel.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class ChatService {
-  constructor (
+export class ChannelService {
+  constructor(
     @InjectRepository(Channel)
     private readonly ChannelRepository: Repository<Channel>,
-    @InjectRepository(Message)
-    private readonly MessageRepository: Repository<Message>
+    private readonly usersService: UsersService,
   ) {}
 
-  async createChannel (Channel: Channel, creator: User): Promise<Channel> {
-    const newChannel = await this.addCreatorToChannel(Channel, creator)
-    return await this.ChannelRepository.save(newChannel)
+  async createChannel(channel: CreateChannelDto): Promise<Channel> {
+    const newChannel = this.ChannelRepository.create({
+      name: channel.name,
+      password: channel.password,
+    });
+    let user: User| null = await this.usersService.findUser(channel.owner);
+    if (user == null) throw new NotFoundException(`User #${channel.owner} not found`)
+    newChannel.owner = user;
+    return await this.ChannelRepository.save(newChannel);
   }
 
-  async getChannelsForUser (userId: number): Promise<Channel[]> {
-    return await this.ChannelRepository.find({}) // where userId is in User[] of channel?
+  async getChannelsForUser(ftId: number): Promise<Array<Channel>> {
+    const query = await this.ChannelRepository.createQueryBuilder('room')
+      .innerJoin('room.users', 'users')
+      .where('users.ftId = :ftId', { ftId })
+      .leftJoinAndSelect('room.users', 'all_users')
+      .orderBy('room.id', 'DESC') // TODO: order by last message
+      .getRawMany();
+    return query; //where userId is in User[] of channel?
   }
 
-  async addCreatorToChannel (Channel: Channel, creator: User): Promise<Channel> {
-    Channel.users.push(creator)
-    return Channel
+  async addUserToChannel(channel: Channel, user: User): Promise<Channel> {
+    channel.owner = user;
+    return await this.ChannelRepository.save(channel);
   }
 
-  async createMessage (message: Message): Promise<Message> {
-    return await this.MessageRepository.save(
-      this.MessageRepository.create(message)
-    )
+  async getChannel(id: number): Promise<Channel> {
+    const channel = await this.ChannelRepository.findOneBy({ id });
+    if (!channel) throw new NotFoundException(`Channel #${id} not found`);
+    return channel;
   }
 
-  async deleteBySocketId (socketId: string) {
-    return await this.ChannelRepository.delete({}) // for disconnect
+  async update(channel: Channel) {
+    this.ChannelRepository.update(channel.id, channel);
   }
-
-  async getChannel (id: number): Promise<Channel | null> {
-    return await this.ChannelRepository.findOneBy({ id })
-  }
-
-  async findMessagesInChannelForUser (
-    channel: Channel,
-    user: User
-  ): Promise<Message[]> {
-    return await this.MessageRepository.createQueryBuilder('message')
-      .where('message.channel = :chan', { chan: channel })
-      .andWhere('message.author NOT IN (:...blocked)', {
-        blocked: user.blocked
-      })
-      .getMany()
+  async removeChannel(id: number) {
+    await this.ChannelRepository.delete(id);
   }
 }
+
