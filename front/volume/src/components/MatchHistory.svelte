@@ -46,12 +46,11 @@
       return {
         players: match.players,
         score: match.score,
-        date: 
-          new Date(match.date).toLocaleString("fr-FR", {
-            timeZone: "Europe/Paris",
-            dateStyle: "short",
-            timeStyle: "short",
-          }),
+        date: new Date(match.date).toLocaleString("fr-FR", {
+          timeZone: "Europe/Paris",
+          dateStyle: "short",
+          timeStyle: "short",
+        }),
         ranked: match.ranked,
       };
     });
