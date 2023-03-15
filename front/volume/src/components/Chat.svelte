@@ -34,7 +34,6 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
       }
     }
-    // TODO: save to database
   };
 
   //--------------------------------------------------------------------------------/
@@ -46,7 +45,6 @@
     showProfileMenu = true;
     selectedUser = username;
     showChatMembers = false;
-    showChannelSettings = false;
   }
   function closeProfileMenu() {
     showProfileMenu = false;
@@ -59,7 +57,6 @@
   let showChatMembers = false;
   function toggleChatMembers() {
     showChatMembers = !showChatMembers;
-    showChannelSettings = false;
   }
   let chatMembers: Array<User> = [
     { username: "user1" },
@@ -80,14 +77,6 @@
   //   });
   //   chatMembers = await res.json();
   // }
-
-  //--------------------------------------------------------------------------------/
-
-  let showChannelSettings = false;
-  function toggleChannelSettings() {
-    showChannelSettings = !showChannelSettings;
-    showChatMembers = false;
-  }
 
   //--------------------------------------------------------------------------------/
 
@@ -291,23 +280,6 @@
         </div>
       </div>
     {/if}
-    <button
-      on:click|stopPropagation={toggleChannelSettings}
-      on:keydown|stopPropagation>Channel Settings</button
-    >
-    {#if showChannelSettings}
-      <div
-        class="channelSettings"
-        on:click|stopPropagation
-        on:keydown|stopPropagation
-      >
-        <div>
-          <button>Change Password</button>
-          <button>Set Password</button>
-          <button>Remove Password</button>
-        </div>
-      </div>
-    {/if}
   </div>
 </div>
 
@@ -355,19 +327,5 @@
 
   .chatMembers button {
     width: 6rem;
-  }
-
-  .channelSettings {
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 1rem;
-    max-height: 100px;
-    overflow-y: scroll;
-  }
-
-  .channelSettings button {
-    width: 5rem;
   }
 </style>

@@ -116,6 +116,28 @@
   };
 
   //--------------------------------------------------------------------------------/
+
+  const changePassword = async (id: number) => {
+    let string = prompt("Enter the new password for this channel (leave empty to remove password) :");
+    const response = await fetch(API_URL + "/channels/" + id + "/password", {
+      credentials: "include",
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        password: string,
+      }),
+    });
+    if (response.ok) {
+      channels.push(await response.json());
+    } else {
+      alert("Error changing password");
+    }
+  };
+
+  //--------------------------------------------------------------------------------/
 </script>
 
 <div class="overlay">
@@ -132,6 +154,7 @@
               on:keydown={() => removeChannel(_channels.id)}>delete</button
             >
             <button on:click={() => inviteChannel(_channels.id)}>invite</button>
+            <button on:click={() => changePassword(_channels.id)}>Set - Change - Remove Password</button>
           </li>{/each}
       {:else}
         <p>No channels available</p>
