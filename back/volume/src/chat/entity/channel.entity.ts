@@ -7,7 +7,6 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
 import User from 'src/users/entity/user.entity'
@@ -56,6 +55,6 @@ export default class Channel {
   @JoinTable()
     banned: User[]
 
-  @Column('text', { array: true })
+  @Column('text', { array: true, default: [] })
     muted: number[][]
 }
