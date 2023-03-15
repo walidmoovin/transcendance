@@ -19,9 +19,8 @@ export class ChannelService {
 
   async createChannel (channel: CreateChannelDto): Promise<Channel> {
     const user: User | null = await this.usersService.findUser(channel.owner)
-    if (user == null) {
+    if (user == null) 
       throw new NotFoundException(`User #${channel.owner} not found`)
-    }
     const newChannel = new Channel()
     newChannel.owner = user
     newChannel.users = [user]
@@ -30,6 +29,13 @@ export class ChannelService {
     newChannel.isPrivate = channel.isPrivate
     newChannel.password = channel.password
     return await this.ChannelRepository.save(newChannel)
+  }
+
+  async updatePassword (id: number, password: string) {
+    let channel: Channel | null = await this.ChannelRepository.findOneBy({id})
+    if (channel === null) { throw new NotFoundException(`Channel #${id} not found`) }
+    channel.password = password
+    await this.ChannelRepository.save(channel)
   }
 
   async getChannelsForUser (ftId: number): Promise<Channel[]> {
@@ -76,8 +82,7 @@ export class ChannelService {
       relations: { owner: true }
     })
     if (channel == null) { throw new NotFoundException(`Channel #${id} not found`) }
-    console.log(channel.owner.ftId, userId)
-    return channel.owner.ftId == userId
+    return channel.owner.ftId === userId
   }
 
   async isAdmin (id: number, userId: number): Promise<boolean> {
@@ -86,7 +91,7 @@ export class ChannelService {
       relations: { admins: true }
     })
     if (channel == null) { throw new NotFoundException(`Channel #${id} not found`) }
-    return channel.admins.findIndex((user) => user.ftId == userId) != -1
+    return channel.admins.findIndex((user) => user.ftId === userId) != -1
   }
 
   async isUser (id: number, userId: number): Promise<boolean> {
@@ -95,7 +100,7 @@ export class ChannelService {
       relations: { users: true }
     })
     if (channel == null) { throw new NotFoundException(`Channel #${id} not found`) }
-    return channel.users.findIndex((user) => user.ftId == userId) != -1
+    return channel.users.findIndex((user) => user.ftId === userId) != -1
   }
 
   async isBanned (id: number, userId: number): Promise<boolean> {
@@ -104,7 +109,7 @@ export class ChannelService {
       relations: { banned: true }
     })
     if (channel == null) { throw new NotFoundException(`Channel #${id} not found`) }
-    return channel.banned.findIndex((user) => user.ftId == userId) != -1
+    return channel.banned.findIndex((user) => user.ftId === userId) != -1
   }
 
   async isMuted (id: number, userId: number): Promise<boolean> {
@@ -113,6 +118,6 @@ export class ChannelService {
       relations: { muted: true }
     })
     if (channel == null) { throw new NotFoundException(`Channel #${id} not found`) }
-    return channel.muted.findIndex((user) => user.ftId == userId) != -1
+    return channel.muted.findIndex((user) => user.ftId === userId) != -1
   }
 }

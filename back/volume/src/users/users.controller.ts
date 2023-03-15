@@ -31,9 +31,11 @@ import { type Request, Response } from 'express'
 import { createReadStream } from 'fs'
 import { join } from 'path'
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
-  constructor (private readonly usersService: UsersService) {}
+  constructor (
+    private readonly usersService: UsersService,
+  ) {}
 
   @Get('all')
   async getAllUsers (): Promise<User[]> {
@@ -68,7 +70,6 @@ export class UsersController {
   async getRank (@Param('id', ParseIntPipe) id: number): Promise<number> {
     return await this.usersService.getRank(id)
   }
-
   @Post('avatar')
   @UseGuards(AuthenticatedGuard)
   @Redirect('http://localhost')
@@ -118,7 +119,7 @@ export class UsersController {
   @Get('invit/:username')
   @UseGuards(AuthenticatedGuard)
   async invitUser (
-    @Profile42() profile: Profile,
+      @Profile42() profile: Profile,
       @Param('username') username: string
   ): Promise<void> {
     const target: User | null = await this.usersService.findUserByName(
@@ -127,7 +128,7 @@ export class UsersController {
     if (target === null) {
       throw new BadRequestException(`User ${username} not found.`)
     }
-    if (profile.id === target.ftId) {
+    if (+profile.id === +target.ftId) {
       throw new BadRequestException("You can't invite yourself.")
     }
     const ret: string = await this.usersService.invit(profile.id, target.ftId)

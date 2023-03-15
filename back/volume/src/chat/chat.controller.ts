@@ -29,6 +29,24 @@ export class ChatController {
     private readonly usersService: UsersService
   ) {}
 
+   @Post(':id/invite')
+  async addUser (@Param('id') id: number, @Body() userId: number) {
+    const channel = await this.channelService.getChannel(id)
+    const user: User | null = await this.usersService.findUser(userId)
+    if (user == null) throw new NotFoundException(`User #${userId} not found`)
+    channel.users.push(user)
+    this.channelService.update(channel)
+  }
+
+  @Delete(':id/kick')
+  async removeUser (@Param('id') id: number, @Body() userId: number) {
+    const channel = await this.channelService.getChannel(id)
+    channel.users = channel.admins.filter((usr: User) => {
+      return usr.ftId !== userId
+    })
+    this.channelService.update(channel)
+  }
+
   @Post(':id/admin')
   async addAdmin (@Param('id') id: number, @Body() userId: number) {
     const channel = await this.channelService.getChannel(id)
@@ -76,7 +94,10 @@ export class ChatController {
 
   @Delete(':id')
   @UseGuards(AuthenticatedGuard)
-  async deleteChannel (@Profile42() profile: Profile, @Param('id') id: number) {
+  async deleteChannel (
+    @Profile42() profile: Profile,
+    @Param('id') id: number
+  ) {
     if (await this.channelService.isOwner(id, +profile.id)) {
       await this.channelService.removeChannel(id)
       return
@@ -84,10 +105,25 @@ export class ChatController {
     throw new BadRequestException('You are not the owner of this channel')
   }
 
+  @Post(':id/password')
+  @UseGuards(AuthenticatedGuard)
+  async updatePassword (
+    @Profile42() profile: Profile,
+    @Param('id') id: number,
+    @Body() password: string
+  ) {
+    if (await this.channelService.isOwner(id, +profile.id)) {
+      await this.channelService.updatePassword(id, password)
+      return
+    }
+    throw new BadRequestException('You are not the owner of this channel')
+  }
+  
+
   @Get()
   @UseGuards(AuthenticatedGuard)
   async getChannelsForUser (@Profile42() profile: Profile): Promise<Channel[]> {
-    return await this.channelService.getChannelsForUser(profile.id)
+    return await this.channelService.getChannelsForUser(+profile.id)
   }
 
   @Post()

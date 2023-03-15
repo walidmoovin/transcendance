@@ -68,7 +68,7 @@
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <h3>===| <mark>{user.username}'s Profile</mark> |===</h3>
     <div class="profile-header">
-      {#if edit}
+      {#if !edit}
         <img src={API_URL + "/users/avatar"} alt="avatar" class="profile-img" />
       {:else}
         <form
