@@ -94,7 +94,7 @@
     });
     if (response.ok) {
       const user = await response.json();
-      const response2 = await fetch(API_URL + "/channels/" + id, {
+      const response2 = await fetch(API_URL + "/channels/" + id + "/invite", {
         credentials: "include",
         method: "POST",
         mode: "cors",

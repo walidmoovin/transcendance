@@ -7,7 +7,6 @@ import { UsersService } from 'src/users/users.service'
 
 import type User from 'src/users/entity/user.entity'
 import Channel from './entity/channel.entity'
-import { classToPlain, plainToClass } from 'class-transformer'
 
 @Injectable()
 export class ChannelService {
@@ -68,8 +67,21 @@ export class ChannelService {
     return channel
   }
 
+  async getFullChannel (id: number): Promise<Channel> {
+    const channel = await this.ChannelRepository.findOne({
+      where: { id },
+      relations: ['users', 'admins', 'banned', 'muted', 'owner']
+    })
+    if (channel == null) { throw new NotFoundException(`Channel #${id} not found`) }
+    return channel
+  }
+
   async update (channel: Channel) {
-    this.ChannelRepository.update(channel.id, channel)
+    await this.ChannelRepository.update(channel.id, channel)
+  }
+
+  async save (channel: Channel) {
+    await this.ChannelRepository.save(channel)
   }
 
   async removeChannel (channelId: number) {
@@ -112,12 +124,16 @@ export class ChannelService {
     return channel.banned.findIndex((user) => user.ftId === userId) != -1
   }
 
-  async isMuted (id: number, userId: number): Promise<boolean> {
+  async getMuteDuration (id: number, userId: number): Promise<number> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
       relations: { muted: true }
     })
     if (channel == null) { throw new NotFoundException(`Channel #${id} not found`) }
-    return channel.muted.findIndex((user) => user.ftId === userId) != -1
+
+    const mutation: Array<number> | undefined =  channel.muted.find((mutation) => mutation[0] === userId)
+    if (mutation == null) { return 0 }
+    return mutation[1]
+
   }
 }

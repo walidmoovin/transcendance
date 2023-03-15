@@ -57,5 +57,5 @@ export default class Channel {
 
   @ManyToMany(() => User) // refuse post
   @JoinTable()
-    muted: User[]
+    muted: Array<Array<number>>
 }
