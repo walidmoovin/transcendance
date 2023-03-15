@@ -59,8 +59,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (channel.banned.find((e) => e.id == connect.UserId) != null) {
       throw new WsException('You are banned from entering this channel')
     }
-    const user = (await this.userService.findUser(connect.UserId)) as User;
-    if (channel.password !== "") {
+    const user = (await this.userService.findUser(connect.UserId)) as User
+    if (channel.password !== '') {
       if (!(await bcrypt.compare(channel.password, connect.pwd))) {
         throw new BadRequestException()
       }
