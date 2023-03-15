@@ -33,6 +33,7 @@
   };
 
   //--------------------------------------------------------------------------------/
+
   const createChannel = async () => {
     const name = prompt("Enter a name for the new channel:");
     if (name) {
@@ -41,34 +42,28 @@
       );
       if (privacy !== "public" && privacy !== "private") {
         alert("Invalid privacy setting");
+        return;
       }
       let password = "";
-      if (privacy === "private") {
-        password = prompt("Enter a password for the new channel:");
-        if (!password) {
-          alert("Invalid password");
-        }
-      }
-      if (privacy === "public" || password) {
-        const response = await fetch(API_URL + "/channels", {
-          credentials: "include",
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: name,
-            owner: $store.ftId,
-            password: password || "",
-            isPrivate: privacy === "private",
-          }),
-        });
-        if (response.ok) {
-          channels.push(await response.json());
-        } else {
-          alert("Error creating channel");
-        }
+      password = prompt("Enter a password for the new channel:");
+      const response = await fetch(API_URL + "/channels", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name,
+          owner: $store.ftId,
+          password: password || "",
+          isPrivate: privacy,
+        }),
+      });
+      if (response.ok) {
+        channels.push(await response.json());
+      } else {
+        alert("Error creating channel");
       }
     }
   };
@@ -89,6 +84,38 @@
   };
 
   //--------------------------------------------------------------------------------/
+
+  const inviteChannel = async (id: number) => {
+    let string = prompt("Enter the username of the user you want to invite");
+    const response = await fetch(API_URL + "/users/" + string + "/byname", {
+      credentials: "include",
+      method: "GET",
+      mode: "cors",
+    });
+    if (response.ok) {
+      const user = await response.json();
+      const response2 = await fetch(API_URL + "/channels/" + id, {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.ftId,
+        }),
+      });
+      if (response2.ok) {
+        channels.push(await response2.json());
+      } else {
+        alert("Error inviting user");
+      }
+    } else {
+      alert("Error getting user infos");
+    }
+  };
+
+  //--------------------------------------------------------------------------------/
 </script>
 
 <div class="overlay">
@@ -104,6 +131,7 @@
               on:click={() => removeChannel(_channels.id)}
               on:keydown={() => removeChannel(_channels.id)}>delete</button
             >
+            <button on:click={() => inviteChannel(_channels.id)}>invite</button>
           </li>{/each}
       {:else}
         <p>No channels available</p>
