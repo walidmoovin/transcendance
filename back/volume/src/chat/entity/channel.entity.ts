@@ -56,7 +56,6 @@ export default class Channel {
   @JoinTable()
     banned: User[]
 
-  @ManyToMany(() => User) // refuse post
-  @JoinTable()
-    muted: Array<Array<number>>
+  @Column('text', {array: true})
+    muted: number[][]
 }

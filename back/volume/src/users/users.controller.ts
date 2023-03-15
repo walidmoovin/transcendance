@@ -65,11 +65,6 @@ export class UsersController {
     return await this.usersService.getLeaderboard()
   }
 
-  @Get(':id/rank')
-  @UseGuards(AuthenticatedGuard)
-  async getRank (@Param('id', ParseIntPipe) id: number): Promise<number> {
-    return await this.usersService.getRank(id)
-  }
   @Post('avatar')
   @UseGuards(AuthenticatedGuard)
   @Redirect('http://localhost')

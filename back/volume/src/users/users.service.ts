@@ -12,7 +12,7 @@ import User from './entity/user.entity'
 @Catch(QueryFailedError, EntityNotFoundError)
 export class UsersService {
   constructor (
-    @InjectRepository(User) private readonly usersRepository: Repository<User>
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
   async save (user: User): Promise<void> {
@@ -31,7 +31,6 @@ export class UsersService {
       relations: { results: true }
     })
     if (user == null) throw new BadRequestException('User not found.')
-    user.rank = (await this.getRank(user.ftId)) + 1;
     return user
   }
 
@@ -45,12 +44,12 @@ export class UsersService {
         this.usersRepository.save(usr).catch((err) => console.log(err))
       }
     })
+    this.getLeaderboard();
   }
 
   async findUser (ftId: number): Promise<User | null> {
     const user = await this.usersRepository.findOneBy({ ftId })
     if (user == null) return null
-    user.rank = (await this.getRank(user.ftId)) + 1;
     user.lastAccess = Date.now()
     if (user.status === 'offline') user.status = 'online'
     await this.usersRepository.save(user)
@@ -117,21 +116,17 @@ export class UsersService {
   async getLeaderboard (): Promise<User[]> {
     const leaderboard = await this.usersRepository.find({
       order: {
-        winrate: 'DESC'
+        winrate: 'ASC'
       }
     })
-    let ret = leaderboard.filter((user) => user.rank !== 0)
-    ret.forEach((follower) => follower.socketKey = '')
+    let ret = leaderboard.filter((user) => user.matchs !== 0)
+    let r = 0
+    ret.forEach((usr) => {
+    usr.rank = r++
+    this.usersRepository.save(usr)
+    usr.socketKey = ''
+    })
     return ret
-  }
-
-  async getRank (ftId: number): Promise<number> {
-    const leaderboard = await this.usersRepository.find({
-      order: {
-        winrate: 'DESC'
-      }
-    })
-    return leaderboard.findIndex((user) => user.ftId === ftId)
   }
 
   async invit (ftId: number, targetFtId: number): Promise<string> {

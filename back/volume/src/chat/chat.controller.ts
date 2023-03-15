@@ -6,13 +6,12 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   UseGuards
 } from '@nestjs/common'
 import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
 import { UsersService } from 'src/users/users.service'
-import { ChannelService } from './chat.service'
+import { ChatService } from './chat.service'
 
 import { CreateChannelDto } from './dto/create-channel.dto'
 import { IdDto, PasswordDto, MuteDto } from './dto/updateUser.dto'
@@ -25,7 +24,7 @@ import { Profile } from 'passport-42'
 @Controller('channels')
 export class ChatController {
   constructor (
-    private readonly channelService: ChannelService,
+    private readonly channelService: ChatService,
     private readonly usersService: UsersService
   ) {}
 
@@ -135,7 +134,8 @@ export class ChatController {
       throw new BadRequestException('You cannot mute the owner of the channel')
     if (await this.channelService.getMuteDuration(channel.id, mute.data[0]) > 0)
       throw new BadRequestException('User is already muted from this channel')
-    channel.muted.push(mute.data)
+    let newMute: Array<number> = [mute.data[0], Date.now() + mute.data[1] * 1000]
+    channel.muted.push(newMute)
     this.channelService.save(channel)
   }
 

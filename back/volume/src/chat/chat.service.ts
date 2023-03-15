@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -7,9 +7,10 @@ import { UsersService } from 'src/users/users.service'
 
 import type User from 'src/users/entity/user.entity'
 import Channel from './entity/channel.entity'
+import { Cron } from '@nestjs/schedule'
 
 @Injectable()
-export class ChannelService {
+export class ChatService {
   constructor (
     @InjectRepository(Channel)
     private readonly ChannelRepository: Repository<Channel>,
@@ -29,6 +30,8 @@ export class ChannelService {
     newChannel.password = channel.password
     return await this.ChannelRepository.save(newChannel)
   }
+
+
 
   async updatePassword (id: number, password: string) {
     let channel: Channel | null = await this.ChannelRepository.findOneBy({id})
@@ -54,6 +57,15 @@ export class ChannelService {
         .getMany())
     ]
     return rooms
+  }
+
+  @Cron('*/6 * * * * *')
+  async updateMutelists(): Promise<void> {
+    let channels = await this.ChannelRepository.find({})
+    channels.forEach((channel) => {
+      channel.muted = channel.muted.filter((data) => { return (data[0] - Date.now()) > 0;});
+      this.ChannelRepository.save(channel);
+    })
   }
 
   async addUserToChannel (channel: Channel, user: User): Promise<Channel> {
