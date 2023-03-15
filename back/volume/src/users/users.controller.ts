@@ -37,6 +37,24 @@ export class UsersController {
     private readonly usersService: UsersService,
   ) {}
 
+  @UseGuards(AuthenticatedGuard)
+  @Post("block/:id")
+  async blockUser(@Profile42() profile :Profile, @Param('id') id:number) {
+    const user = await this.usersService.findUser(id) as User
+    user.blocked.push((await this.usersService.findUser(+profile.id)) as User)
+    this.usersService.save(user);
+  }
+
+  @UseGuards(AuthenticatedGuard)
+  @Post("unblock/:id")
+  async unblockUser(@Profile42() profile :Profile, @Param('id') id:number) {
+    const user = await this.usersService.findUser(id) as User
+    user.blocked =  user.blocked.filter((usr: User) => {
+      return usr.id !== id
+    })
+    this.usersService.save(user);
+  }
+
   @Get('all')
   async getAllUsers (): Promise<User[]> {
     return await this.usersService.findUsers()
@@ -76,7 +94,7 @@ export class UsersController {
       fileFilter: (request: Request, file: Express.Multer.File, callback) => {
         if (!file.mimetype.includes('image')) {
           callback(null, false)
-          return
+          return  
         }
         callback(null, true)
       }
