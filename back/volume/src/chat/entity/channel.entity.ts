@@ -30,6 +30,7 @@ export default class Channel {
 
   @BeforeInsert()
   async hashPassword () {
+    if (this.password === '') return
     this.password = await bcrypt.hash(
       this.password,
       Number(process.env.HASH_SALT)

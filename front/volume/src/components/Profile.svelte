@@ -96,7 +96,7 @@
     </div>
     <div class="profile-body">
       <p>
-        <button on:click={() => dispatch("view-history", user.ftId)}
+        <button on:click={() => dispatch("view-history", user.username)}
           >View History</button
         >
       </p>
