@@ -17,9 +17,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
 
-import { type User } from './entity/user.entity'
-import { UsersService } from './users.service'
-import { UserDto, AvatarUploadDto } from './dto/user.dto'
+import { type User } from "./entity/user.entity";
+import { UsersService } from "./users.service";
+import { UserDto, AvatarUploadDto } from "./dto/user.dto";
+import { PongService } from "src/pong/pong.service";
 
 import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
 import { Profile42 } from 'src/auth/42.decorator'
@@ -36,20 +37,19 @@ export class UsersController {
 
   @Post('block/:id')
   @UseGuards(AuthenticatedGuard)
-  async blockUser (
-  @Profile42() profile: Profile,
-    @Param('id', ParseIntPipe) id: number
-  ) {
-    const user = (await this.usersService.findUser(id)) as User
+  @Post("block/:id")
+  async blockUser(@Profile42() profile :Profile, @Param('id') id:number) {
+    const user = await this.usersService.findUser(id) as User
     user.blocked.push((await this.usersService.findUser(+profile.id)) as User)
     this.usersService.save(user)
   }
 
   @Post('unblock/:id')
   @UseGuards(AuthenticatedGuard)
-  async unblockUser (@Param('id', ParseIntPipe) id: number) {
-    const user = (await this.usersService.findUser(id)) as User
-    user.blocked = user.blocked.filter((usr: User) => {
+  @Post("unblock/:id")
+  async unblockUser(@Profile42() profile :Profile, @Param('id') id:number) {
+    const user = await this.usersService.findUser(id) as User
+    user.blocked =  user.blocked.filter((usr: User) => {
       return usr.id !== id
     })
     this.usersService.save(user)
@@ -100,10 +100,10 @@ export class UsersController {
       }
     })
   )
-  @ApiConsumes('multipart/form-data')
+  @ApiConsumes("multipart/form-data")
   @ApiBody({
-    description: 'A new avatar for the user',
-    type: AvatarUploadDto
+    description: "A new avatar for the user",
+    type: AvatarUploadDto,
   })
   async changeAvatar (
     @Profile42() profile: Profile,

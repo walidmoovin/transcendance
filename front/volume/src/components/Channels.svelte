@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+
   export interface ChannelsType {
     id: number;
     name: string;
@@ -9,10 +10,14 @@
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
   import { io } from "../socket";
+  import Select from 'svelte-select';
+  
 </script>
 
 <script lang="ts">
   //--------------------------------------------------------------------------------/
+  let channelMode = "";
+  const channelOptions = ['public','private','direct'];
 
   const joinChannel = async (id: number) => {
     io.emit("joinChannel", id, $store.ftId);
@@ -21,7 +26,6 @@
   let channels: Array<ChannelsType> = [];
   onMount(async () => {
     const res = await fetch(API_URL + "/channels", {
-      cors: "include",
       credentials: "include",
       mode: "cors",
     });
@@ -44,15 +48,9 @@
   const createChannel = async () => {
     const name = prompt("Enter a name for the new channel:");
     if (name) {
-      const privacy = prompt(
-        "Enter a privacy setting for the new channel (public/private):"
-      );
-      if (privacy !== "public" && privacy !== "private") {
-        alert("Invalid privacy setting");
-        return;
-      }
       let password = "";
-      password = prompt("Enter a password for the new channel:");
+      if (channelMode !== 'direct')
+        password = prompt("Enter a password for the new channel:");
       const response = await fetch(API_URL + "/channels", {
         credentials: "include",
         method: "POST",
@@ -64,7 +62,7 @@
           name: name,
           owner: $store.ftId,
           password: password,
-          isPrivate: privacy === "private",
+          isPrivate: channelMode === "private",
         }),
       });
       if (response.ok) {
@@ -157,20 +155,31 @@
         {#each channels.slice(0, 10) as _channels}
           <li>
             <span>{_channels.name}</span>
-            <button on:click={() => selectChat(_channels.id)}>Enter</button>
+            <button on:click={() => selectChat(_channels.id)}>🔌</button>
             <button
               on:click={() => removeChannel(_channels.id)}
-              on:keydown={() => removeChannel(_channels.id)}>delete</button
+              on:keydown={() => removeChannel(_channels.id)}>🗑️</button
             >
-            <button on:click={() => inviteChannel(_channels.id)}>invite</button>
+            <button on:click={() => inviteChannel(_channels.id)}>🤝</button>
             <button on:click={() => changePassword(_channels.id)}
-              >Set - Change - Remove Password</button
+              >Edit Password</button
             >
           </li>{/each}
       {:else}
         <p>No channels available</p>
-      {/if}
-      <button on:click={createChannel}>Create Channel</button>
+        {/if}
+      <div>
+        <select bind:value={channelMode} >
+          {#each channelOptions as option}
+                  <option value={option} selected={channelMode === option}>
+                          {option}
+                  </option>
+          {/each}
+      </select>
+        {#if channelMode!= ''}
+          <button class="button" on:click={createChannel}>Create Channel</button>
+        {/if}
+      </div>
     </div>
   </div>
 </div>
@@ -194,4 +203,44 @@
     padding: 1rem;
     width: 300px;
   }
+  
+  select {
+        width: 100%;
+        height: 15%;
+        padding: 5px;
+        border-radius: 4px;
+        background: #eee;
+        border: none;
+        outline: grey;
+        display: inline-block;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        cursor: pointer;
+      }
+
+    .button {
+      color: white;
+      margin:0 auto; 
+      margin: auto;
+      width: 45%;
+      height: 15%;
+      padding: 5px;
+      border-radius: 4px;
+      background: #6B8E23;
+      border: none;
+      outline: grey;
+      display:block;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+    span { 
+      color: rgb(0, 0, 0); 
+      font-size: 150%; /* Taille de la police en pourcentage */ 
+      position: relative; /* Positionnement relatif */ 
+      padding: 10px;
+      top: 2px;
+}
 </style>

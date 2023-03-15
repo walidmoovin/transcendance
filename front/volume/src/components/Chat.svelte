@@ -1,34 +1,30 @@
 <script lang="ts" context="module">
-  export interface chatMessagesType {
-    id: number;
-    author: string;
-    text: string;
-  }
-  import { createEventDispatcher, onDestroy, onMount } from "svelte";
-  import { store, API_URL } from "../Auth";
-  import { io } from "../socket";
-  import type { ChannelsType } from "./Channels.svelte";
-  import type User from "./Profile.svelte";
+	export interface chatMessagesType {
+	id: number;
+	author: string;
+	text: string;
+}
+import { createEventDispatcher, onDestroy, onMount } from "svelte";
+import { store, API_URL } from "../Auth";
+import { io } from "../socket"
+import type { ChannelsType } from "./Channels.svelte";
+import type User  from "./Profile.svelte";
 </script>
 
+//--------------------------------------------------------------------------------/
 <script lang="ts">
-  let blockedUsers: Array<User> = [];
-  let chatMembers: Array<User> = [];
-  let chatMessages: Array<chatMessagesType> = [];
-  export let channel: ChannelsType;
-  let newText = "";
-  onMount(async () => {
-    let res = await fetch(API_URL + "/users/" + $store.ftId + "/blocked", {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (res.ok) blockedUsers = await res.json();
 
-    res = await fetch(API_URL + "/channels/" + channel.id + "/members", {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (res.ok) chatMembers = await res.json();
+	let blockedUsers: Array<User> = [];
+	let chatMembers: Array<User> = [];
+	let chatMessages: Array<chatMessagesType> = [];
+	export let channel: ChannelsType;
+	let newText = "";
+	onMount(async () => {
+	let res = await fetch(API_URL + "/users/" + $store.ftId + "/blocked", {
+		credentials: "include",
+		mode: "cors",
+	});
+	if (res.ok) blockedUsers = await res.json();
 
     io.on("messages", (msgs: Array<chatMessagesType>) => {
       chatMessages = msgs;
@@ -228,159 +224,161 @@
   //--------------------------------------------------------------------------------/
 </script>
 
-<div class="overlay">
-  <div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
-    <div class="messages">
-      {#each chatMessages as message}
-        <p class="message">
-          {#if !blockedUsers.filter((user) => user.username == message.author).length}
-            <span
-              class="message-name"
-              on:click={() => openProfile(message.author)}
-              on:keydown={() => openProfile(message.author)}
-              style="cursor: pointer;"
-            >
-              {message.author}
-            </span>: {message.text}
-          {/if}
-        </p>
-      {/each}
-    </div>
-    {#if showProfileMenu}
-      <div
+	<div class="overlay" >
+		<div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
+			<div class="messages" >
+				{ #each chatMessages as message }
+				<p class="message" >
+					{ #if !blockedUsers.filter((user) => user.username == message.author).length }
+					<span
+						class="message-name"
+						on:click = {() => openProfile(message.author)}
+						on:keydown = {() => openProfile(message.author)}
+						style = "cursor: pointer;"
+							>
+					{ message.author }
+	</span>: {message.text}
+{
+	/if}
+		</p>
+	{
+		/each}
+			</div>
+		{ #if showProfileMenu }
+		<div
         class="profile-menu"
-        on:click|stopPropagation
-        on:keydown|stopPropagation
-      >
-        <ul>
-          <li>
-            <button on:click={() => dispatch("send-message", selectedUser)}>
-              Send Message
-            </button>
-          </li>
-          <li>
-            <button on:click={() => dispatch("view-profile", selectedUser)}>
-              View Profile
-            </button>
-          </li>
-          <li>
-            <button on:click={() => dispatch("add-friend", selectedUser)}>
-              Add Friend
-            </button>
-          </li>
-          <li>
-            <button on:click={() => dispatch("invite-to-game", selectedUser)}>
-              Invite to Game
-            </button>
-          </li>
-          <li>
-            {#if !blockedUsers.filter((user) => (user.username = selectedUser)).length}
-              <button on:click={() => blockUser(selectedUser)}>
-                Block User
-              </button>
-            {:else}
-              <button on:click={() => unblockUser(selectedUser)}>
-                Unblock User
-              </button>
-            {/if}
-          </li>
-          <li><button on:click={closeProfileMenu}> Close </button></li>
-        </ul>
-      </div>
-    {/if}
-    <form on:submit|preventDefault={sendMessage}>
-      <input type="text" placeholder="Type a message..." bind:value={newText} />
-      <button>
-        <img src="img/send.png" alt="send" />
-      </button>
-    </form>
-    <button
-      on:click|stopPropagation={toggleChatMembers}
-      on:keydown|stopPropagation
-    >
-      Chat Members
-    </button>
-    {#if showChatMembers}
-      <div
-        class="chatMembers"
-        on:click|stopPropagation
-        on:keydown|stopPropagation
-      >
-        <div>
-          <ul>
-            {#each chatMembers as member}
-              <li>
-                <p>
-                  {member.username}
-                  <button on:click={() => banUser(member.username)}>
-                    ban
-                  </button>
-                  <button on:click={() => kickUser(member.username)}>
-                    kick
-                  </button>
-                  <button on:click={() => muteUser(member.username)}>
-                    mute
-                  </button>
-                  <button on:click={() => adminUser(member.username)}>
-                    promote
-                  </button>
-                  <button on:click={() => removeAdminUser(member.username)}>
-                    demote
-                  </button>
-                </p>
-                <p>
-                  -----------------------------------------------------------------------------------
-                </p>
-              </li>
-            {/each}
-          </ul>
-        </div>
-      </div>
-    {/if}
-  </div>
-</div>
+		on:click|stopPropagation
+		on:keydown|stopPropagation
+			>
+			<ul>
+			<li>
+			<button on:click = {() => dispatch("send-message", selectedUser)
+	}
+              > Send Message </button
+		>
+		</li>
+		<li>
+		<button on:click = {() => dispatch("view-profile", selectedUser)
+}
+              > View Profile </button
+	>
+	</li>
+	<li>
+	<button on:click = {() => dispatch("add-friend", selectedUser)}
+              > Add Friend </button
+	>
+	</li>
+	<li>
+	<button on:click = {() => dispatch("invite-to-game", selectedUser)}
+              > Invite to Game </button
+	>
+	</li>
+	<li>
+{ #if !blockedUsers.filter((user) => user.username = selectedUser).length }
+<button on:click = {() => blockUser(selectedUser)}> Block User </button>
+{:else }
+<button on:click = {() => unblockUser(selectedUser)}> Unblock User </button>
+{
+	/if}
+		</li>
+		<li> <button on:click = { closeProfileMenu } > Close </button></li >
+			</ul>
+			</div>
+	{
+		/if}
+			<form on:submit|preventDefault={ sendMessage }>
+				<input type="text" placeholder = "Type a message..." bind:value={ newText } />
+					<button>
+					<img src="img/send.png" alt = "send" />
+						</button>
+						</form>
+						<button
+		on:click|stopPropagation={ toggleChatMembers }
+		on:keydown|stopPropagation > Chat Members </button
+			>
+			{ #if showChatMembers }
+			<div
+		class="chatMembers"
+		on:click|stopPropagation
+		on:keydown|stopPropagation
+			>
+			<div>
+			<ul>
+			{ #each chatMembers as member }
+			<li>
+			<p>
+			{ member.username }
+			<button on:click = {() => banUser(member.username)
+	}> ban </button>
+		<button on:click = {() => kickUser(member.username)
+}
+                    > kick </button
+	>
+	<button on:click = {() => muteUser(member.username)}
+                    > mute </button
+	>
+	<button on:click = {() => adminUser(member.username)}
+                    > promote </button
+	>
+	<button on:click = {() => removeAdminUser(member.username)}
+                    > demote </button
+	>
+	</p>
+	<p>
+-----------------------------------------------------------------------------------
+	</p>
+	</li>
+{
+	/each}
+		</ul>
+		</div>
+		</div>
+	{
+		/if}
+			</div>
+			</div>
 
 <style>
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+				.overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.5);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
 
   .chat {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 1rem;
-    width: 300px;
-  }
+			background-color: #fff;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			padding: 1rem;
+			width: 300px;
+		}
 
   .messages {
-    height: 200px;
-    overflow-y: scroll;
-  }
+			height: 200px;
+			overflow-y: scroll;
+		}
 
   .chatMembers {
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 1rem;
-    max-height: 100px;
-    overflow-y: scroll;
-  }
+			position: absolute;
+			background-color: #fff;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			padding: 1rem;
+			max-height: 100px;
+			overflow-y: scroll;
+		}
 
   .chatMembers ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
 
   .chatMembers button {
     width: 6rem;

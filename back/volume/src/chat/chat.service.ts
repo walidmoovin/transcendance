@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -69,7 +69,7 @@ export class ChatService {
       channel.muted = channel.muted.filter((data) => {
         return data[0] - Date.now() > 0
       })
-      this.ChannelRepository.save(channel)
+      void this.ChannelRepository.save(channel)
     })
   }
 
