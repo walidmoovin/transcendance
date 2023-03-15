@@ -70,6 +70,7 @@
         }
         if (data.yourPaddleIndex !== -2) {
           gamePlaying = true;
+          game.ranked = data.ranked;
           game.setInfo(data);
         }
       }

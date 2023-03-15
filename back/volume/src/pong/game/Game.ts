@@ -21,7 +21,6 @@ export class Game {
   map: MapDtoValidated
   ball: Ball
   players: Player[] = []
-  playing: boolean
   ranked: boolean
   waitingForTimeout: boolean
   gameStoppedCallback: (name: string) => void
@@ -37,7 +36,6 @@ export class Game {
   ) {
     this.id = randomUUID()
     this.timer = null
-    this.playing = false
     this.ranked = ranked
     this.waitingForTimeout = false
     this.map = map
@@ -99,7 +97,6 @@ export class Game {
         void this.pongService.setInGame(p.name)
         p.newGame()
       })
-      this.playing = true
       this.broadcastGame(GAME_EVENTS.START_GAME)
       this.timer = setInterval(this.gameLoop.bind(this), 1000 / GAME_TICKS)
       console.log(`Game ${this.id} starting in 3 seconds`)
@@ -111,21 +108,20 @@ export class Game {
   }
 
   stop (): void {
-    if (this.timer !== null && this.playing) {
-      this.playing = false
+    if (this.timer !== null) {
       clearInterval(this.timer)
-      this.timer = null
-      this.pongService
-        .saveResult(this.players, this.ranked)
-        .then(() => {
-          this.gameStoppedCallback(this.players[0].name)
-          this.players = []
-        })
-        .catch(() => {
-          this.gameStoppedCallback(this.players[0].name)
-          this.players = []
-        })
     }
+    this.timer = null
+    this.pongService
+      .saveResult(this.players, this.ranked, DEFAULT_WIN_SCORE)
+      .then(() => {
+        this.gameStoppedCallback(this.players[0].name)
+        this.players = []
+      })
+      .catch(() => {
+        this.gameStoppedCallback(this.players[0].name)
+        this.players = []
+      })
   }
 
   movePaddle (name: string | undefined, position: Point): void {
@@ -140,10 +136,6 @@ export class Game {
     this.players.forEach((p) => {
       p.socket.emit(event, data)
     })
-  }
-
-  isPlaying (): boolean {
-    return this.playing
   }
 
   private gameLoop (): void {

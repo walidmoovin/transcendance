@@ -19,7 +19,7 @@ export class Paddle {
       new Point(this.rect.center.x + offset, this.rect.center.y),
       new Point(this.rect.size.x / 3, this.rect.size.y)
     );
-    render_rect.draw(context, "yellow");
+    render_rect.draw(context, color);
   }
 
   move(e: MouseEvent) {
