@@ -8,14 +8,20 @@
   }
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
+  import { io } from "../socket";
 </script>
 
 <script lang="ts">
   //--------------------------------------------------------------------------------/
 
+  const joinChannel = async (id: number) => {
+    io.emit("joinChannel", id, $store.ftId);
+  };
+
   let channels: Array<ChannelsType> = [];
   onMount(async () => {
     const res = await fetch(API_URL + "/channels", {
+      cors: "include",
       credentials: "include",
       mode: "cors",
     });
@@ -28,6 +34,7 @@
   const selectChat = (id: number) => {
     const channel = channels.find((c) => c.id === id);
     if (channel) {
+      joinChannel(id);
       onSelectChannel(channel);
     }
   };
@@ -118,7 +125,9 @@
   //--------------------------------------------------------------------------------/
 
   const changePassword = async (id: number) => {
-    let string = prompt("Enter the new password for this channel (leave empty to remove password) :");
+    let string = prompt(
+      "Enter the new password for this channel (leave empty to remove password) :"
+    );
     const response = await fetch(API_URL + "/channels/" + id + "/password", {
       credentials: "include",
       method: "POST",
@@ -154,7 +163,9 @@
               on:keydown={() => removeChannel(_channels.id)}>delete</button
             >
             <button on:click={() => inviteChannel(_channels.id)}>invite</button>
-            <button on:click={() => changePassword(_channels.id)}>Set - Change - Remove Password</button>
+            <button on:click={() => changePassword(_channels.id)}
+              >Set - Change - Remove Password</button
+            >
           </li>{/each}
       {:else}
         <p>No channels available</p>

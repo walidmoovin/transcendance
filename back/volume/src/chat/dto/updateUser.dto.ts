@@ -1,16 +1,15 @@
-
-import { IsNumber, IsString} from 'class-validator'
+import { IsNumber, IsString } from "class-validator";
 
 export class IdDto {
   @IsNumber()
-    id: number
+  id: number;
 }
 
 export class PasswordDto {
   @IsString()
-    password: string
+  password: string;
 }
 
 export class MuteDto {
-    data: Array<number>
+  data: number[];
 }

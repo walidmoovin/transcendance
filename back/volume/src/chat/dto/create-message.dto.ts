@@ -1,12 +1,12 @@
-import { IsNumber, IsString } from 'class-validator'
+import { IsNumber, IsString } from "class-validator";
 
 export class CreateMessageDto {
   @IsString()
-    text: string
+  text: string;
 
   @IsNumber()
-    UserId: number
+  UserId: number;
 
   @IsNumber()
-    ChannelId: number
+  ChannelId: number;
 }

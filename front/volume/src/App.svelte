@@ -182,7 +182,10 @@
         on:keydown={() =>
           setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
       >
-        <Profile username={profileUsername} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
+        <Profile
+          username={profileUsername}
+          on:view-history={() => setAppState(APPSTATE.HISTORY_ID)}
+        />
       </div>
     {/if}
 

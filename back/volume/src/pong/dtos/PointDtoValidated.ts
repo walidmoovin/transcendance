@@ -1,10 +1,10 @@
-import { IsNumber } from 'class-validator'
-import { Point } from '../game/utils'
+import { IsNumber } from "class-validator";
+import { Point } from "../game/utils";
 
 export class PointDtoValidated extends Point {
   @IsNumber()
-    x!: number
+  x!: number;
 
   @IsNumber()
-    y!: number
+  y!: number;
 }

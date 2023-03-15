@@ -1,119 +1,119 @@
-import { UsePipes, ValidationPipe } from '@nestjs/common'
-import { Socket } from 'socket.io'
+import { UsePipes, ValidationPipe } from "@nestjs/common";
+import { Socket } from "socket.io";
 import {
   ConnectedSocket,
   MessageBody,
   type OnGatewayConnection,
   type OnGatewayDisconnect,
   SubscribeMessage,
-  WebSocketGateway
-} from '@nestjs/websockets'
+  WebSocketGateway,
+} from "@nestjs/websockets";
 
-import { Games } from './game/Games'
-import { GAME_EVENTS } from './game/constants'
-import { GameCreationDtoValidated } from './dtos/GameCreationDtoValidated'
-import { type Game } from './game/Game'
-import { plainToClass } from 'class-transformer'
-import { PointDtoValidated } from './dtos/PointDtoValidated'
-import { StringDtoValidated } from './dtos/StringDtoValidated'
-import { MatchmakingQueue } from './game/MatchmakingQueue'
-import { MatchmakingDtoValidated } from './dtos/MatchmakingDtoValidated'
-import { PongService } from './pong.service'
-import { UsersService } from 'src/users/users.service'
+import { Games } from "./game/Games";
+import { GAME_EVENTS } from "./game/constants";
+import { GameCreationDtoValidated } from "./dtos/GameCreationDtoValidated";
+import { type Game } from "./game/Game";
+import { plainToClass } from "class-transformer";
+import { PointDtoValidated } from "./dtos/PointDtoValidated";
+import { StringDtoValidated } from "./dtos/StringDtoValidated";
+import { MatchmakingQueue } from "./game/MatchmakingQueue";
+import { MatchmakingDtoValidated } from "./dtos/MatchmakingDtoValidated";
+import { PongService } from "./pong.service";
+import { UsersService } from "src/users/users.service";
 
 @WebSocketGateway({
-  cors: { origin: /^(http|ws):\/\/localhost(:\d+)?$/ }
+  cors: { origin: /^(http|ws):\/\/localhost(:\d+)?$/ },
 })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor (
+  constructor(
     private readonly pongService: PongService,
     private readonly usersService: UsersService
   ) {}
 
-  private readonly games: Games = new Games(this.pongService)
-  private readonly socketToPlayerName = new Map<Socket, string>()
-  private readonly matchmakingQueue = new MatchmakingQueue(this.games)
+  private readonly games: Games = new Games(this.pongService);
+  private readonly socketToPlayerName = new Map<Socket, string>();
+  private readonly matchmakingQueue = new MatchmakingQueue(this.games);
 
-  playerIsRegistered (name: string): boolean {
-    return Array.from(this.socketToPlayerName.values()).includes(name)
+  playerIsRegistered(name: string): boolean {
+    return Array.from(this.socketToPlayerName.values()).includes(name);
   }
 
-  handleConnection (): void {}
+  handleConnection(): void {}
 
-  handleDisconnect (
+  handleDisconnect(
     @ConnectedSocket()
-      client: Socket
+    client: Socket
   ): void {
-    const name: string | undefined = this.socketToPlayerName.get(client)
-    const game: Game | undefined = this.games.playerGame(name)
+    const name: string | undefined = this.socketToPlayerName.get(client);
+    const game: Game | undefined = this.games.playerGame(name);
     if (game !== undefined) {
-      game.stop()
+      game.stop();
     }
     if (name !== undefined) {
-      console.log('Disconnected ', this.socketToPlayerName.get(client))
-      this.matchmakingQueue.removePlayer(name)
-      this.socketToPlayerName.delete(client)
+      console.log("Disconnected ", this.socketToPlayerName.get(client));
+      this.matchmakingQueue.removePlayer(name);
+      this.socketToPlayerName.delete(client);
     }
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @SubscribeMessage(GAME_EVENTS.REGISTER_PLAYER)
-  async registerPlayer (
+  async registerPlayer(
     @ConnectedSocket()
-      client: Socket,
-      @MessageBody('playerName') playerName: StringDtoValidated,
-      @MessageBody('socketKey') socketKey: StringDtoValidated
-  ): Promise<{ event: string, data: boolean }> {
-    let succeeded: boolean = false
-    const user = await this.usersService.findUserByName(playerName.value)
+    client: Socket,
+    @MessageBody("playerName") playerName: StringDtoValidated,
+    @MessageBody("socketKey") socketKey: StringDtoValidated
+  ): Promise<{ event: string; data: boolean }> {
+    let succeeded: boolean = false;
+    const user = await this.usersService.findUserByName(playerName.value);
     if (
       user !== null &&
       user.socketKey === socketKey.value &&
       !this.playerIsRegistered(playerName.value)
     ) {
-      this.socketToPlayerName.set(client, playerName.value)
-      succeeded = true
-      console.log('Registered player', playerName.value)
+      this.socketToPlayerName.set(client, playerName.value);
+      succeeded = true;
+      console.log("Registered player", playerName.value);
     } else {
-      console.log('Failed to register player', playerName.value)
+      console.log("Failed to register player", playerName.value);
     }
-    return { event: GAME_EVENTS.REGISTER_PLAYER, data: succeeded }
+    return { event: GAME_EVENTS.REGISTER_PLAYER, data: succeeded };
   }
 
   @SubscribeMessage(GAME_EVENTS.GET_GAME_INFO)
-  getPlayerCount (@ConnectedSocket() client: Socket): void {
-    const name: string | undefined = this.socketToPlayerName.get(client)
+  getPlayerCount(@ConnectedSocket() client: Socket): void {
+    const name: string | undefined = this.socketToPlayerName.get(client);
     if (name !== undefined) {
-      client.emit(GAME_EVENTS.GET_GAME_INFO, this.games.getGameInfo(name))
+      client.emit(GAME_EVENTS.GET_GAME_INFO, this.games.getGameInfo(name));
     }
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @SubscribeMessage(GAME_EVENTS.PLAYER_MOVE)
-  movePlayer (
+  movePlayer(
     @ConnectedSocket()
-      client: Socket,
-      @MessageBody() position: PointDtoValidated
+    client: Socket,
+    @MessageBody() position: PointDtoValidated
   ): void {
     const realPosition: PointDtoValidated = plainToClass(
       PointDtoValidated,
       position
-    )
-    const name: string | undefined = this.socketToPlayerName.get(client)
-    this.games.movePlayer(name, realPosition)
+    );
+    const name: string | undefined = this.socketToPlayerName.get(client);
+    this.games.movePlayer(name, realPosition);
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @SubscribeMessage(GAME_EVENTS.CREATE_GAME)
-  createGame (
+  createGame(
     @ConnectedSocket()
-      client: Socket,
-      @MessageBody() gameCreationDto: GameCreationDtoValidated
-  ): { event: string, data: boolean } {
+    client: Socket,
+    @MessageBody() gameCreationDto: GameCreationDtoValidated
+  ): { event: string; data: boolean } {
     const realGameCreationDto: GameCreationDtoValidated = plainToClass(
       GameCreationDtoValidated,
       gameCreationDto
-    )
+    );
 
     if (this.socketToPlayerName.size >= 2) {
       const player1Socket: Socket | undefined = Array.from(
@@ -122,14 +122,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         (key) =>
           this.socketToPlayerName.get(key) ===
           realGameCreationDto.playerNames[0]
-      )
+      );
       const player2Socket: Socket | undefined = Array.from(
         this.socketToPlayerName.keys()
       ).find(
         (key) =>
           this.socketToPlayerName.get(key) ===
           realGameCreationDto.playerNames[1]
-      )
+      );
 
       if (
         player1Socket !== undefined &&
@@ -137,68 +137,68 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         (client.id === player1Socket.id || client.id === player2Socket.id) &&
         player1Socket.id !== player2Socket.id
       ) {
-        this.matchmakingQueue.removePlayer(realGameCreationDto.playerNames[0])
-        this.matchmakingQueue.removePlayer(realGameCreationDto.playerNames[1])
+        this.matchmakingQueue.removePlayer(realGameCreationDto.playerNames[0]);
+        this.matchmakingQueue.removePlayer(realGameCreationDto.playerNames[1]);
 
-        const ranked = false
+        const ranked = false;
         this.games.newGame(
           [player1Socket, player2Socket],
           [player1Socket.id, player2Socket.id],
           realGameCreationDto,
           ranked
-        )
-        return { event: GAME_EVENTS.CREATE_GAME, data: true }
+        );
+        return { event: GAME_EVENTS.CREATE_GAME, data: true };
       }
     }
-    return { event: GAME_EVENTS.CREATE_GAME, data: false }
+    return { event: GAME_EVENTS.CREATE_GAME, data: false };
   }
 
   @SubscribeMessage(GAME_EVENTS.READY)
-  ready (
+  ready(
     @ConnectedSocket()
-      client: Socket
-  ): { event: string, data: boolean } {
-    let succeeded: boolean = false
-    const name: string | undefined = this.socketToPlayerName.get(client)
+    client: Socket
+  ): { event: string; data: boolean } {
+    let succeeded: boolean = false;
+    const name: string | undefined = this.socketToPlayerName.get(client);
     if (name !== undefined) {
-      this.games.ready(name)
-      succeeded = true
+      this.games.ready(name);
+      succeeded = true;
     }
-    return { event: GAME_EVENTS.READY, data: succeeded }
+    return { event: GAME_EVENTS.READY, data: succeeded };
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @SubscribeMessage(GAME_EVENTS.MATCHMAKING)
-  updateMatchmaking (
+  updateMatchmaking(
     @ConnectedSocket()
-      client: Socket,
-      @MessageBody() matchmakingUpdateData: MatchmakingDtoValidated
-  ): { event: string, data: MatchmakingDtoValidated } {
-    let matchmaking: boolean = false
-    const name: string | undefined = this.socketToPlayerName.get(client)
+    client: Socket,
+    @MessageBody() matchmakingUpdateData: MatchmakingDtoValidated
+  ): { event: string; data: MatchmakingDtoValidated } {
+    let matchmaking: boolean = false;
+    const name: string | undefined = this.socketToPlayerName.get(client);
     if (name !== undefined) {
       if (matchmakingUpdateData.matchmaking && !this.games.isInAGame(name)) {
-        this.matchmakingQueue.addPlayer(name, client, client.id)
+        this.matchmakingQueue.addPlayer(name, client, client.id);
       } else {
-        this.matchmakingQueue.removePlayer(name)
+        this.matchmakingQueue.removePlayer(name);
       }
-      matchmaking = this.matchmakingQueue.isInQueue(name)
+      matchmaking = this.matchmakingQueue.isInQueue(name);
     }
     return {
       event: GAME_EVENTS.MATCHMAKING,
-      data: { matchmaking }
-    }
+      data: { matchmaking },
+    };
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @SubscribeMessage(GAME_EVENTS.LEAVE_GAME)
-  leaveGame (
+  leaveGame(
     @ConnectedSocket()
-      client: Socket
+    client: Socket
   ): void {
-    const name: string | undefined = this.socketToPlayerName.get(client)
+    const name: string | undefined = this.socketToPlayerName.get(client);
     if (name !== undefined) {
-      void this.games.leaveGame(name)
+      void this.games.leaveGame(name);
     }
   }
 }

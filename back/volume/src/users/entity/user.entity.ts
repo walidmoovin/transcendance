@@ -4,78 +4,78 @@ import {
   Column,
   OneToMany,
   ManyToMany,
-  JoinTable
-} from 'typeorm'
+  JoinTable,
+} from "typeorm";
 
-import Message from 'src/chat/entity/message.entity'
-import Channel from 'src/chat/entity/channel.entity'
-import Result from 'src/pong/entity/result.entity'
+import Message from "src/chat/entity/message.entity";
+import Channel from "src/chat/entity/channel.entity";
+import Result from "src/pong/entity/result.entity";
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-    id: number
+  id: number;
 
-  @Column({ type: 'bigint', default: Date.now() })
-    lastAccess: number
+  @Column({ type: "bigint", default: Date.now() })
+  lastAccess: number;
 
   @Column({ unique: true })
-    ftId: number
+  ftId: number;
 
   @Column({ unique: true, nullable: true })
-    email: string
+  email: string;
 
   @Column({ select: false, nullable: true })
-    authToken: string
+  authToken: string;
 
   @Column({ default: false })
-    twoFA: boolean
+  twoFA: boolean;
 
   @Column({ default: false, nullable: true })
-    isVerified: boolean
+  isVerified: boolean;
 
-  @Column('uuid', { unique: true })
-    socketKey: string
+  @Column("uuid", { unique: true })
+  socketKey: string;
 
   @Column({ unique: true })
-    username: string
+  username: string;
 
-  @Column({ default: 'online' })
-    status: string
+  @Column({ default: "online" })
+  status: string;
 
-  @Column({ name: 'avatar' })
-    avatar: string
-
-  @Column({ default: 0 })
-    wins: number
+  @Column({ name: "avatar" })
+  avatar: string;
 
   @Column({ default: 0 })
-    looses: number
+  wins: number;
 
   @Column({ default: 0 })
-    matchs: number
+  looses: number;
 
   @Column({ default: 0 })
-    rank: number
+  matchs: number;
 
-  @Column({ default: 0, type: 'double precision' })
-    winrate: number
+  @Column({ default: 0 })
+  rank: number;
+
+  @Column({ default: 0, type: "double precision" })
+  winrate: number;
 
   @ManyToMany(() => Result, (result: Result) => result.players)
   @JoinTable()
-    results: Result[]
+  results: Result[];
 
   @ManyToMany(() => User)
   @JoinTable()
-    blocked: User[]
+  blocked: User[];
 
   @ManyToMany(() => User)
   @JoinTable()
-    followers: User[]
+  followers: User[];
 
   @ManyToMany(() => User)
   @JoinTable()
-    friends: User[]
+  friends: User[];
 }
 
-export default User
+export default User;

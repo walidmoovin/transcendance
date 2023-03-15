@@ -1,182 +1,184 @@
-import { BadRequestException, Catch, Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm'
-import { Cron } from '@nestjs/schedule'
-import { randomUUID } from 'crypto'
+import { BadRequestException, Catch, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { EntityNotFoundError, QueryFailedError, Repository } from "typeorm";
+import { Cron } from "@nestjs/schedule";
+import { randomUUID } from "crypto";
 
-import { type UserDto } from './dto/user.dto'
-import type Channel from 'src/chat/entity/channel.entity'
-import User from './entity/user.entity'
+import { type UserDto } from "./dto/user.dto";
+import type Channel from "src/chat/entity/channel.entity";
+import User from "./entity/user.entity";
 
 @Injectable()
 @Catch(QueryFailedError, EntityNotFoundError)
 export class UsersService {
-  constructor (
-    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+  constructor(
+    @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) {}
 
-  async save (user: User): Promise<void> {
-    await this.usersRepository.save(user)
+  async save(user: User): Promise<void> {
+    await this.usersRepository.save(user);
   }
 
-  async findUsers (): Promise<User[]> {
-    const users = await this.usersRepository.find({})
-    users.forEach((usr) => usr.socketKey = '')
-    return users
+  async findUsers(): Promise<User[]> {
+    const users = await this.usersRepository.find({});
+    users.forEach((usr) => (usr.socketKey = ""));
+    return users;
   }
 
-  async findUserByName (username: string): Promise<User> {
+  async findUserByName(username: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { username },
-      relations: { results: true }
-    })
-    if (user == null) throw new BadRequestException('User not found.')
-    return user
+      relations: { results: true },
+    });
+    if (user == null) throw new BadRequestException("User not found.");
+    return user;
   }
 
-  @Cron('0 * * * * *')
-  async updateStatus (): Promise<void> {
-    const users = await this.usersRepository.find({})
+  @Cron("0 * * * * *")
+  async updateStatus(): Promise<void> {
+    const users = await this.usersRepository.find({});
     users.forEach((usr) => {
       if (Date.now() - usr.lastAccess > 60000) {
-        usr.isVerified = false
-        usr.status = 'offline'
-        this.usersRepository.save(usr).catch((err) => console.log(err))
+        usr.isVerified = false;
+        usr.status = "offline";
+        this.usersRepository.save(usr).catch((err) => {
+          console.log(err);
+        });
       }
-    })
+    });
     this.getLeaderboard();
   }
 
-  async findUser (ftId: number): Promise<User | null> {
-    const user = await this.usersRepository.findOneBy({ ftId })
-    if (user == null) return null
-    user.lastAccess = Date.now()
-    if (user.status === 'offline') user.status = 'online'
-    await this.usersRepository.save(user)
-    return user
+  async findUser(ftId: number): Promise<User | null> {
+    const user = await this.usersRepository.findOneBy({ ftId });
+    if (user == null) return null;
+    user.lastAccess = Date.now();
+    if (user.status === "offline") user.status = "online";
+    await this.usersRepository.save(user);
+    return user;
   }
 
-  async findOnlineUsers (): Promise<User[]> {
+  async findOnlineUsers(): Promise<User[]> {
     const users = await this.usersRepository.find({
-      where: { status: 'online' }
-    })
-    users.forEach((usr) => usr.socketKey = '')
-    return users
+      where: { status: "online" },
+    });
+    users.forEach((usr) => (usr.socketKey = ""));
+    return users;
   }
 
-  async create (userData: UserDto): Promise<User | null> {
+  async create(userData: UserDto): Promise<User | null> {
     try {
-      const newUser = this.usersRepository.create(userData)
-      newUser.socketKey = randomUUID()
-      return await this.usersRepository.save(newUser)
+      const newUser = this.usersRepository.create(userData);
+      newUser.socketKey = randomUUID();
+      return await this.usersRepository.save(newUser);
     } catch (err) {
-      throw new BadRequestException('User already exists.')
+      throw new BadRequestException("User already exists.");
     }
   }
 
-  async findOnlineInChannel (channel: Channel): Promise<User[]> {
+  async findOnlineInChannel(channel: Channel): Promise<User[]> {
     return await this.usersRepository
-      .createQueryBuilder('user')
-      .where('user.channel = :chan', { chan: channel })
-      .andWhere('user.status := status)', { status: 'online' })
-      .getMany()
+      .createQueryBuilder("user")
+      .where("user.channel = :chan", { chan: channel })
+      .andWhere("user.status := status)", { status: "online" })
+      .getMany();
   }
 
-  async update (user: User, changes: UserDto): Promise<User | null> {
-    this.usersRepository.merge(user, changes)
-    return await this.usersRepository.save(user)
+  async update(user: User, changes: UserDto): Promise<User | null> {
+    this.usersRepository.merge(user, changes);
+    return await this.usersRepository.save(user);
   }
 
-  async addAvatar (ftId: number, filename: string): Promise<void> {
-    await this.usersRepository.update({ ftId }, { avatar: filename })
+  async addAvatar(ftId: number, filename: string): Promise<void> {
+    await this.usersRepository.update({ ftId }, { avatar: filename });
   }
 
-  async getFriends (ftId: number): Promise<User[]> {
+  async getFriends(ftId: number): Promise<User[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
-      relations: { friends: true }
-    })
-    if (user == null) throw new BadRequestException('User not found.')
-    user.friends.forEach((friend) => friend.socketKey = '')
-    return user.friends
+      relations: { friends: true },
+    });
+    if (user == null) throw new BadRequestException("User not found.");
+    user.friends.forEach((friend) => (friend.socketKey = ""));
+    return user.friends;
   }
 
-  async getInvits (ftId: number): Promise<User[]> {
+  async getInvits(ftId: number): Promise<User[]> {
     const user = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
-        followers: true
-      }
-    })
-    if (user == null) throw new BadRequestException('User not found.')
-    user.followers.forEach((follower) => follower.socketKey = '')
-    return user.followers
+        followers: true,
+      },
+    });
+    if (user == null) throw new BadRequestException("User not found.");
+    user.followers.forEach((follower) => (follower.socketKey = ""));
+    return user.followers;
   }
 
-  async getLeaderboard (): Promise<User[]> {
+  async getLeaderboard(): Promise<User[]> {
     const leaderboard = await this.usersRepository.find({
       order: {
-        winrate: 'ASC'
-      }
-    })
-    let ret = leaderboard.filter((user) => user.matchs !== 0)
-    let r = 0
+        winrate: "ASC",
+      },
+    });
+    const ret = leaderboard.filter((user) => user.matchs !== 0);
+    let r = 0;
     ret.forEach((usr) => {
-    usr.rank = r++
-    this.usersRepository.save(usr)
-    usr.socketKey = ''
-    })
-    return ret
+      usr.rank = r++;
+      this.usersRepository.save(usr);
+      usr.socketKey = "";
+    });
+    return ret;
   }
 
-  async invit (ftId: number, targetFtId: number): Promise<string> {
+  async invit(ftId: number, targetFtId: number): Promise<string> {
     const user: User | null = await this.usersRepository.findOne({
       where: { ftId },
       relations: {
         followers: true,
-        friends: true
-      }
-    })
-    if (user === null) throw new BadRequestException('User not found.')
+        friends: true,
+      },
+    });
+    if (user === null) throw new BadRequestException("User not found.");
     if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1) {
-      return 'You are already friends.'
+      return "You are already friends.";
     }
     const target: User | null = await this.usersRepository.findOne({
       where: { ftId: targetFtId },
       relations: {
         followers: true,
-        friends: true
-      }
-    })
-    if (target == null) return 'Target not found.'
+        friends: true,
+      },
+    });
+    if (target == null) return "Target not found.";
     const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
-    )
+    );
     if (
       target.followers.findIndex((follower) => follower.ftId === user.ftId) !==
       -1
     ) {
-      return 'Invitation already sent.'
+      return "Invitation already sent.";
     } else if (
       user.followers.findIndex((follower) => follower.ftId === targetFtId) !==
       -1
     ) {
-      user.friends.push(target)
-      target.friends.push(user)
-      user.followers.splice(id, 1)
-      await this.usersRepository.save(user)
-    } else target.followers.push(user)
-    await this.usersRepository.save(target)
-    return 'OK'
+      user.friends.push(target);
+      target.friends.push(user);
+      user.followers.splice(id, 1);
+      await this.usersRepository.save(user);
+    } else target.followers.push(user);
+    await this.usersRepository.save(target);
+    return "OK";
   }
 
-  async findByCode (code: string): Promise<User> {
-    const user = await this.usersRepository.findOneBy({ authToken: code })
-    if (user == null) throw new BadRequestException('User not found')
-    return user
+  async findByCode(code: string): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ authToken: code });
+    if (user == null) throw new BadRequestException("User not found");
+    return user;
   }
 
-  async turnOnTwoFactorAuthentication (ftId: number): Promise<void> {
-    await this.usersRepository.update({ ftId }, { twoFA: true })
+  async turnOnTwoFactorAuthentication(ftId: number): Promise<void> {
+    await this.usersRepository.update({ ftId }, { twoFA: true });
   }
 }

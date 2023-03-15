@@ -1,3 +1,3 @@
 export class StringDto {
-  value!: string
+  value!: string;
 }
