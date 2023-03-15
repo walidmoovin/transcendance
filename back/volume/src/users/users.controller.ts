@@ -11,46 +11,48 @@ import {
   Res,
   StreamableFile,
   BadRequestException,
-  Redirect,
-} from "@nestjs/common";
+  Redirect
+} from '@nestjs/common'
 
-import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
+import { FileInterceptor } from '@nestjs/platform-express'
+import { diskStorage } from 'multer'
 
-import { type User } from "./entity/user.entity";
-import { UsersService } from "./users.service";
-import { UserDto, AvatarUploadDto } from "./dto/user.dto";
-import { PongService } from "src/pong/pong.service";
+import { type User } from './entity/user.entity'
+import { UsersService } from './users.service'
+import { UserDto, AvatarUploadDto } from './dto/user.dto'
 
-import { AuthenticatedGuard } from "src/auth/42-auth.guard";
-import { Profile42 } from "src/auth/42.decorator";
-import { Profile } from "passport-42";
+import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
+import { Profile42 } from 'src/auth/42.decorator'
+import { Profile } from 'passport-42'
 
-import { ApiBody, ApiConsumes } from "@nestjs/swagger";
-import { type Request, Response } from "express";
-import { createReadStream } from "fs";
-import { join } from "path";
+import { ApiBody, ApiConsumes } from '@nestjs/swagger'
+import { type Request, Response } from 'express'
+import { createReadStream } from 'fs'
+import { join } from 'path'
 
-@Controller("users")
+@Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor (private readonly usersService: UsersService) {}
 
+  @Post('block/:id')
   @UseGuards(AuthenticatedGuard)
-  @Post("block/:id")
-  async blockUser(@Profile42() profile :Profile, @Param('id') id:number) {
-    const user = await this.usersService.findUser(id) as User
+  async blockUser (
+  @Profile42() profile: Profile,
+    @Param('id', ParseIntPipe) id: number
+  ) {
+    const user = (await this.usersService.findUser(id)) as User
     user.blocked.push((await this.usersService.findUser(+profile.id)) as User)
-    this.usersService.save(user);
+    this.usersService.save(user)
   }
 
+  @Post('unblock/:id')
   @UseGuards(AuthenticatedGuard)
-  @Post("unblock/:id")
-  async unblockUser(@Profile42() profile :Profile, @Param('id') id:number) {
-    const user = await this.usersService.findUser(id) as User
-    user.blocked =  user.blocked.filter((usr: User) => {
+  async unblockUser (@Param('id', ParseIntPipe) id: number) {
+    const user = (await this.usersService.findUser(id)) as User
+    user.blocked = user.blocked.filter((usr: User) => {
       return usr.id !== id
     })
-    this.usersService.save(user);
+    this.usersService.save(user)
   }
 
   @Get('all')
@@ -58,151 +60,145 @@ export class UsersController {
     return await this.usersService.findUsers()
   }
 
-  @Get("online")
-  async getOnlineUsers(): Promise<User[]> {
-    return await this.usersService.findOnlineUsers();
+  @Get('online')
+  async getOnlineUsers (): Promise<User[]> {
+    return await this.usersService.findOnlineUsers()
   }
 
-  @Get("friends")
+  @Get('friends')
   @UseGuards(AuthenticatedGuard)
-  async getFriends(@Profile42() profile: Profile): Promise<User[]> {
-    return await this.usersService.getFriends(profile.id);
+  async getFriends (@Profile42() profile: Profile): Promise<User[]> {
+    return await this.usersService.getFriends(profile.id)
   }
 
-  @Get("invits")
+  @Get('invits')
   @UseGuards(AuthenticatedGuard)
-  async getInvits(@Profile42() profile: Profile): Promise<User[]> {
-    return await this.usersService.getInvits(profile.id);
+  async getInvits (@Profile42() profile: Profile): Promise<User[]> {
+    return await this.usersService.getInvits(profile.id)
   }
 
-  @Get("leaderboard")
+  @Get('leaderboard')
   @UseGuards(AuthenticatedGuard)
-  async getLeaderboard(): Promise<User[]> {
-    return await this.usersService.getLeaderboard();
+  async getLeaderboard (): Promise<User[]> {
+    return await this.usersService.getLeaderboard()
   }
 
-  @Post("avatar")
+  @Post('avatar')
   @UseGuards(AuthenticatedGuard)
-  @Redirect("http://localhost")
+  @Redirect('http://localhost')
   @UseInterceptors(
-    FileInterceptor("avatar", {
+    FileInterceptor('avatar', {
       storage: diskStorage({
-        destination: "avatars/",
+        destination: 'avatars/'
       }),
       fileFilter: (request: Request, file: Express.Multer.File, callback) => {
-<<<<<<< HEAD
         if (!file.mimetype.includes('image')) {
           callback(null, false)
-          return  
-=======
-        if (!file.mimetype.includes("image")) {
-          callback(null, false);
-          return;
->>>>>>> ouai c un peu la merde mais bon
+          return
         }
-        callback(null, true);
-      },
+        callback(null, true)
+      }
     })
   )
-  @ApiConsumes("multipart/form-data")
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: "A new avatar for the user",
-    type: AvatarUploadDto,
+    description: 'A new avatar for the user',
+    type: AvatarUploadDto
   })
-  async changeAvatar(
+  async changeAvatar (
     @Profile42() profile: Profile,
-    @UploadedFile() file: Express.Multer.File
+      @UploadedFile() file: Express.Multer.File
   ): Promise<void> {
-    if (file === undefined) return;
-    await this.usersService.addAvatar(profile.id, file.filename);
+    if (file === undefined) return
+    await this.usersService.addAvatar(profile.id, file.filename)
   }
 
-  @Get("avatar")
+  @Get('avatar')
   @UseGuards(AuthenticatedGuard)
-  async getAvatar(
+  async getAvatar (
     @Profile42() profile: Profile,
-    @Res({ passthrough: true }) response: Response
+      @Res({ passthrough: true }) response: Response
   ): Promise<StreamableFile> {
-    return await this.getAvatarById(profile.id, response);
+    return await this.getAvatarById(profile.id, response)
   }
 
-  @Get(":name/byname")
-  async getUserByName(@Param("name") username: string): Promise<User> {
-    const user = await this.usersService.findUserByName(username);
-    user.socketKey = "";
-    return user;
+  @Get(':name/byname')
+  async getUserByName (@Param('name') username: string): Promise<User> {
+    const user = await this.usersService.findUserByName(username)
+    user.socketKey = ''
+    return user
   }
 
-  @Get("invit/:username")
+  @Get('invit/:username')
   @UseGuards(AuthenticatedGuard)
-  async invitUser(
+  async invitUser (
     @Profile42() profile: Profile,
-    @Param("username") username: string
+      @Param('username') username: string
   ): Promise<void> {
     const target: User | null = await this.usersService.findUserByName(
       username
-    );
+    )
     if (target === null) {
-      throw new BadRequestException(`User ${username} not found.`);
+      throw new BadRequestException(`User ${username} not found.`)
     }
     if (+profile.id === +target.ftId) {
-      throw new BadRequestException("You can't invite yourself.");
+      throw new BadRequestException("You can't invite yourself.")
     }
-    const ret: string = await this.usersService.invit(profile.id, target.ftId);
-    if (ret !== "OK") throw new BadRequestException(ret);
+    const ret: string = await this.usersService.invit(profile.id, target.ftId)
+    if (ret !== 'OK') throw new BadRequestException(ret)
   }
 
-  @Get(":id/avatar")
-  async getAvatarById(
-    @Param("id", ParseIntPipe) ftId: number,
-    @Res({ passthrough: true }) response: Response
+  @Get(':id/avatar')
+  async getAvatarById (
+    @Param('id', ParseIntPipe) ftId: number,
+      @Res({ passthrough: true }) response: Response
   ): Promise<StreamableFile> {
-    const user: User | null = await this.usersService.findUser(ftId);
-    if (user === null) throw new BadRequestException("User unknown.");
-    const filename = user.avatar;
-    const stream = createReadStream(join(process.cwd(), "avatars/" + filename));
+    const user: User | null = await this.usersService.findUser(ftId)
+    if (user === null) throw new BadRequestException('User unknown.')
+    const filename = user.avatar
+    const stream = createReadStream(join(process.cwd(), 'avatars/' + filename))
     response.set({
-      "Content-Diposition": `inline; filename='${filename}'`,
-      "Content-Type": "image/jpg",
-    });
-    return new StreamableFile(stream);
+      'Content-Diposition': `inline; filename='${filename}'`,
+      'Content-Type': 'image/jpg'
+    })
+    return new StreamableFile(stream)
   }
 
-  @Get(":id")
-  async getUserById(
-    @Param("id", ParseIntPipe) ftId: number
+  @Get(':id')
+  async getUserById (
+    @Param('id', ParseIntPipe) ftId: number
   ): Promise<User | null> {
-    const user = await this.usersService.findUser(ftId);
-    if (user == null) throw new BadRequestException("User unknown.");
-    user.socketKey = "";
-    return user;
+    const user = await this.usersService.findUser(ftId)
+    if (user == null) throw new BadRequestException('User unknown.')
+    user.socketKey = ''
+    return user
   }
 
-  @Post(":id")
+  @Post(':id')
   @UseGuards(AuthenticatedGuard)
-  async createById(@Body() payload: UserDto): Promise<void> {
-    const user = await this.usersService.findUser(payload.ftId);
+  async createById (@Body() payload: UserDto): Promise<void> {
+    const user = await this.usersService.findUser(payload.ftId)
     if (user != null) {
-      await this.usersService.update(user, payload);
+      await this.usersService.update(user, payload)
     } else {
-      await this.usersService.create(payload);
+      await this.usersService.create(payload)
     }
   }
 
   @Get()
   @UseGuards(AuthenticatedGuard)
-  async getUser(@Profile42() profile: Profile): Promise<User | null> {
-    return await this.usersService.findUser(profile.id);
+  async getUser (@Profile42() profile: Profile): Promise<User | null> {
+    return await this.usersService.findUser(profile.id)
   }
 
   @Post()
   @UseGuards(AuthenticatedGuard)
-  async updateUser(
+  async updateUser (
     @Body() payload: UserDto,
-    @Profile42() profile: Profile
+      @Profile42() profile: Profile
   ): Promise<BadRequestException | User | null> {
-    const user = await this.usersService.findUser(profile.id);
-    if (user == null) throw new BadRequestException("User not found.");
-    return await this.usersService.update(user, payload);
+    const user = await this.usersService.findUser(profile.id)
+    if (user == null) throw new BadRequestException('User not found.')
+    return await this.usersService.update(user, payload)
   }
 }

@@ -1,3 +1,3 @@
 export class MatchmakingDto {
-  matchmaking!: boolean;
+  matchmaking!: boolean
 }

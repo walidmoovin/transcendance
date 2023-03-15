@@ -1,173 +1,173 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 
-import { type CreateChannelDto } from "./dto/create-channel.dto";
-import { UsersService } from "src/users/users.service";
+import { type CreateChannelDto } from './dto/create-channel.dto'
+import { UsersService } from 'src/users/users.service'
 
-import type User from "src/users/entity/user.entity";
-import Channel from "./entity/channel.entity";
-import { Cron } from "@nestjs/schedule";
+import type User from 'src/users/entity/user.entity'
+import Channel from './entity/channel.entity'
+import { Cron } from '@nestjs/schedule'
 
 @Injectable()
 export class ChatService {
-  constructor(
+  constructor (
     @InjectRepository(Channel)
     private readonly ChannelRepository: Repository<Channel>,
     private readonly usersService: UsersService
   ) {}
 
-  async createChannel(channel: CreateChannelDto): Promise<Channel> {
-    const user: User | null = await this.usersService.findUser(channel.owner);
+  async createChannel (channel: CreateChannelDto): Promise<Channel> {
+    const user: User | null = await this.usersService.findUser(channel.owner)
     if (user == null) {
-      throw new NotFoundException(`User #${channel.owner} not found`);
+      throw new NotFoundException(`User #${channel.owner} not found`)
     }
-    const newChannel = new Channel();
-    newChannel.owner = user;
-    newChannel.users = [user];
-    newChannel.admins = [user];
-    newChannel.name = channel.name;
-    newChannel.isPrivate = channel.isPrivate;
-    newChannel.password = channel.password;
-    return await this.ChannelRepository.save(newChannel);
+    const newChannel = new Channel()
+    newChannel.owner = user
+    newChannel.users = [user]
+    newChannel.admins = [user]
+    newChannel.name = channel.name
+    newChannel.isPrivate = channel.isPrivate
+    newChannel.password = channel.password
+    return await this.ChannelRepository.save(newChannel)
   }
 
-  async updatePassword(id: number, password: string) {
+  async updatePassword (id: number, password: string) {
     const channel: Channel | null = await this.ChannelRepository.findOneBy({
-      id,
-    });
+      id
+    })
     if (channel === null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
-    channel.password = password;
-    await this.ChannelRepository.save(channel);
+    channel.password = password
+    await this.ChannelRepository.save(channel)
   }
 
-  async getChannelsForUser(ftId: number): Promise<Channel[]> {
-    let rooms: Channel[] = [];
+  async getChannelsForUser (ftId: number): Promise<Channel[]> {
+    let rooms: Channel[] = []
     rooms = [
-      ...(await this.ChannelRepository.createQueryBuilder("room")
-        .where("room.isPrivate = false")
-        .getMany()),
-    ];
+      ...(await this.ChannelRepository.createQueryBuilder('room')
+        .where('room.isPrivate = false')
+        .getMany())
+    ]
 
     rooms = [
       ...rooms,
-      ...(await this.ChannelRepository.createQueryBuilder("room")
-        .innerJoin("room.users", "users")
-        .where("room.isPrivate = true")
-        .andWhere("users.ftId = :ftId", { ftId })
-        .getMany()),
-    ];
-    return rooms;
+      ...(await this.ChannelRepository.createQueryBuilder('room')
+        .innerJoin('room.users', 'users')
+        .where('room.isPrivate = true')
+        .andWhere('users.ftId = :ftId', { ftId })
+        .getMany())
+    ]
+    return rooms
   }
 
-  @Cron("*/6 * * * * *")
-  async updateMutelists(): Promise<void> {
-    const channels = await this.ChannelRepository.find({});
+  @Cron('*/6 * * * * *')
+  async updateMutelists (): Promise<void> {
+    const channels = await this.ChannelRepository.find({})
     channels.forEach((channel) => {
       channel.muted = channel.muted.filter((data) => {
-        return data[0] - Date.now() > 0;
-      });
-      this.ChannelRepository.save(channel);
-    });
+        return data[0] - Date.now() > 0
+      })
+      this.ChannelRepository.save(channel)
+    })
   }
 
-  async addUserToChannel(channel: Channel, user: User): Promise<Channel> {
-    channel.owner = user;
-    return await this.ChannelRepository.save(channel);
+  async addUserToChannel (channel: Channel, user: User): Promise<Channel> {
+    channel.owner = user
+    return await this.ChannelRepository.save(channel)
   }
 
-  async getChannel(id: number): Promise<Channel> {
-    const channel = await this.ChannelRepository.findOneBy({ id });
+  async getChannel (id: number): Promise<Channel> {
+    const channel = await this.ChannelRepository.findOneBy({ id })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel;
+    return channel
   }
 
-  async getFullChannel(id: number): Promise<Channel> {
+  async getFullChannel (id: number): Promise<Channel> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: ["users", "admins", "banned", "muted", "owner"],
-    });
+      relations: ['users', 'admins', 'banned', 'muted', 'owner']
+    })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel;
+    return channel
   }
 
-  async update(channel: Channel) {
-    await this.ChannelRepository.update(channel.id, channel);
+  async update (channel: Channel) {
+    await this.ChannelRepository.update(channel.id, channel)
   }
 
-  async save(channel: Channel) {
-    await this.ChannelRepository.save(channel);
+  async save (channel: Channel) {
+    await this.ChannelRepository.save(channel)
   }
 
-  async removeChannel(channelId: number) {
-    await this.ChannelRepository.delete(channelId);
+  async removeChannel (channelId: number) {
+    await this.ChannelRepository.delete(channelId)
   }
 
-  async isOwner(id: number, userId: number): Promise<boolean> {
+  async isOwner (id: number, userId: number): Promise<boolean> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: { owner: true },
-    });
+      relations: { owner: true }
+    })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel.owner.ftId === userId;
+    return channel.owner.ftId === userId
   }
 
-  async isAdmin(id: number, userId: number): Promise<boolean> {
+  async isAdmin (id: number, userId: number): Promise<boolean> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: { admins: true },
-    });
+      relations: { admins: true }
+    })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel.admins.findIndex((user) => user.ftId === userId) != -1;
+    return channel.admins.findIndex((user) => user.ftId === userId) != -1
   }
 
-  async isUser(id: number, userId: number): Promise<boolean> {
+  async isUser (id: number, userId: number): Promise<boolean> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: { users: true },
-    });
+      relations: { users: true }
+    })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel.users.findIndex((user) => user.ftId === userId) != -1;
+    return channel.users.findIndex((user) => user.ftId === userId) != -1
   }
 
-  async isBanned(id: number, userId: number): Promise<boolean> {
+  async isBanned (id: number, userId: number): Promise<boolean> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: { banned: true },
-    });
+      relations: { banned: true }
+    })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel.banned.findIndex((user) => user.ftId === userId) != -1;
+    return channel.banned.findIndex((user) => user.ftId === userId) != -1
   }
 
-  async getMuteDuration(id: number, userId: number): Promise<number> {
+  async getMuteDuration (id: number, userId: number): Promise<number> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: { muted: true },
-    });
+      relations: { muted: true }
+    })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`);
+      throw new NotFoundException(`Channel #${id} not found`)
     }
 
     const mutation: number[] | undefined = channel.muted.find(
       (mutation) => mutation[0] === userId
-    );
+    )
     if (mutation == null) {
-      return 0;
+      return 0
     }
-    return mutation[1];
+    return mutation[1]
   }
 }

@@ -1,13 +1,13 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import * as Joi from "joi";
-import { ScheduleModule } from "@nestjs/schedule";
+import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import * as Joi from 'joi'
+import { ScheduleModule } from '@nestjs/schedule'
 
-import { AuthModule } from "./auth/auth.module";
-import { ChatModule } from "./chat/chat.module";
-import { PongModule } from "./pong/pong.module";
-import { UsersModule } from "./users/users.module";
+import { AuthModule } from './auth/auth.module'
+import { ChatModule } from './chat/chat.module'
+import { PongModule } from './pong/pong.module'
+import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
@@ -26,28 +26,28 @@ import { UsersModule } from "./users/users.module";
         HOST: Joi.string().required(),
         FRONT_PORT: Joi.number().required(),
         BACK_PORT: Joi.number().required(),
-        HASH_SALT: Joi.number().required(),
-      }),
+        HASH_SALT: Joi.number().required()
+      })
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: "postgres",
-        host: configService.get<string>("POSTGRES_HOST"),
-        port: configService.get<number>("POSTGRES_PORT"),
-        username: configService.get<string>("POSTGRES_USER"),
-        password: configService.get<string>("POSTGRES_PASSWORD"),
-        database: configService.get<string>("POSTGRES_DB"),
-        jwt_secret: configService.get<string>("JWT_SECRET"),
+        type: 'postgres',
+        host: configService.get<string>('POSTGRES_HOST'),
+        port: configService.get<number>('POSTGRES_PORT'),
+        username: configService.get<string>('POSTGRES_USER'),
+        password: configService.get<string>('POSTGRES_PASSWORD'),
+        database: configService.get<string>('POSTGRES_DB'),
+        jwt_secret: configService.get<string>('JWT_SECRET'),
         autoLoadEntities: true,
-        synchronize: true,
-      }),
+        synchronize: true
+      })
     }),
     AuthModule,
     ChatModule,
     PongModule,
-    UsersModule,
-  ],
+    UsersModule
+  ]
 })
 export class AppModule {}
