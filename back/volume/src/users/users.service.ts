@@ -21,9 +21,7 @@ export class UsersService {
 
   async findUsers (): Promise<User[]> {
     const users = await this.usersRepository.find({})
-    users.forEach((usr) => {
-      usr.socketKey = ''
-    })
+    users.forEach((usr) => usr.socketKey = '')
     return users
   }
 
@@ -33,6 +31,7 @@ export class UsersService {
       relations: { results: true }
     })
     if (user == null) throw new BadRequestException('User not found.')
+    user.rank = (await this.getRank(user.ftId)) + 1;
     return user
   }
 
@@ -43,9 +42,7 @@ export class UsersService {
       if (Date.now() - usr.lastAccess > 60000) {
         usr.isVerified = false
         usr.status = 'offline'
-        this.usersRepository.save(usr).catch((err) => {
-          console.log(err)
-        })
+        this.usersRepository.save(usr).catch((err) => console.log(err))
       }
     })
   }
@@ -53,6 +50,7 @@ export class UsersService {
   async findUser (ftId: number): Promise<User | null> {
     const user = await this.usersRepository.findOneBy({ ftId })
     if (user == null) return null
+    user.rank = (await this.getRank(user.ftId)) + 1;
     user.lastAccess = Date.now()
     if (user.status === 'offline') user.status = 'online'
     await this.usersRepository.save(user)
@@ -63,9 +61,7 @@ export class UsersService {
     const users = await this.usersRepository.find({
       where: { status: 'online' }
     })
-    users.forEach((usr) => {
-      usr.socketKey = ''
-    })
+    users.forEach((usr) => usr.socketKey = '')
     return users
   }
 
@@ -102,6 +98,7 @@ export class UsersService {
       relations: { friends: true }
     })
     if (user == null) throw new BadRequestException('User not found.')
+    user.friends.forEach((friend) => friend.socketKey = '')
     return user.friends
   }
 
@@ -113,6 +110,7 @@ export class UsersService {
       }
     })
     if (user == null) throw new BadRequestException('User not found.')
+    user.followers.forEach((follower) => follower.socketKey = '')
     return user.followers
   }
 
@@ -122,7 +120,9 @@ export class UsersService {
         winrate: 'DESC'
       }
     })
-    return leaderboard.filter((user) => user.rank !== 0)
+    let ret = leaderboard.filter((user) => user.rank !== 0)
+    ret.forEach((follower) => follower.socketKey = '')
+    return ret
   }
 
   async getRank (ftId: number): Promise<number> {

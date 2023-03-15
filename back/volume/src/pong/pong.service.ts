@@ -20,7 +20,6 @@ export class PongService {
     if (result.score[i] === maxScore) player.wins++
     else player.looses++
     player.winrate = (100 * player.wins) / player.matchs
-    player.rank = (await this.usersService.getRank(player.ftId)) + 1
   }
 
   async updatePlayer (i: number, result: Result, maxScore: number): Promise<void> {

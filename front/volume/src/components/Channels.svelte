@@ -56,8 +56,8 @@
         body: JSON.stringify({
           name: name,
           owner: $store.ftId,
-          password: password || "",
-          isPrivate: privacy,
+          password: password,
+          isPrivate: privacy === "private",
         }),
       });
       if (response.ok) {
