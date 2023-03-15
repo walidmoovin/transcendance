@@ -24,7 +24,7 @@
   async function getUser() {
     if (username !== $store.username) {
       edit = false;
-      const res = await fetch(API_URL + "/user/" + username, {
+      const res = await fetch(API_URL + "/users/" + username + "/byname", {
         mode: "cors",
       });
       user = res.json();
@@ -37,7 +37,7 @@
 
   const dispatch = createEventDispatcher();
   async function handleSubmit() {
-    let response = await fetch(API_URL, {
+    let response = await fetch(API_URL + "/users", {
       headers: { "content-type": "application/json" },
       method: "POST",
       body: JSON.stringify({ username: user.username }),
@@ -52,7 +52,7 @@
   async function handle2fa(event: Event) {
     event.preventDefault();
     user.twoFA = !user.twoFA;
-    let response = await fetch(API_URL, {
+    let response = await fetch(API_URL + "/users", {
       headers: { "content-type": "application/json" },
       method: "POST",
       body: JSON.stringify(user),
@@ -68,11 +68,11 @@
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <h3>===| <mark>{user.username}'s Profile</mark> |===</h3>
     <div class="profile-header">
-      {#if edit}
-        <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
+      {#if !edit}
+        <img src={API_URL + "/users/avatar"} alt="avatar" class="profile-img" />
       {:else}
         <form
-          action={`${API_URL}/avatar`}
+          action={`${API_URL}/users/avatar`}
           method="post"
           enctype="multipart/form-data"
           bind:this={avatarForm}
@@ -86,13 +86,17 @@
           />
         </form>
         <label class="img-class" for="avatar-input">
-          <img src={API_URL + "/avatar"} alt="avatar" class="profile-img" />
+          <img
+            src={API_URL + "/users/avatar"}
+            alt="avatar"
+            class="profile-img"
+          />
         </label>
       {/if}
     </div>
     <div class="profile-body">
       <p>
-        <button on:click={() => dispatch("view-history", user.ftId)}
+        <button on:click={() => dispatch("view-history", user.username)}
           >View History</button
         >
       </p>

@@ -20,7 +20,7 @@ export class Ball {
   constructor (
     spawn: Point,
     size: Point = DEFAULT_BALL_SIZE,
-    speed: Point = DEFAULT_BALL_INITIAL_SPEED
+    speed: Point = DEFAULT_BALL_INITIAL_SPEED.clone()
   ) {
     this.rect = new Rect(spawn, size)
     this.speed = speed
@@ -93,20 +93,22 @@ export class Ball {
 
   playerScored (): number {
     let indexPlayerScored: number
+
     if (this.rect.center.x <= this.spawn.x) {
       indexPlayerScored = 1
+      this.speed.x = this.initial_speed.x
     } else {
       indexPlayerScored = 0
+      this.speed.x = -this.initial_speed.x
+    }
+
+    if (this.speed.y < 0) {
+      this.speed.y = this.initial_speed.y
+    } else {
+      this.speed.y = -this.initial_speed.y
     }
 
     this.rect.center = this.spawn.clone()
-    if (this.speed.x < 0) {
-      this.speed.x = this.initial_speed.x
-      this.speed.y = -this.initial_speed.y
-    } else {
-      this.speed.x = -this.initial_speed.x
-      this.speed.y = this.initial_speed.y
-    }
 
     return indexPlayerScored
   }

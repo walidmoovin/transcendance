@@ -61,7 +61,7 @@
     setAppState(APPSTATE.PROFILE);
   }
 
-  let profileUsername: string;
+  let profileUsername: string = "";
   async function openIdProfile(event: CustomEvent<string>) {
     profileUsername = event.detail;
     setAppState(APPSTATE.PROFILE_ID);
@@ -69,10 +69,6 @@
 
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);
-  }
-
-  async function openIdHistory() {
-    setAppState(APPSTATE.HISTORY_ID);
   }
 
   async function clickFriends() {
@@ -86,7 +82,6 @@
   function clickChannels() {
     setAppState(APPSTATE.CHANNELS);
   }
-  let channels: Array<ChannelsType> = [];
   let selectedChannel: ChannelsType;
   const handleSelectChannel = (channel: ChannelsType) => {
     selectedChannel = channel;
@@ -148,7 +143,7 @@
         </div>
       {:else}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Channels {channels} onSelectChannel={handleSelectChannel} />
+          <Channels onSelectChannel={handleSelectChannel} />
         </div>
       {/if}
     {/if}
@@ -177,7 +172,7 @@
     {/if}
     {#if appState === APPSTATE.PROFILE}
       <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Profile on:view-history={openIdHistory} />
+        <Profile on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
       </div>
     {/if}
     {#if appState === APPSTATE.PROFILE_ID}
@@ -187,7 +182,7 @@
         on:keydown={() =>
           setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
       >
-        <Profile username={profileUsername} on:view-history={openIdHistory} />
+        <Profile username={profileUsername} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
       </div>
     {/if}
 

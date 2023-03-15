@@ -5,7 +5,7 @@
   export let ftId;
 
   async function doPost() {
-    await fetch(API_URL + "/" + ftId, {
+    await fetch(API_URL + "/users/" + ftId, {
       method: "POST",
       credentials: "include",
       mode: "cors",

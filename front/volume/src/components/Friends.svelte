@@ -12,7 +12,7 @@
       ? event.target.querySelector('input[type="text"]').value
       : event.detail;
 
-    const response = await fetch(API_URL + "/invit/" + username, {
+    const response = await fetch(API_URL + "/users/invit/" + username, {
       credentials: "include",
       mode: "cors",
     });
@@ -34,14 +34,14 @@
   let friendsInterval: ReturnType<typeof setInterval>;
 
   async function getFriends(): Promise<void> {
-    let response = await fetch(API_URL + "/friends", {
+    let response = await fetch(API_URL + "/users/friends", {
       credentials: "include",
       mode: "cors",
     });
     friends = await response.json();
   }
   async function getInvits(): Promise<void> {
-    let response = await fetch(API_URL + "/invits", {
+    let response = await fetch(API_URL + "/users/invits", {
       credentials: "include",
       mode: "cors",
     });
@@ -73,7 +73,6 @@
               <span>{friend.username} is {friend.status}</span>
             </li>
           {/each}
-          />
         </div>
       {:else}
         <p>No friends to display</p>

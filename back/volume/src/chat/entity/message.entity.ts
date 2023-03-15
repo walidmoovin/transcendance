@@ -7,28 +7,25 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
-
-import { User } from 'src/users/entity/user.entity'
-import { Channel } from './channel.entity'
+import User from 'src/users/entity/user.entity'
+import Channel from './channel.entity'
 
 @Entity()
-export class Message {
+export default class Message {
   @PrimaryGeneratedColumn()
     id: number
 
   @Column()
     text: string
 
-  @ManyToOne(() => User, (author: User) => author.messages)
+  @ManyToOne(() => User)
   @JoinColumn()
     author: User
 
-  @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
+  @ManyToOne(() => Channel, (channel) => channel.messages, { cascade: true })
   @JoinTable()
     channel: Channel
 
   @CreateDateColumn()
-    createdAt: Date
+    created_at: Date
 }
-
-export default Message

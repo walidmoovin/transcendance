@@ -50,7 +50,7 @@
         {#if link.text === "Profile"}
           <li>
             <button on:click={clickProfile}>
-              <img src={api + "/avatar"} alt="avatar" />
+              <img src={api + "/users/avatar"} alt="avatar" />
             </button>
           </li>
         {/if}

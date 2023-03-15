@@ -65,12 +65,6 @@ export class User {
   @JoinTable()
     results: Result[]
 
-  @OneToMany(() => Message, (message: Message) => message.author)
-    messages: Message[]
-
-  @ManyToMany(() => Channel, (channel: Channel) => channel.users)
-    rooms: Channel[]
-
   @ManyToMany(() => User)
   @JoinTable()
     blocked: User[]

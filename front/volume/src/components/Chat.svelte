@@ -34,7 +34,6 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
       }
     }
-    // TODO: save to database
   };
 
   //--------------------------------------------------------------------------------/
@@ -46,7 +45,6 @@
     showProfileMenu = true;
     selectedUser = username;
     showChatMembers = false;
-    showChannelSettings = false;
   }
   function closeProfileMenu() {
     showProfileMenu = false;
@@ -59,7 +57,6 @@
   let showChatMembers = false;
   function toggleChatMembers() {
     showChatMembers = !showChatMembers;
-    showChannelSettings = false;
   }
   let chatMembers: Array<User> = [
     { username: "user1" },
@@ -75,19 +72,11 @@
   // let chatMembers: Array<Player> = [];
   // async function getChatMembers() {
   //   console.log("Getting chat members");
-  //   const res = await fetch(API_URL + "/chat/members", {
+  //   const res = await fetch(API_URL + "/channels/members", {
   //     mode: "cors",
   //   });
   //   chatMembers = await res.json();
   // }
-
-  //--------------------------------------------------------------------------------/
-
-  let showChannelSettings = false;
-  function toggleChannelSettings() {
-    showChannelSettings = !showChannelSettings;
-    showChatMembers = false;
-  }
 
   //--------------------------------------------------------------------------------/
 
@@ -97,11 +86,11 @@
 
   const banUser = async (username: string) => {
     // const prompt = window.prompt("Enter ban duration in seconds");
-    // const res1 = await fetch(API_URL + "/user/" + username, {
+    // const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/ban", {
+    // const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/ban", {
     //   method: "POST",
     //   mode: "cors",
     // });
@@ -117,11 +106,11 @@
 
   const kickUser = async (username: string) => {
     // set-up channel joining and kicking
-    // const res1 = await fetch(API_URL + "/user/" + username, {
+    // const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/kick", {
+    // const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/kick", {
     //   method: "POST",
     //   mode: "cors",
     // });
@@ -138,11 +127,11 @@
   const muteUser = async (username: string) => {
     // use minutes prompt to determine mute duration
     // const prompt = window.prompt("Enter mute duration in seconds");
-    // const res1 = await fetch(API_URL + "/user/" + username, {
+    // const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/mute", {
+    // const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/mute", {
     //   method: "POST",
     //   mode: "cors",
     // });
@@ -157,11 +146,11 @@
   //--------------------------------------------------------------------------------/
 
   const adminUser = async (username: string) => {
-    // const res1 = await fetch(API_URL + "/user/" + username, {
+    // const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/admin", {
+    // const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/admin", {
     //   method: "POST",
     //   mode: "cors",
     // });
@@ -176,11 +165,11 @@
   //--------------------------------------------------------------------------------/
 
   const removeAdminUser = async (username: string) => {
-    // const res1 = await fetch(API_URL + "/user/" + username, {
+    // const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
     //   mode: "cors",
     // });
     // const data1 = await res1.json();
-    // const res2 = await fetch(API_URL + "/chat/channels/" + data1.ftId + "/admin", {
+    // const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/admin", {
     //   method: "DELETE",
     //   mode: "cors",
     // });
@@ -291,23 +280,6 @@
         </div>
       </div>
     {/if}
-    <button
-      on:click|stopPropagation={toggleChannelSettings}
-      on:keydown|stopPropagation>Channel Settings</button
-    >
-    {#if showChannelSettings}
-      <div
-        class="channelSettings"
-        on:click|stopPropagation
-        on:keydown|stopPropagation
-      >
-        <div>
-          <button>Change Password</button>
-          <button>Set Password</button>
-          <button>Remove Password</button>
-        </div>
-      </div>
-    {/if}
   </div>
 </div>
 
@@ -355,19 +327,5 @@
 
   .chatMembers button {
     width: 6rem;
-  }
-
-  .channelSettings {
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 1rem;
-    max-height: 100px;
-    overflow-y: scroll;
-  }
-
-  .channelSettings button {
-    width: 5rem;
   }
 </style>
