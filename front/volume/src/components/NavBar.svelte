@@ -99,7 +99,7 @@
 
   .navigation-bar img {
     width: 2rem;
-    height: 2rem;
+    height: auto;
   }
 
   .navigation-bar button {

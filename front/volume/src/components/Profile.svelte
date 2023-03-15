@@ -147,6 +147,7 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 1rem;
+    max-width: 80%;
     width: 375px;
   }
 
@@ -161,8 +162,12 @@
   }
 
   .profile-img {
+    max-width: 80%;
     width: 256px;
-    height: 256px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
   }
 
   #avatar-input {
