@@ -37,7 +37,11 @@ export class Games {
           map,
           this.deleteGame.bind(this, names[0]),
           this.pongService,
-          ranked
+          ranked,
+          new Point(
+            gameCreationDto.initialBallSpeedX,
+            gameCreationDto.initialBallSpeedY
+          )
         )
       )
       this.playerNameToGameIndex.set(names[0], this.games.length - 1)

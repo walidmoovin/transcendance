@@ -3,6 +3,7 @@ import { type Socket } from 'socket.io'
 import { Point, Rect } from './utils'
 import { Player } from './Player'
 import {
+  DEFAULT_BALL_INITIAL_SPEED,
   DEFAULT_BALL_SIZE,
   DEFAULT_PADDLE_SIZE,
   DEFAULT_WIN_SCORE,
@@ -22,6 +23,7 @@ export class Game {
   ball: Ball
   players: Player[] = []
   ranked: boolean
+  initialBallSpeed: Point
   waitingForTimeout: boolean
   gameStoppedCallback: (name: string) => void
 
@@ -32,7 +34,8 @@ export class Game {
     map: MapDtoValidated,
     gameStoppedCallback: (name: string) => void,
     private readonly pongService: PongService,
-    ranked: boolean
+    ranked: boolean,
+    initialBallSpeed: Point = DEFAULT_BALL_INITIAL_SPEED.clone()
   ) {
     this.id = randomUUID()
     this.timer = null
@@ -40,7 +43,11 @@ export class Game {
     this.waitingForTimeout = false
     this.map = map
     this.gameStoppedCallback = gameStoppedCallback
-    this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
+    this.initialBallSpeed = initialBallSpeed
+    this.ball = new Ball(
+      new Point(this.map.size.x / 2, this.map.size.y / 2),
+      initialBallSpeed
+    )
     for (let i = 0; i < uuids.length; i++) {
       this.addPlayer(sockets[i], uuids[i], names[i])
     }
@@ -92,7 +99,10 @@ export class Game {
 
   private start (): void {
     if (this.timer === null && this.players.length === 2) {
-      this.ball = new Ball(new Point(this.map.size.x / 2, this.map.size.y / 2))
+      this.ball = new Ball(
+        new Point(this.map.size.x / 2, this.map.size.y / 2),
+        this.initialBallSpeed
+      )
       this.players.forEach((p) => {
         void this.pongService.setInGame(p.name)
         p.newGame()

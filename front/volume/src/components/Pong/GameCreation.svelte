@@ -1,6 +1,11 @@
 <script lang="ts">
   import { Map } from "./Map";
-  import { DEFAULT_MAP_SIZE, GAME_EVENTS } from "./constants";
+  import {
+    DEFAULT_BALL_INITIAL_SPEED,
+    DEFAULT_MAP_SIZE,
+    DEFAULT_MAX_BALL_SPEED,
+    GAME_EVENTS,
+  } from "./constants";
   import MapCustomization from "./MapCustomization.svelte";
   import type { GameCreationDto } from "./dtos/GameCreationDto";
   import { store } from "../../Auth";
@@ -10,11 +15,15 @@
   export let invitedUsername: string;
 
   let map: Map = new Map(DEFAULT_MAP_SIZE.clone(), []);
+  let initialBallSpeedX: number = DEFAULT_BALL_INITIAL_SPEED.x;
+  let initialBallSpeedY: number = DEFAULT_BALL_INITIAL_SPEED.y;
 
   function createGame() {
     const data: GameCreationDto = {
       playerNames: [$store.username, invitedUsername],
       map,
+      initialBallSpeedX,
+      initialBallSpeedY,
     };
     socket.emit(GAME_EVENTS.CREATE_GAME, data);
   }
@@ -27,6 +36,25 @@
     <button on:click={createGame}>
       Create game vs {invitedUsername}
     </button>
+    <div>
+      <span>Initial ball's speed (X): {initialBallSpeedX}</span>
+      <br />
+      <input
+        type="range"
+        bind:value={initialBallSpeedX}
+        min={DEFAULT_BALL_INITIAL_SPEED.x}
+        max={DEFAULT_MAX_BALL_SPEED.x}
+      />
+      <br />
+      <span>Initial ball's speed (Y): {initialBallSpeedY}</span>
+      <br />
+      <input
+        type="range"
+        bind:value={initialBallSpeedY}
+        min={DEFAULT_BALL_INITIAL_SPEED.y}
+        max={DEFAULT_MAX_BALL_SPEED.y}
+      />
+    </div>
     <MapCustomization {map} />
   </div>
 </div>

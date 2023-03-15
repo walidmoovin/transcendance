@@ -3,7 +3,6 @@ import { type Point, Rect } from './utils'
 import { type MapDtoValidated } from '../dtos/MapDtoValidated'
 import {
   DEFAULT_BALL_SIZE,
-  DEFAULT_BALL_INITIAL_SPEED,
   GAME_TICKS,
   DEFAULT_BALL_SPEED_INCREMENT,
   DEFAULT_MAX_BALL_SPEED
@@ -19,12 +18,12 @@ export class Ball {
 
   constructor (
     spawn: Point,
-    size: Point = DEFAULT_BALL_SIZE,
-    speed: Point = DEFAULT_BALL_INITIAL_SPEED.clone()
+    initialSpeed: Point,
+    size: Point = DEFAULT_BALL_SIZE.clone()
   ) {
     this.rect = new Rect(spawn, size)
-    this.speed = speed
-    this.initial_speed = speed.clone()
+    this.speed = initialSpeed.clone()
+    this.initial_speed = initialSpeed.clone()
     this.spawn = spawn.clone()
     this.indexPlayerScored = -1
     this.timeoutTime = 0

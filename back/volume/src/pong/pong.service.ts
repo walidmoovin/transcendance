@@ -15,14 +15,23 @@ export class PongService {
     private readonly usersService: UsersService
   ) {}
 
-  async updateStats (player: User, i: number, result: Result, maxScore: number): Promise<void> {
+  async updateStats (
+    player: User,
+    i: number,
+    result: Result,
+    maxScore: number
+  ): Promise<void> {
     player.matchs++
     if (result.score[i] === maxScore) player.wins++
     else player.looses++
     player.winrate = (100 * player.wins) / player.matchs
   }
 
-  async updatePlayer (i: number, result: Result, maxScore: number): Promise<void> {
+  async updatePlayer (
+    i: number,
+    result: Result,
+    maxScore: number
+  ): Promise<void> {
     const player: User | null = result.players[i]
     if (player == null) return
     if (result.ranked) await this.updateStats(player, i, result, maxScore)
@@ -37,7 +46,11 @@ export class PongService {
     await this.usersService.save(player)
   }
 
-  async saveResult (players: Player[], ranked: boolean, maxScore: number): Promise<void> {
+  async saveResult (
+    players: Player[],
+    ranked: boolean,
+    maxScore: number
+  ): Promise<void> {
     const result = new Result()
     const ply = new Array<User | null>()
     ply.push(await this.usersService.findUserByName(players[0].name))

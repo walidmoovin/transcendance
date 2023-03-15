@@ -1,6 +1,6 @@
 import { type Socket } from 'socket.io'
 import { type GameCreationDtoValidated } from '../dtos/GameCreationDtoValidated'
-import { DEFAULT_MAP_SIZE } from './constants'
+import { DEFAULT_BALL_INITIAL_SPEED, DEFAULT_MAP_SIZE } from './constants'
 import { type Games } from './Games'
 
 export class MatchmakingQueue {
@@ -48,7 +48,9 @@ export class MatchmakingQueue {
       map: {
         size: DEFAULT_MAP_SIZE,
         walls: []
-      }
+      },
+      initialBallSpeedX: DEFAULT_BALL_INITIAL_SPEED.x,
+      initialBallSpeedY: DEFAULT_BALL_INITIAL_SPEED.y
     }
     const ranked = true
 
