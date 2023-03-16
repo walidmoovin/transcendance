@@ -25,9 +25,13 @@ export class ChatService {
 
     let newChannel: Channel
     if (channel.isDM) {
-      const otherUser: User | null = await this.usersService.findUserByName(channel.otherDMedUsername)
+      const otherUser: User | null = await this.usersService.findUserByName(
+        channel.otherDMedUsername
+      )
       if (otherUser == null) {
-        throw new NotFoundException(`User #${channel.otherDMedUsername} not found`)
+        throw new NotFoundException(
+          `User #${channel.otherDMedUsername} not found`
+        )
       }
       newChannel = this.createDM(user, otherUser)
     } else {
@@ -179,7 +183,7 @@ export class ChatService {
 
   async getMuteDuration (id: number, userId: number): Promise<number> {
     const channel = await this.ChannelRepository.findOne({
-      where: { id },
+      where: { id }
     })
     if (channel === null) {
       throw new NotFoundException(`Channel #${id} not found`)

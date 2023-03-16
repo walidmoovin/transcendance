@@ -30,12 +30,14 @@ export class MessageService {
     channel: Channel,
     user: User
   ): Promise<Message[]> {
-    return await this.MessageRepository.createQueryBuilder('message')
+    console.log('findMessagesInChannelForUser', channel.id, user.ftId)
+    const blockeds = user.blocked.map((u) => +u.ftId)
+    console.log(JSON.stringify(blockeds))
+    const messages = await this.MessageRepository.createQueryBuilder('message')
       .innerJoin('message.channel', 'channel')
-      .where('message.channel = :chan', { chan: channel })
-      .andWhere('message.author NOT IN (:...blocked)', {
-        blocked: user.blocked
-      })
+      .where('channel.id = :chanId', { chanId: channel.id })
+      .leftJoinAndSelect('message.author', 'author')
       .getMany()
+    return messages.filter((m) => !blockeds.includes(m.author.ftId))
   }
 }

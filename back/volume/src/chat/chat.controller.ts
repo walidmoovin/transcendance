@@ -210,13 +210,20 @@ export class ChatController {
   }
 
   @Get('dms/:otherId')
-  async getDMsForUser (@Profile42() profile: Profile, @Param('otherName') otherName: string): Promise<Channel[]> {
+  async getDMsForUser (
+    @Profile42() profile: Profile,
+      @Param('otherName') otherName: string
+  ): Promise<Channel[]> {
     const other = await this.usersService.findUserByName(otherName)
     const otherId = other.ftId
     const channels = await this.channelService.getChannelsForUser(+profile.id)
 
     return channels.filter((channel: Channel) => {
-      return channel.users?.some((ch) => ch.id === otherId) && channel.isPrivate && channel.password === ''
+      return (
+        channel.users?.some((ch) => ch.id === otherId) &&
+        channel.isPrivate &&
+        channel.password === ''
+      )
     })
   }
 

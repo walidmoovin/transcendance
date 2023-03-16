@@ -23,7 +23,6 @@
       mode: "cors",
     });
     if (res.ok) blockedUsers = await res.json();
-
   });
   socket.on("messages", (msgs: Array<chatMessagesType>) => {
     chatMessages = msgs;
@@ -35,7 +34,7 @@
 
   onDestroy(() => {
     socket.emit("leaveChannel");
-  })
+  });
 
   //--------------------------------------------------------------------------------/
 
@@ -46,7 +45,7 @@
         text: newText,
         UserId: $store.ftId,
         ChannelId: channel.id,
-      })
+      });
       newText = "";
       const messagesDiv = document.querySelector(".messages");
       if (messagesDiv) {
@@ -276,7 +275,7 @@
               on:keydown={() => openProfile(message.author.username)}
               style="cursor: pointer;"
             >
-              {message.author}
+              {message.author.username}
             </span>: {message.text}
           {/if}
         </p>

@@ -37,9 +37,7 @@ export class UsersController {
 
   @Get('blocked')
   @UseGuards(AuthenticatedGuard)
-  async getBlockedUsers (
-    @Profile42() profile: Profile
-  ): Promise<User[]> {
+  async getBlockedUsers (@Profile42() profile: Profile): Promise<User[]> {
     const user = await this.usersService.getFullUser(profile.id)
     if (user === null) throw new BadRequestException('User not found')
     return user.blocked
