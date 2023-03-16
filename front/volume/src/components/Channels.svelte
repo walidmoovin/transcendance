@@ -30,7 +30,7 @@
     });
     if (res.ok) channels = await res.json();
   };
-  
+
   let channels: Array<ChannelsType> = [];
     onMount(async () => {
     getChannels()
@@ -180,6 +180,7 @@
         {#each channels.slice(0, 10) as _channels}
           <li>
             <span>{_channels.name}</span>
+            <div style="display:block; margin-right:10%">
             <button on:click={() => selectChat(_channels.id)}>🔌</button>
             <button
               on:click={() => removeChannel(_channels.id)}
@@ -189,6 +190,7 @@
             <button on:click={() => changePassword(_channels.id)}
               >Edit Password</button
             >
+            </div>
           </li>{/each}
       {:else}
         <p>No channels available</p>
@@ -221,6 +223,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow-x:visible;
   }
 
   .channels {
@@ -228,15 +231,15 @@
     border: 1px solid #dedede;
     border-radius: 5px;
     padding: 1rem;
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
+    width: 500px;
+    overflow-y: scroll;
+    overflow-x: auto;
+    max-height: 80%;
   }
 
   h2 {
-    font-size: 18px;
     margin-bottom: 1rem;
+    font-size:xx-large;
   }
 
   p {
@@ -252,7 +255,7 @@
     margin-bottom: 0.5rem;
     flex-wrap: wrap;
   }
-
+  
   button {
     background-color: #6b8e23;
     color: #ffffff;
@@ -267,17 +270,23 @@
   }
 
   select {
+    color:black;
+    text-align: center;
+    margin: 50;
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #dedede;
-    border-radius: 5px;
-    background-color: #5e5d5d;
-    font-size: 14px;
-    margin-bottom: 1rem;
+    height: 15%;
+    padding: 10px;
+    border-radius: 20px;
+    background: #eee;
+    border: none; 
+    outline: grey;
+    display: inline-block;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     appearance: none;
     cursor: pointer;
   }
-
+  
   .button {
     background-color: #6b8e23;
     color: #ffffff;
@@ -288,5 +297,15 @@
     cursor: pointer;
     outline: none;
     width: 100%;
+  }
+
+  span {
+    width: 100%;
+    outline: 10%;
+    margin: 1%;
+    height: 10%;
+    font-size: 100%; /* Taille de la police en pourcentage */
+    padding: 10px;
+    top: 2px;
   }
 </style>

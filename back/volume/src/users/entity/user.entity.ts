@@ -1,4 +1,4 @@
-  Entity,
+import {  Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToMany,
@@ -24,7 +24,7 @@ export class User {
   @Column({ select: false, nullable: true })
     authToken: string
 
-  @Column({ default: false })
+  @Column({ default: false }) 
     twoFA: boolean
 
   @Column({ default: false, nullable: true })
