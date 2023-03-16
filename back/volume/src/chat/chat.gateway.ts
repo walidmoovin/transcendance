@@ -35,9 +35,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly connectedUserRepository: Repository<ConnectedUser>
   ) {}
 
-  async handleConnection (socket: Socket): Promise<void> {
-    console.log('Client connected: ' + socket.id)
-  }
+  async handleConnection (socket: Socket): Promise<void> {}
 
   handleDisconnect (socket: Socket): void {
     socket.disconnect()
