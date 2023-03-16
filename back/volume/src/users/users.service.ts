@@ -58,6 +58,16 @@ export class UsersService {
     return user
   }
 
+  async getFullUser (ftId: number): Promise<User> {
+    let user = await this.usersRepository.findOne({
+      where: { ftId },
+      relations: ['results', 'blocked', 'friends']
+    })
+    if (user === null) throw new BadRequestException('User not found.')
+    return user
+  }
+
+
   async findOnlineUsers (): Promise<User[]> {
     const users = await this.usersRepository.find({
       where: { status: 'online' }

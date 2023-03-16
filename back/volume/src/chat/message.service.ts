@@ -23,10 +23,7 @@ export class MessageService {
     msg.text = message.text
     msg.channel = await this.channelService.getChannel(message.ChannelId)
     msg.author = (await this.usersService.findUser(message.UserId)) as User
-    msg.channel.messages.push(msg)
-    return await this.MessageRepository.save(
-      this.MessageRepository.create(msg)
-    )
+    return await this.MessageRepository.save(msg)
   }
 
   async findMessagesInChannelForUser (
@@ -34,6 +31,7 @@ export class MessageService {
     user: User
   ): Promise<Message[]> {
     return await this.MessageRepository.createQueryBuilder('message')
+      .innerJoin('message.channel', 'channel')
       .where('message.channel = :chan', { chan: channel })
       .andWhere('message.author NOT IN (:...blocked)', {
         blocked: user.blocked

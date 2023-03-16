@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   export interface chatMessagesType {
     id: number;
-    author: string;
+    author: User;
     text: string;
   }
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
@@ -18,38 +18,35 @@
   export let channel: ChannelsType;
   let newText = "";
   onMount(async () => {
-    let res = await fetch(API_URL + "/users/block/" + $store.ftId, {
+    let res = await fetch(API_URL + "/users/blocked/", {
       credentials: "include",
       mode: "cors",
     });
     if (res.ok) blockedUsers = await res.json();
 
-    socket.on("messages", (msgs: Array<chatMessagesType>) => {
-      chatMessages = msgs;
-    });
-
-    socket.on("newMessage", (msg: chatMessagesType) => {
-      chatMessages = [...chatMessages.slice(-5 + 1), msg];
-    });
-
-    onDestroy(() => {
-      socket.emit("leaveChannel", channel.id, $store.ftId);
-    });
   });
+  socket.on("messages", (msgs: Array<chatMessagesType>) => {
+    chatMessages = msgs;
+  });
+
+  socket.on("newMessage", (msg: chatMessagesType) => {
+    chatMessages = [...chatMessages, msg];
+  });
+
+  onDestroy(() => {
+    socket.emit("leaveChannel");
+  })
 
   //--------------------------------------------------------------------------------/
 
   const sendMessage = () => {
     if (newText !== "") {
-      /*
-      const newMessage = {
-        id: chatMessages.length + 1,
-        author: $store.username,
-        text: newText,
-      };
-      */
       chatMessages = [...chatMessages.slice(-5 + 1)];
-      socket.emit("addMessage", channel.id, $store.ftId, newText);
+      socket.emit("addMessage", {
+        text: newText,
+        UserId: $store.ftId,
+        ChannelId: channel.id,
+      })
       newText = "";
       const messagesDiv = document.querySelector(".messages");
       if (messagesDiv) {
@@ -275,8 +272,8 @@
           {#if !blockedUsers.filter((user) => user.username == message.author).length}
             <span
               class="message-name"
-              on:click={() => openProfile(message.author)}
-              on:keydown={() => openProfile(message.author)}
+              on:click={() => openProfile(message.author.username)}
+              on:keydown={() => openProfile(message.author.username)}
               style="cursor: pointer;"
             >
               {message.author}

@@ -35,13 +35,23 @@ import { join } from 'path'
 export class UsersController {
   constructor (private readonly usersService: UsersService) {}
 
+  @Get('blocked')
+  @UseGuards(AuthenticatedGuard)
+  async getBlockedUsers (
+    @Profile42() profile: Profile
+  ): Promise<User[]> {
+    const user = await this.usersService.getFullUser(profile.id)
+    if (user === null) throw new BadRequestException('User not found')
+    return user.blocked
+  }
+
   @Get('block/:id')
   @UseGuards(AuthenticatedGuard)
   async blockUser (
     @Profile42() profile: Profile,
       @Param('id') id: number
   ): Promise<void> {
-    const user = await this.usersService.findUser(profile.id)
+    const user = await this.usersService.getFullUser(profile.id)
     const target = await this.usersService.findUser(id)
     if (user === null || target === null) {
       throw new BadRequestException('User not found')
@@ -56,7 +66,7 @@ export class UsersController {
     @Profile42() profile: Profile,
       @Param('id') id: number
   ): Promise<void> {
-    const user = await this.usersService.findUser(profile.id)
+    const user = await this.usersService.getFullUser(profile.id)
     if (user === null) throw new BadRequestException('User not found')
     user.blocked = user.blocked.filter((usr: User) => {
       return usr.id !== id

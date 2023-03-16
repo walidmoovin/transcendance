@@ -180,7 +180,6 @@ export class ChatService {
   async getMuteDuration (id: number, userId: number): Promise<number> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: { muted: true }
     })
     if (channel === null) {
       throw new NotFoundException(`Channel #${id} not found`)

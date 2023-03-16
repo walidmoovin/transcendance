@@ -49,15 +49,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException('You are banned from entering this channel')
     }
     const user = (await this.userService.findUser(connect.UserId)) as User
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    // We don't need to verify if the user is already in imo
-    //
-    // if (
-    //  channel.users.find((usr) => usr.id === user.id) == null &&
-    //  channel.password !== ''
-    // ) {
-    if (
-      channel.password !== '' &&
+    if ( channel.password !== '' &&
       !(await bcrypt.compare(channel.password, connect.pwd))
     ) {
       throw new WsException('Wrong password')
@@ -88,6 +80,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('addMessage')
   async onAddMessage (socket: Socket, message: CreateMessageDto): Promise<void> {
+    console.log(JSON.stringify(message));
     const channel = await this.chatService.getChannel(message.ChannelId)
     if (
       (await this.chatService.getMuteDuration(channel.id, message.UserId)) > 0

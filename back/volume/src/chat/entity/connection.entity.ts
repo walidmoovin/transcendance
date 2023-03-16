@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm'
 
 import Channel from './channel.entity'
 import User from 'src/users/entity/user.entity'
@@ -12,6 +12,6 @@ export default class ConnectedUser {
   @JoinColumn()
     channel: Channel
 
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
     socket: string
 }
