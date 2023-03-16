@@ -44,8 +44,7 @@
       const channel = channels.find((c) => c.id === id);
       if (channel) {
         joinChannel(id);
-        console.log("joined a channel")
-      onSelectChannel(channel);
+        onSelectChannel(channel);
       } else {
         alert("Did not find channel");
       }
