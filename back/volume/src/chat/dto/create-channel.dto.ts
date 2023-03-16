@@ -1,7 +1,6 @@
 import { Transform } from 'class-transformer'
 import {
   IsPositive,
-  IsAlpha,
   IsString,
   IsOptional,
   IsNumber,
@@ -25,4 +24,10 @@ export class CreateChannelDto {
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
     isPrivate: boolean
+
+  @IsBoolean()
+    isDM: boolean
+
+  @IsString()
+    otherDMedUsername: string
 }

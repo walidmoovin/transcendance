@@ -22,14 +22,38 @@ export class ChatService {
     if (user == null) {
       throw new NotFoundException(`User #${channel.owner} not found`)
     }
-    const newChannel = new Channel()
-    newChannel.owner = user
-    newChannel.users = [user]
-    newChannel.admins = [user]
-    newChannel.name = channel.name
-    newChannel.isPrivate = channel.isPrivate
-    newChannel.password = channel.password
+
+    let newChannel: Channel
+    if (channel.isDM) {
+      const otherUser: User | null = await this.usersService.findUserByName(channel.otherDMedUsername)
+      if (otherUser == null) {
+        throw new NotFoundException(`User #${channel.otherDMedUsername} not found`)
+      }
+      newChannel = this.createDM(user, otherUser)
+    } else {
+      newChannel = new Channel()
+      newChannel.owner = user
+      newChannel.users = [user]
+      newChannel.admins = [user]
+      newChannel.name = channel.name
+      newChannel.isPrivate = channel.isPrivate
+      newChannel.password = channel.password
+    }
     return await this.ChannelRepository.save(newChannel)
+  }
+
+  createDM (user: User, otherUser: User): Channel {
+    const newDM = new Channel()
+    newDM.isPrivate = true
+    newDM.password = ''
+
+    newDM.owner = user
+    newDM.users = [user, otherUser]
+    newDM.admins = []
+    newDM.name = user.username + ' & ' + otherUser.username
+    newDM.isPrivate = true
+    newDM.password = ''
+    return newDM
   }
 
   async updatePassword (id: number, password: string) {

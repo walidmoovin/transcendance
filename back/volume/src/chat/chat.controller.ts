@@ -40,6 +40,8 @@ export class ChatController {
     const user: User | null = await this.usersService.findUser(target.id)
     if (user == null)
       throw new NotFoundException(`User #${target.id} not found`)
+    if (channel.isPrivate && channel.password === '')
+      throw new BadRequestException('You cannot add more users to a DM')
     if (!(await this.channelService.isUser(channel.id, +profile.id))) {
       throw new BadRequestException(
         'You are not allowed to invite users to this channel'
@@ -183,6 +185,17 @@ export class ChatController {
   @Get()
   async getChannelsForUser (@Profile42() profile: Profile): Promise<Channel[]> {
     return await this.channelService.getChannelsForUser(+profile.id)
+  }
+
+  @Get('dms/:otherId')
+  async getDMsForUser (@Profile42() profile: Profile, @Param('otherName') otherName: string): Promise<Channel[]> {
+    const other = await this.usersService.findUserByName(otherName)
+    const otherId = other.ftId
+    const channels = await this.channelService.getChannelsForUser(+profile.id)
+
+    return channels.filter((channel: Channel) => {
+      return channel.users?.some((ch) => ch.id === otherId) && channel.isPrivate && channel.password === ''
+    })
   }
 
   @Post()
