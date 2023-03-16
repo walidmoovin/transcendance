@@ -39,7 +39,8 @@
   //--------------------------------------------------------------------------------/
 
   export let onSelectChannel: (channel: ChannelsType) => void;
-  const selectChat = (id: number) => {
+  export const selectChat = (id: number) => {
+	console.log(id);
     const channel = channels.find((c) => c.id === id);
     if (channel) {
       joinChannel(id);

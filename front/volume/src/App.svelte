@@ -26,9 +26,11 @@
 
   import Pong from "./components/Pong/Pong.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
+  import { API_URL } from "./Auth";
 
   import { store, getUser, login, verify } from "./Auth";
   import FakeLogin from "./FakeLogin.svelte";
+    // import { channel } from "diagnostics_channel";
 
   // Single Page Application config
   let appState: string = APPSTATE.HOME;
@@ -57,6 +59,15 @@
     getUser();
   }, 15000);
 
+  let DMChannel: Array<ChannelsType> = [];
+  onMount(async () => {
+    const res = await fetch(API_URL + "/channels/dms/" + DMUsername, {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (res.ok) DMChannel = await res.json();
+  });
+
   function clickProfile() {
     setAppState(APPSTATE.PROFILE);
   }
@@ -65,6 +76,18 @@
   async function openIdProfile(event: CustomEvent<string>) {
     profileUsername = event.detail;
     setAppState(APPSTATE.PROFILE_ID);
+  }
+
+  let chan: Channels;
+  let DMUsername: string = "";
+  async function openDirectChat(event: CustomEvent<string>) {
+	// pass profile to backend
+	// backend looks for a chat and if it doesn't exist it creates it
+	// backend send chat id to front end
+	// front opens chat with selectChat()
+	DMUsername = event.detail;
+	console.log(chan);
+	chan.selectChat(DMChannel[0].id);
   }
 
   async function clickHistory() {
@@ -130,8 +153,9 @@
       {clickLeaderboard}
     />
     {#if appState.includes(APPSTATE.CHANNELS)}
-      {#if appState.replace(APPSTATE.CHANNELS, "") !== ""}
+      <!-- {#if appState.replace(APPSTATE.CHANNELS, "") !== ""} -->
         <div
+		class="{appState.replace(APPSTATE.CHANNELS, "") === "" ? 'hidden' : ''}"
           on:click={() => setAppState(APPSTATE.CHANNELS)}
           on:keydown={() => setAppState(APPSTATE.CHANNELS)}
         >
@@ -140,13 +164,17 @@
             on:view-profile={openIdProfile}
             on:add-friend={addFriend}
             on:invite-to-game={pong.inviteToGame}
+			on:send-message={openDirectChat}
           />
         </div>
-      {:else}
-        <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Channels onSelectChannel={handleSelectChannel} />
+      <!-- {:else} -->
+        <div
+		class="{appState.replace(APPSTATE.CHANNELS, "") !== "" ? 'hidden' : ''}"
+		on:click={resetAppState}
+		on:keydown={resetAppState}>
+          <Channels bind:this={chan} onSelectChannel={handleSelectChannel} />
         </div>
-      {/if}
+      <!-- {/if} -->
     {/if}
     {#if appState === APPSTATE.LEADERBOARD}
       <div on:click={resetAppState} on:keydown={resetAppState}>
@@ -243,5 +271,9 @@
   .login-button:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.25);
+  }
+
+  .hidden {
+	display: none;
   }
 </style>
