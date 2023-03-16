@@ -121,8 +121,8 @@
   }
 
   .history {
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: #343a40;
+    border: 1px solid #198754;
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
@@ -130,12 +130,33 @@
     justify-content: center;
     max-height: 500px;
     overflow-y: scroll;
+    color: #e8e6e3;
   }
 
   td {
-    border: 1px solid #111;
+    border: 1px solid #198754;
     text-align: center;
     max-width: 15ch;
     overflow: hidden;
+    padding: 0.25rem 0.5rem;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  table thead th {
+    background-color: #198754;
+    color: #e8e6e3;
+    padding: 0.5rem 0;
+  }
+
+  table tbody tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  p {
+    color: #e8e6e3;
   }
 </style>

@@ -11,7 +11,6 @@ import type { ChannelsType } from "./Channels.svelte";
 import type User  from "./Profile.svelte";
 </script>
 
-//--------------------------------------------------------------------------------/
 <script lang="ts">
 
 	let blockedUsers: Array<User> = [];
@@ -270,10 +269,10 @@ import type User  from "./Profile.svelte";
     <form on:submit|preventDefault={ sendMessage }>
       <input type="text" placeholder = "Type a message..." bind:value={ newText } />
         <button>
-        <img src="img/send.png" alt = "send" />
-          </button>
-          </form>
-          <button on:click|stopPropagation={ toggleChatMembers } on:keydown|stopPropagation > Chat Members </button>
+          <img src="img/send.png" alt = "send" />
+        </button>
+    </form>
+    <button on:click|stopPropagation={ toggleChatMembers } on:keydown|stopPropagation > Chat Members </button>
     { #if showChatMembers }
       <div
         class="chatMembers"
@@ -300,38 +299,101 @@ import type User  from "./Profile.svelte";
 </div>
 
 <style>
-				.overlay {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0, 0, 0, 0.5);
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   .chat {
-			background-color: #fff;
-			border: 1px solid #ccc;
-			border-radius: 5px;
-			padding: 1rem;
-			width: 300px;
-		}
+    background-color: #5f5e5e;
+    border: 1px solid #dedede;
+    border-radius: 5px;
+    padding: 1rem;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+  }
 
   .messages {
-			height: 200px;
-			overflow-y: scroll;
-		}
+    height: 200px;
+    overflow-y: scroll;
+    border-bottom: 1px solid #dedede;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
 
+  .message {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  .message-name {
+    font-weight: 600;
+    color: #4c4c4c;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #dedede;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 1rem;
+  }
+
+  button {
+    background-color: #6B8E23;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    margin-bottom: 1rem;
+  }
+
+  button:last-child {
+    margin-bottom: 0;
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .profile-menu,
   .chatMembers {
-			position: absolute;
-			background-color: #fff;
-			border: 1px solid #ccc;
-			border-radius: 5px;
-			padding: 1rem;
-			max-height: 100px;
-			overflow-y: scroll;
-		}
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #dedede;
+    border-radius: 5px;
+    padding: 1rem;
+    max-height: 100px;
+    overflow-y: scroll;
+    z-index: 1;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  li:last-child {
+    margin-bottom: 0;
+  }
 </style>

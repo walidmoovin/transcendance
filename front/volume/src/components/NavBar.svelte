@@ -78,7 +78,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f5f5f5;
+    background-color: #343a40;
     padding: 1rem;
     max-height: 5vh;
   }
@@ -101,11 +101,28 @@
   }
 
   .navigation-bar button {
+    background-color: transparent;
+    color: #e8e6e3;
     border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease-in-out;
+    outline: none;
+  }
+
+  .navigation-bar button:hover {
+    background-color: #198754;
+  }
+
+  .navigation-bar button:focus {
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.25);
   }
 
   .hamburger {
     display: none;
+    fill: #e8e6e3;
   }
 
   .links {
@@ -134,7 +151,6 @@
 
     .hamburger {
       display: block;
-      /* margin: 0 auto; */
     }
 
     .links {

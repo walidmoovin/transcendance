@@ -201,11 +201,20 @@
 </div>
 
 <style>
+  :global(body) {
+    background-color: #212529;
+    color: #e8e6e3;
+    margin: 0;
+    padding: 0;
+  }
+
   .login-div {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 10vh;
+    justify-content: center;
+    height: 100vh;
+    gap: 1rem;
   }
 
   .img-42 {
@@ -216,6 +225,23 @@
   }
 
   .login-button {
-    display: inline;
+    display: inline-block;
+    background-color: #198754;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .login-button:hover {
+    background-color: #157347;
+  }
+
+  .login-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.25);
   }
 </style>

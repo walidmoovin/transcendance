@@ -89,7 +89,7 @@
       {:else}
         <p>No invitations to display</p>
       {/if}
-      <div>
+      <div class="friends-controls">
         <h3>Add a friend</h3>
         <form on:submit={addFriend}>
           <input type="text" />
@@ -115,16 +115,57 @@
   }
 
   .friends {
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: #343a40;
+    border: 1px solid #198754;
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
+    color: #e8e6e3;
+  }
+
+  h2, h3 {
+    color: #e8e6e3;
   }
 
   .friends-list,
   .invits-list {
     overflow-y: scroll;
     max-height: 200px;
+  }
+
+  input[type="text"], button {
+    background-color: #198754;
+    border: none;
+    color: #e8e6e3;
+    padding: 0.25rem 0.5rem;
+    margin: 0.25rem;
+  }
+
+  input[type="text"]::placeholder {
+    color: rgba(232, 230, 227, 0.5);
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 2px 1px rgba(25, 135, 84, 0.5);
+  }
+
+  button:hover {
+    background-color: #28a745;
+  }
+
+  .friends-controls {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  input[type="text"] {
+    flex-grow: 1;
+    margin-right: 0.25rem;
+  }
+
+  button {
+    flex-shrink: 0;
   }
 </style>

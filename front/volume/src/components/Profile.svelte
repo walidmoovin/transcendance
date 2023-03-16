@@ -143,12 +143,13 @@
   }
 
   .profile {
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: #343a40;
+    border: 1px solid #495057;
     border-radius: 5px;
     padding: 1rem;
     max-width: 80%;
     width: 375px;
+    color: #e8e6e3;
   }
 
   .profile-header {
@@ -190,5 +191,32 @@
 
   #logout {
     float: right;
+  }
+
+  mark {
+    background-color: #198754;
+    padding: 0 0.2rem;
+    color: #e8e6e3;
+  }
+
+  button {
+    background-color: #198754;
+    border: none;
+    color: #e8e6e3;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease-in-out;
+    outline: none;
+    margin: 0.5rem;
+  }
+
+  button:hover {
+    background-color: #157347;
+  }
+
+  button:focus {
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.25);
   }
 </style>

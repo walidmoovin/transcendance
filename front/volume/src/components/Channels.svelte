@@ -191,52 +191,71 @@
     justify-content: center;
     align-items: center;
   }
+
   .channels {
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: #5f5e5e;
+    border: 1px solid #dedede;
     border-radius: 5px;
     padding: 1rem;
     width: 300px;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
   }
-  
+
+  h2 {
+    font-size: 18px;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 14px;
+    margin-bottom: 1rem;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 14px;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  button {
+    background-color: #6B8E23;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    white-space: nowrap;
+    margin-bottom: 5px;
+  }
+
   select {
     width: 100%;
-    height: 15%;
-    padding: 5px;
-    border-radius: 4px;
-    background: #eee;
-    border: none;
-    outline: grey;
-    display: inline-block;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    padding: 0.5rem;
+    border: 1px solid #dedede;
+    border-radius: 5px;
+    background-color: #5e5d5d;
+    font-size: 14px;
+    margin-bottom: 1rem;
     appearance: none;
     cursor: pointer;
   }
 
   .button {
-    color: white;
-    margin:0 auto; 
-    margin: auto;
-    width: 45%;
-    height: 15%;
-    padding: 5px;
-    border-radius: 4px;
-    background: #6B8E23;
+    background-color: #6B8E23;
+    color: #ffffff;
     border: none;
-    outline: grey;
-    display:block;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
     cursor: pointer;
-  }
-
-  span { 
-    color: rgb(0, 0, 0); 
-    font-size: 150%;
-    position: relative;
-    padding: 10px;
-    top: 2px;
+    outline: none;
+    width: 100%;
   }
 </style>
