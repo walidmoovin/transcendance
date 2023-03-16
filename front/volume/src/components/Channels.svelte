@@ -8,7 +8,7 @@
   }
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
-  import { io } from "../socket";
+  import { socket } from "../socket";
 </script>
 
 <script lang="ts">
@@ -17,7 +17,7 @@
   const channelOptions = ['public','private','direct'];
 
   const joinChannel = async (id: number) => {
-    io.emit("joinChannel", id, $store.ftId);
+    socket.emit("joinChannel", id, $store.ftId);
   };
 
   let channels: Array<ChannelsType> = [];

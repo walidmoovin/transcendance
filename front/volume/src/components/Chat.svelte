@@ -6,7 +6,7 @@
 }
 import { createEventDispatcher, onDestroy, onMount } from "svelte";
 import { store, API_URL } from "../Auth";
-import { io } from "../socket"
+import { socket } from "../socket"
 import type { ChannelsType } from "./Channels.svelte";
 import type User  from "./Profile.svelte";
 </script>
@@ -25,16 +25,16 @@ import type User  from "./Profile.svelte";
 	});
 	if (res.ok) blockedUsers = await res.json();
 
-    io.on("messages", (msgs: Array<chatMessagesType>) => {
+    socket.on("messages", (msgs: Array<chatMessagesType>) => {
       chatMessages = msgs;
     });
 
-    io.on("newMessage", (msg: chatMessagesType) => {
+    socket.on("newMessage", (msg: chatMessagesType) => {
       chatMessages = [...chatMessages.slice(-5 + 1), msg];
     });
 
     onDestroy(() => {
-      io.emit("leaveChannel", channel.id, $store.ftId);
+      socket.emit("leaveChannel", channel.id, $store.ftId);
     });
   });
 
@@ -48,7 +48,7 @@ import type User  from "./Profile.svelte";
         text: newText,
       };
       chatMessages = [...chatMessages.slice(-5 + 1)];
-      io.emit("addMessage", channel.id, $store.ftId, newText);
+      socket.emit("addMessage", channel.id, $store.ftId, newText);
       newText = "";
       const messagesDiv = document.querySelector(".messages");
       if (messagesDiv) {
@@ -135,7 +135,7 @@ import type User  from "./Profile.svelte";
       mode: "cors",
     });
     if (res2.ok) {
-      io.emit("kickUser", channel.id, $store.ftId, data1.ftId);
+      socket.emit("kickUser", channel.id, $store.ftId, data1.ftId);
       alert("User banned");
     } else {
       alert("Failed to ban user");
@@ -150,7 +150,7 @@ import type User  from "./Profile.svelte";
       mode: "cors",
     });
     const kickedUser = await res.json();
-    io.emit("kickUser", channel.id, $store.ftId, kickedUser.ftId);
+    socket.emit("kickUser", channel.id, $store.ftId, kickedUser.ftId);
   };
 
   //--------------------------------------------------------------------------------/
