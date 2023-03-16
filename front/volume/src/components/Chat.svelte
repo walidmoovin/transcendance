@@ -1,29 +1,28 @@
 <script lang="ts" context="module">
-	export interface chatMessagesType {
-	id: number;
-	author: string;
-	text: string;
-}
-import { createEventDispatcher, onDestroy, onMount } from "svelte";
-import { store, API_URL } from "../Auth";
-import { socket } from "../socket"
-import type { ChannelsType } from "./Channels.svelte";
-import type User  from "./Profile.svelte";
+  export interface chatMessagesType {
+    id: number;
+    author: string;
+    text: string;
+  }
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import { store, API_URL } from "../Auth";
+  import { socket } from "../socket";
+  import type { ChannelsType } from "./Channels.svelte";
+  import type User from "./Profile.svelte";
 </script>
 
 <script lang="ts">
-
-	let blockedUsers: Array<User> = [];
-	let chatMembers: Array<User> = [];
-	let chatMessages: Array<chatMessagesType> = [];
-	export let channel: ChannelsType;
-	let newText = "";
-	onMount(async () => {
-	let res = await fetch(API_URL + "/users/" + $store.ftId + "/blocked", {
-		credentials: "include",
-		mode: "cors",
-	});
-	if (res.ok) blockedUsers = await res.json();
+  let blockedUsers: Array<User> = [];
+  let chatMembers: Array<User> = [];
+  let chatMessages: Array<chatMessagesType> = [];
+  export let channel: ChannelsType;
+  let newText = "";
+  onMount(async () => {
+    let res = await fetch(API_URL + "/users/block/" + $store.ftId, {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (res.ok) blockedUsers = await res.json();
 
     socket.on("messages", (msgs: Array<chatMessagesType>) => {
       chatMessages = msgs;
@@ -42,11 +41,13 @@ import type User  from "./Profile.svelte";
 
   const sendMessage = () => {
     if (newText !== "") {
+      /*
       const newMessage = {
         id: chatMessages.length + 1,
         author: $store.username,
         text: newText,
       };
+      */
       chatMessages = [...chatMessages.slice(-5 + 1)];
       socket.emit("addMessage", channel.id, $store.ftId, newText);
       newText = "";
@@ -83,111 +84,154 @@ import type User  from "./Profile.svelte";
   //--------------------------------------------------------------------------------/
 
   const blockUser = async (username: string) => {
-    const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
     });
-    const data1 = await res1.json();
-    const res2 = await fetch(API_URL + "/users/block/" + data1.ftId, {
-      credentials: "include",
-      method: "POST",
-      mode: "cors",
-    });
-    if (res2.ok) {
-      alert("User blocked");
-    } else {
-      alert("Failed to block user");
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/users/" + target.ftId + "/block", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: target.ftId }),
+      });
     }
+    if (response.ok) alert("User blocked");
+    else alert("Failed to block user");
   };
 
   //--------------------------------------------------------------------------------/
 
   const unblockUser = async (username: string) => {
-    const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
     });
-    const data1 = await res1.json();
-    const res2 = await fetch(API_URL + "/users/unblock/" + data1.ftId, {
-      credentials: "include",
-      method: "DELETE",
-      mode: "cors",
-    });
-    if (res2.ok) {
-      alert("User unblocked");
-    } else {
-      alert("Failed to unblock user");
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/users/" + target.ftId + "/block", {
+        credentials: "include",
+        method: "DELETE",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: target.ftId }),
+      });
     }
+    if (response.ok) alert("User blocked");
+    else alert("Failed to block user");
   };
 
   //--------------------------------------------------------------------------------/
 
   const banUser = async (username: string) => {
-    const prompt = window.prompt("Enter ban duration in seconds");
-    const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
     });
-    const data1 = await res1.json();
-    const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/ban", {
-      credentials: "include",
-      method: "POST",
-      mode: "cors",
-    });
-    if (res2.ok) {
-      socket.emit("kickUser", channel.id, $store.ftId, data1.ftId);
-      alert("User banned");
-    } else {
-      alert("Failed to ban user");
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: target.ftId }),
+      });
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
     }
+    if (response.ok) {
+      alert("User banned");
+    } else alert("Failed to ban user");
+  };
+
+  //--------------------------------------------------------------------------------/
+
+  const unbanUser = async (username: string) => {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
+        credentials: "include",
+        method: "DELETE",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: target.ftId }),
+      });
+    }
+    if (response.ok) alert("User unbanned");
+    else alert("Failed to unban user");
   };
 
   //--------------------------------------------------------------------------------/
 
   const kickUser = async (username: string) => {
-    const res = await fetch(API_URL + "/users/" + username + "/byname", {
+    const response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
     });
-    const kickedUser = await res.json();
-    socket.emit("kickUser", channel.id, $store.ftId, kickedUser.ftId);
+    if (response.ok) {
+      const target = await response.json();
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
+    }
   };
 
   //--------------------------------------------------------------------------------/
 
   const muteUser = async (username: string) => {
     const prompt = window.prompt("Enter mute duration in seconds");
-    const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
     });
-    const data1 = await res1.json();
-    const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/mute", {
-      credentials: "include",
-      method: "POST",
-      mode: "cors",
-    });
-    if (res2.ok) {
-      alert("User muted");
-    } else {
-      alert("Failed to mute user");
+    const target = await response.json();
+    if (response.ok) {
+      response = await fetch(API_URL + "/channels/" + channel.id + "/mute", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data: [target.ftId, +prompt] }),
+      });
     }
+    if (response.ok) alert("User muted");
+    else alert("Failed to mute user");
   };
 
   //--------------------------------------------------------------------------------/
 
   const adminUser = async (username: string) => {
-    const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
     });
-    const data1 = await res1.json();
-    const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/admin", {
-      credentials: "include",
-      method: "POST",
-      mode: "cors",
-    });
-    if (res2.ok) {
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/channels/" + channel.id + "/admin", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: target.ftId }),
+      });
+    }
+    if (response.ok) {
       alert("User admined");
     } else {
       alert("Failed to admin user");
@@ -197,99 +241,124 @@ import type User  from "./Profile.svelte";
   //--------------------------------------------------------------------------------/
 
   const removeAdminUser = async (username: string) => {
-    const res1 = await fetch(API_URL + "/users/" + username + "/byname", {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
     });
-    const data1 = await res1.json();
-    const res2 = await fetch(API_URL + "/channels/" + data1.ftId + "/admin", {
-      credentials: "include",
-      method: "DELETE",
-      mode: "cors",
-    });
-    if (res2.ok) {
-      alert("User admin removed");
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/channels/" + channel.id + "/admin", {
+        credentials: "include",
+        method: "DELETE",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: target.ftId }),
+      });
+    }
+    if (response.ok) {
+      alert("User admined");
     } else {
-      alert("Failed to remove admin user");
+      alert("Failed to admin user");
     }
   };
 
   //--------------------------------------------------------------------------------/
 </script>
 
-
-<div class="overlay" >
+<div class="overlay">
   <div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
-    <div class="messages" >
-      { #each chatMessages as message }
-        <p class="message" >
-          { #if !blockedUsers.filter((user) => user.username == message.author).length }
-          <span
-            class="message-name"
-            on:click = {() => openProfile(message.author)}
-            on:keydown = {() => openProfile(message.author)}
-            style = "cursor: pointer;"
-          >
-          { message.author }
-          </span>: {message.text}
+    <div class="messages">
+      {#each chatMessages as message}
+        <p class="message">
+          {#if !blockedUsers.filter((user) => user.username == message.author).length}
+            <span
+              class="message-name"
+              on:click={() => openProfile(message.author)}
+              on:keydown={() => openProfile(message.author)}
+              style="cursor: pointer;"
+            >
+              {message.author}
+            </span>: {message.text}
           {/if}
         </p>
       {/each}
     </div>
-    { #if showProfileMenu }
-    <div
-      class="profile-menu"
-      on:click|stopPropagation
+    {#if showProfileMenu}
+      <div
+        class="profile-menu"
+        on:click|stopPropagation
+        on:keydown|stopPropagation
+      >
+        <ul>
+          <li>
+            <button on:click={() => dispatch("send-message", selectedUser)}>
+              Send Message
+            </button>
+          </li>
+          <li>
+            <button on:click={() => dispatch("view-profile", selectedUser)}>
+              View Profile
+            </button>
+          </li>
+          <li>
+            <button on:click={() => dispatch("add-friend", selectedUser)}>
+              Add Friend
+            </button>
+          </li>
+          <li>
+            <button on:click={() => dispatch("invite-to-game", selectedUser)}>
+              Invite to Game
+            </button>
+          </li>
+          <li>
+            {#if !blockedUsers.filter((user) => (user.username = selectedUser)).length}
+              <button on:click={() => blockUser(selectedUser)}>
+                Block User
+              </button>
+            {:else}
+              <button on:click={() => unblockUser(selectedUser)}>
+                Unblock User
+              </button>
+            {/if}
+          </li>
+          <li><button on:click={closeProfileMenu}> Close </button></li>
+        </ul>
+      </div>
+    {/if}
+    <form on:submit|preventDefault={sendMessage}>
+      <input type="text" placeholder="Type a message..." bind:value={newText} />
+      <button>
+        <img src="img/send.png" alt="send" />
+      </button>
+    </form>
+    <button
+      on:click|stopPropagation={toggleChatMembers}
       on:keydown|stopPropagation
     >
-    <ul>
-      <li>
-        <button on:click = {() => dispatch("send-message", selectedUser)}> Send Message </button>
-      </li>
-      <li>
-        <button on:click = {() => dispatch("view-profile", selectedUser)}> View Profile </button>
-      </li>
-      <li>
-        <button on:click = {() => dispatch("add-friend", selectedUser)}> Add Friend </button>
-      </li>
-      <li>
-        <button on:click = {() => dispatch("invite-to-game", selectedUser)}> Invite to Game </button>
-      </li>
-      <li>
-        { #if !blockedUsers.filter((user) => user.username = selectedUser).length }
-        <button on:click = {() => blockUser(selectedUser)}> Block User </button>
-        {:else }
-        <button on:click = {() => unblockUser(selectedUser)}> Unblock User </button>
-        {/if}
-      </li>
-      <li> <button on:click = { closeProfileMenu } > Close </button></li >
-    </ul>
-    </div>
-    {/if}
-    <form on:submit|preventDefault={ sendMessage }>
-      <input type="text" placeholder = "Type a message..." bind:value={ newText } />
-        <button>
-          <img src="img/send.png" alt = "send" />
-        </button>
-    </form>
-    <button on:click|stopPropagation={ toggleChatMembers } on:keydown|stopPropagation > Chat Members </button>
-    { #if showChatMembers }
+      Chat Members
+    </button>
+    {#if showChatMembers}
       <div
         class="chatMembers"
         on:click|stopPropagation
         on:keydown|stopPropagation
-      >
-      </div>
+      />
       <ul>
-        { #each chatMembers as member }
+        {#each chatMembers as member}
           <li>
             <p>
-              { member.username }
-              <button on:click = {() => banUser(member.username)}> ban </button>
-              <button on:click = {() => kickUser(member.username)}> kick </button>
-              <button on:click = {() => muteUser(member.username)}> mute </button>
-              <button on:click = {() => adminUser(member.username)}> promote </button>
-              <button on:click = {() => removeAdminUser(member.username)}> demote </button>
+              {member.username}
+              <button on:click={() => banUser(member.username)}> ban </button>
+              <button on:click={() => kickUser(member.username)}> kick </button>
+              <button on:click={() => muteUser(member.username)}> mute </button>
+              <button on:click={() => adminUser(member.username)}>
+                promote
+              </button>
+              <button on:click={() => removeAdminUser(member.username)}>
+                demote
+              </button>
             </p>
           </li>
         {/each}
@@ -351,7 +420,7 @@ import type User  from "./Profile.svelte";
   }
 
   button {
-    background-color: #6B8E23;
+    background-color: #6b8e23;
     color: #ffffff;
     border: none;
     border-radius: 5px;

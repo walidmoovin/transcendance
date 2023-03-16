@@ -11,16 +11,16 @@ import {
   Res,
   StreamableFile,
   BadRequestException,
-  Redirect
+  Redirect,
+  Delete
 } from '@nestjs/common'
 
 import { FileInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
 
-import { type User } from "./entity/user.entity";
-import { UsersService } from "./users.service";
-import { UserDto, AvatarUploadDto } from "./dto/user.dto";
-import { PongService } from "src/pong/pong.service";
+import { type User } from './entity/user.entity'
+import { UsersService } from './users.service'
+import { UserDto, AvatarUploadDto } from './dto/user.dto'
 
 import { AuthenticatedGuard } from 'src/auth/42-auth.guard'
 import { Profile42 } from 'src/auth/42.decorator'
@@ -35,24 +35,33 @@ import { join } from 'path'
 export class UsersController {
   constructor (private readonly usersService: UsersService) {}
 
-  @Post('block/:id')
+  @Get('block/:id')
   @UseGuards(AuthenticatedGuard)
-  @Post("block/:id")
-  async blockUser(@Profile42() profile :Profile, @Param('id') id:number) {
-    const user = await this.usersService.findUser(id) as User
-    user.blocked.push((await this.usersService.findUser(+profile.id)) as User)
-    this.usersService.save(user)
+  async blockUser (
+    @Profile42() profile: Profile,
+      @Param('id') id: number
+  ): Promise<void> {
+    const user = await this.usersService.findUser(profile.id)
+    const target = await this.usersService.findUser(id)
+    if (user === null || target === null) {
+      throw new BadRequestException('User not found')
+    }
+    user.blocked.push(target)
+    await this.usersService.save(user)
   }
 
-  @Post('unblock/:id')
+  @Delete('block/:id')
   @UseGuards(AuthenticatedGuard)
-  @Post("unblock/:id")
-  async unblockUser(@Profile42() profile :Profile, @Param('id') id:number) {
-    const user = await this.usersService.findUser(id) as User
-    user.blocked =  user.blocked.filter((usr: User) => {
+  async unblockUser (
+    @Profile42() profile: Profile,
+      @Param('id') id: number
+  ): Promise<void> {
+    const user = await this.usersService.findUser(profile.id)
+    if (user === null) throw new BadRequestException('User not found')
+    user.blocked = user.blocked.filter((usr: User) => {
       return usr.id !== id
     })
-    this.usersService.save(user)
+    await this.usersService.save(user)
   }
 
   @Get('all')
@@ -100,10 +109,10 @@ export class UsersController {
       }
     })
   )
-  @ApiConsumes("multipart/form-data")
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: "A new avatar for the user",
-    type: AvatarUploadDto,
+    description: 'A new avatar for the user',
+    type: AvatarUploadDto
   })
   async changeAvatar (
     @Profile42() profile: Profile,

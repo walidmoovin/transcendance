@@ -123,7 +123,8 @@
     color: #e8e6e3;
   }
 
-  h2, h3 {
+  h2,
+  h3 {
     color: #e8e6e3;
   }
 
@@ -133,7 +134,8 @@
     max-height: 200px;
   }
 
-  input[type="text"], button {
+  input[type="text"],
+  button {
     background-color: #198754;
     border: none;
     color: #e8e6e3;

@@ -4,7 +4,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
+  WsException
 } from '@nestjs/websockets'
 import { Socket, Server } from 'socket.io'
 // import { User } from 'users/user.entity';
@@ -19,7 +19,6 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import ConnectedUser from './entity/connection.entity'
 import { ConnectionDto } from './dto/connection.dto'
-
 
 @WebSocketGateway({
   cors: { origin: /^(http|ws):\/\/localhost(:\d+)?$/ }
@@ -36,7 +35,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly connectedUserRepository: Repository<ConnectedUser>
   ) {}
 
-  async handleConnection (socket: Socket): Promise<void> {}
+  async handleConnection (socket: Socket): Promise<void> {
+    console.log('Client connected: ' + socket.id)
+  }
 
   handleDisconnect (socket: Socket): void {
     socket.disconnect()
@@ -44,20 +45,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('joinChannel')
   async onJoinChannel (socket: Socket, connect: ConnectionDto): Promise<void> {
-    const channel = await this.chatService.getChannel(connect.ChannelId)
-    if (channel.banned.find((ban) => ban.id === connect.UserId) !== null)
+    console.log(connect.ChannelId, connect.UserId, connect.pwd)
+    const channel = await this.chatService.getFullChannel(connect.ChannelId)
+    if (channel.banned.find((ban) => ban.id === connect.UserId) !== null) {
       throw new WsException('You are banned from entering this channel')
+    }
     const user = (await this.userService.findUser(connect.UserId)) as User
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     // We don't need to verify if the user is already in imo
     //
-    //if (  
+    // if (
     //  channel.users.find((usr) => usr.id === user.id) == null &&
     //  channel.password !== ''
-    //) {
-    if (channel.password !== '' && !(await bcrypt.compare(channel.password, connect.pwd)))
-        throw new WsException('Wrong password')
-    else await this.chatService.addUserToChannel(channel, user) 
+    // ) {
+    if (
+      channel.password !== '' &&
+      !(await bcrypt.compare(channel.password, connect.pwd))
+    ) {
+      throw new WsException('Wrong password')
+    } else await this.chatService.addUserToChannel(channel, user)
 
     {
       const conUser = new ConnectedUser()
@@ -67,8 +73,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.connectedUserRepository.save(conUser)
     }
 
-    const messages = 
-      await this.messageService.findMessagesInChannelForUser(channel, user)
+    const messages = await this.messageService.findMessagesInChannelForUser(
+      channel,
+      user
+    )
     this.server.to(socket.id).emit('messages', messages)
     await socket.join(channel.name)
   }

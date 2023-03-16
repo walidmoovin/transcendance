@@ -1,7 +1,6 @@
 import { Transform } from 'class-transformer'
 import {
   IsPositive,
-  IsAlpha,
   IsString,
   IsOptional,
   IsNumber,

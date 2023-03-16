@@ -28,7 +28,7 @@ export default class Channel {
     password: string
 
   @BeforeInsert()
-  async hashPassword () {
+  async hashPassword (): Promise<void> {
     if (this.password === '') return
     this.password = await bcrypt.hash(
       this.password,

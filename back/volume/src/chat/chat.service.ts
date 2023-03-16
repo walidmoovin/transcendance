@@ -32,7 +32,7 @@ export class ChatService {
     return await this.ChannelRepository.save(newChannel)
   }
 
-  async updatePassword (id: number, password: string) {
+  async updatePassword (id: number, password: string): Promise<void> {
     const channel: Channel | null = await this.ChannelRepository.findOneBy({
       id
     })
@@ -89,7 +89,7 @@ export class ChatService {
   async getFullChannel (id: number): Promise<Channel> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: ['users', 'admins', 'banned', 'muted', 'owner']
+      relations: ['users', 'admins', 'banned', 'owner']
     })
     if (channel == null) {
       throw new NotFoundException(`Channel #${id} not found`)
@@ -97,15 +97,15 @@ export class ChatService {
     return channel
   }
 
-  async update (channel: Channel) {
+  async update (channel: Channel): Promise<void> {
     await this.ChannelRepository.update(channel.id, channel)
   }
 
-  async save (channel: Channel) {
+  async save (channel: Channel): Promise<void> {
     await this.ChannelRepository.save(channel)
   }
 
-  async removeChannel (channelId: number) {
+  async removeChannel (channelId: number): Promise<void> {
     await this.ChannelRepository.delete(channelId)
   }
 
@@ -114,7 +114,7 @@ export class ChatService {
       where: { id },
       relations: { owner: true }
     })
-    if (channel == null) {
+    if (channel === null) {
       throw new NotFoundException(`Channel #${id} not found`)
     }
     return channel.owner.ftId === userId
@@ -125,10 +125,10 @@ export class ChatService {
       where: { id },
       relations: { admins: true }
     })
-    if (channel == null) {
+    if (channel === null) {
       throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel.admins.findIndex((user) => user.ftId === userId) != -1
+    return channel.admins.findIndex((user) => user.ftId === userId) !== -1
   }
 
   async isUser (id: number, userId: number): Promise<boolean> {
@@ -136,10 +136,10 @@ export class ChatService {
       where: { id },
       relations: { users: true }
     })
-    if (channel == null) {
+    if (channel === null) {
       throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel.users.findIndex((user) => user.ftId === userId) != -1
+    return channel.users.findIndex((user) => user.ftId === userId) !== -1
   }
 
   async isBanned (id: number, userId: number): Promise<boolean> {
@@ -147,10 +147,10 @@ export class ChatService {
       where: { id },
       relations: { banned: true }
     })
-    if (channel == null) {
+    if (channel === null) {
       throw new NotFoundException(`Channel #${id} not found`)
     }
-    return channel.banned.findIndex((user) => user.ftId === userId) != -1
+    return channel.banned.findIndex((user) => user.ftId === userId) !== -1
   }
 
   async getMuteDuration (id: number, userId: number): Promise<number> {
@@ -158,16 +158,14 @@ export class ChatService {
       where: { id },
       relations: { muted: true }
     })
-    if (channel == null) {
+    if (channel === null) {
       throw new NotFoundException(`Channel #${id} not found`)
     }
 
     const mutation: number[] | undefined = channel.muted.find(
       (mutation) => mutation[0] === userId
     )
-    if (mutation == null) {
-      return 0
-    }
+    if (mutation == null) return 0
     return mutation[1]
   }
 }

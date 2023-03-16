@@ -11,7 +11,7 @@ export const API_URL = `http://${import.meta.env.VITE_HOST}:${
   import.meta.env.VITE_BACK_PORT
 }`;
 
-export async function getUser(bypass: boolean = false) {
+export async function getUser() {
   const res = await fetch(API_URL + "/users", {
     method: "get",
     mode: "cors",

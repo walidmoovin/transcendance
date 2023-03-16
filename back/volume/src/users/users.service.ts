@@ -46,7 +46,7 @@ export class UsersService {
         })
       }
     })
-    this.getLeaderboard()
+    await this.getLeaderboard()
   }
 
   async findUser (ftId: number): Promise<User | null> {
@@ -125,7 +125,9 @@ export class UsersService {
     let r = 0
     ret.forEach((usr) => {
       usr.rank = r++
-      this.usersRepository.save(usr)
+      this.usersRepository.save(usr).catch((err) => {
+        console.log(err)
+      })
       usr.socketKey = ''
     })
     return ret
