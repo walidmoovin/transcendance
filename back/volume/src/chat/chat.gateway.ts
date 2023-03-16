@@ -81,7 +81,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('addMessage')
-  async onAddMessage (socket: Socket, message: CreateMessageDto): Promise<void> {
+  async onAddMessage (message: CreateMessageDto): Promise<void> {
     console.log(JSON.stringify(message))
     const channel = await this.chatService.getChannel(message.ChannelId)
     if (
@@ -93,7 +93,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message
     )
     console.log(createdMessage)
-    socket.in(channel.id.toString()).emit('newMessage', createdMessage)
+    this.server.to(channel.id.toString()).emit('newMessage', createdMessage)
   }
 
   @SubscribeMessage('kickUser')
