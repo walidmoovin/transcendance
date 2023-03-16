@@ -37,11 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection (socket: Socket): Promise<void> {}
 
   async handleDisconnect (socket: Socket): Promise<void> {
-    const user = await this.connectedUserRepository.findOneBy({
-      socket: socket.id
-    })
-    if (user !== null) await this.connectedUserRepository.remove(user)
-    socket.disconnect()
+    await this.onLeaveChannel(socket)
   }
 
   @SubscribeMessage('joinChannel')
