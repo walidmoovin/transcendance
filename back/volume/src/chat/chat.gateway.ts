@@ -13,13 +13,11 @@ import { ChatService } from './chat.service'
 import type Message from './entity/message.entity'
 import * as bcrypt from 'bcrypt'
 import { MessageService } from './message.service'
-import { type User } from 'src/users/entity/user.entity'
 import { CreateMessageDto } from './dto/create-message.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import ConnectedUser from './entity/connection.entity'
 import { ConnectionDto } from './dto/connection.dto'
-import { plainToClass } from 'class-transformer'
 
 @WebSocketGateway({
   cors: { origin: /^(http|ws):\/\/localhost(:\d+)?$/ }
@@ -38,7 +36,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection (socket: Socket): Promise<void> {}
 
-  handleDisconnect (socket: Socket): void {
+  async handleDisconnect (socket: Socket): Promise<void> {
+    const user = await this.connectedUserRepository.findOneBy({
+      socket: socket.id
+    })
+    if (user !== null) await this.connectedUserRepository.remove(user)
     socket.disconnect()
   }
 
