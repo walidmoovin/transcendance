@@ -36,6 +36,20 @@ export class ChatService {
       if (otherUser.id === user.id) {
         throw new BadRequestException('Cannot DM yourself')
       }
+
+      const channels = await this.getChannelsForUser(user.id)
+      const dmAlreadyExists = channels.find((channel: Channel) => {
+        return (
+          (channel.name === (user.username + '&' + otherUser.username) ||
+            channel.name === (otherUser.username + '&' + user.username)) &&
+          channel.isPrivate &&
+          (channel.password === undefined || channel.password === '')
+        )
+      })
+      if (dmAlreadyExists !== undefined) {
+        throw new BadRequestException('DM already exists')
+      }
+
       newChannel = this.createDM(user, otherUser)
     } else {
       newChannel = new Channel()

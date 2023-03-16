@@ -34,10 +34,36 @@
   // Single Page Application config
   let appState: string = APPSTATE.HOME;
 
+  function updateChat() {
+    const urlSplit = appState.split("#", 2)
+    if (urlSplit && urlSplit.length > 1) {
+      console.log(urlSplit[1])
+    }
+    if (appState.includes(APPSTATE.CHANNELS) && urlSplit.length > 1) {
+      const currentChannelName = appState.split("#", 2)[1];
+      fetch(API_URL + "/channels", {
+        credentials: "include",
+        mode: "cors",
+      }).then((res) => {
+        res.json().then((channels) => {
+          const channel = channels.find((c: ChannelsType) => c.name === currentChannelName);
+          if (channel) {
+            chan.selectChat(channel.id);
+          } else {
+            alert("Failed loading channel");
+          }
+        });
+      }).catch(() => {
+        alert("Failed loading channel");
+      });
+    }
+  }
+
   history.replaceState({ appState: "" }, "", "/");
   window.onpopstate = (e: PopStateEvent) => {
     if (e.state) {
       appState = e.state.appState;
+      updateChat();
     }
   };
 
@@ -49,6 +75,7 @@
     if (newState === appState) return;
     appState = newState;
     history.pushState({ appState }, "", appState);
+    updateChat();
   }
 
   onMount(() => {
@@ -68,21 +95,26 @@
     setAppState(APPSTATE.PROFILE_ID);
   }
 
-  let chan: Channels;
-  async function openDirectChat(event: CustomEvent<string>) {
-    const DMUsername = "test";
-    let DMChannel: Array<ChannelsType> = [];
-    const res = await fetch(API_URL + "/channels/dms/" + DMUsername, {
+  async function getDMs(username: string): Promise<Response> {
+    const response = await fetch(API_URL + "/channels/dms/" + username, {
       credentials: "include",
       mode: "cors",
     });
+    return response;
+  }
+
+  let chan: Channels;
+  async function openDirectChat(event: CustomEvent<string>) {
+    const DMUsername = event.detail;
+    let DMChannel: Array<ChannelsType> = [];
+    const res = await getDMs($store.username)
     if (res.ok) {
       DMChannel = await res.json();
       if (DMChannel.length != 0) {
         chan.selectChat(DMChannel[0].id);
       } else {
         console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
-        const response = await fetch(API_URL + "/channels", {
+        fetch(API_URL + "/channels", {
           credentials: "include",
           method: "POST",
           mode: "cors",
@@ -97,25 +129,24 @@
             isDM: true,
             otherDMedUsername: DMUsername
           }),
-        });
-        if (response.ok) {
-          const res = await fetch(API_URL + "/channels/dms/" + DMUsername, {
-            credentials: "include",
-            mode: "cors",
-          });
-          if (res.ok) {
-              DMChannel = await res.json(); 
+        }).then(async () => {
+          const response = await getDMs($store.username)
+          if (response.ok) {
+              DMChannel = await response.json(); 
               if (DMChannel.length != 0) {
-                console.log("Found DMChannel: ", DMChannel);
                 chan.selectChat(DMChannel[0].id);
               } else {
-                alert("Error creating 1 DM");
+                alert("Error creating DM");
               }
           } else {
-            alert("Error creating 2 DM");
+            alert("Error creating DM");
           }
-        }
+        }).catch((error) => {
+          alert(error.message);
+        })
       }
+    } else {
+      alert("Error creating DM");
     }
   }
 
@@ -182,29 +213,26 @@
       {clickLeaderboard}
     />
     {#if appState.includes(APPSTATE.CHANNELS)}
-      <!-- {#if appState.replace(APPSTATE.CHANNELS, "") !== ""} -->
-        <div
-		      class="{appState.replace(APPSTATE.CHANNELS, "") === "" ? 'hidden' : ''}"
-          on:click={() => setAppState(APPSTATE.CHANNELS)}
-          on:keydown={() => setAppState(APPSTATE.CHANNELS)}
-        >
-          <Chat
-            channel={selectedChannel}
-            on:view-profile={openIdProfile}
-            on:add-friend={addFriend}
-            on:invite-to-game={pong.inviteToGame}
-			      on:send-message={openDirectChat}
-          />
-        </div>
-      <!-- {:else} -->
-        <div
-		      class="{appState.replace(APPSTATE.CHANNELS, "") !== "" ? 'hidden' : ''}"
-		      on:click={resetAppState}
-		      on:keydown={resetAppState}
-        >
-          <Channels bind:this={chan} onSelectChannel={handleSelectChannel} />
-        </div>
-      <!-- {/if} -->
+      <div
+        class="{appState.replace(APPSTATE.CHANNELS, "") === "" ? 'hidden' : ''}"
+        on:click={() => setAppState(APPSTATE.CHANNELS)}
+        on:keydown={() => setAppState(APPSTATE.CHANNELS)}
+      >
+        <Chat
+          channel={selectedChannel}
+          on:view-profile={openIdProfile}
+          on:add-friend={addFriend}
+          on:invite-to-game={pong.inviteToGame}
+          on:send-message={openDirectChat}
+        />
+      </div>
+      <div
+        class="{appState.replace(APPSTATE.CHANNELS, "") !== "" ? 'hidden' : ''}"
+        on:click={resetAppState}
+        on:keydown={resetAppState}
+      >
+        <Channels bind:this={chan} onSelectChannel={handleSelectChannel} />
+      </div>
     {/if}
     {#if appState === APPSTATE.LEADERBOARD}
       <div on:click={resetAppState} on:keydown={resetAppState}>
