@@ -29,14 +29,15 @@
   });
 
   socket.on("newMessage", (msg: chatMessagesType) => {
+    console.log(msg)
     chatMessages = [...chatMessages, msg];
   });
 
   onDestroy(() => {
-    io.emit("LeaveChanel", async (response) => {
+    socket.emit("LeaveChanel", async (response) => {
       console.log(response.status);
     });
-    io.disconnect();
+    socket.disconnect();
   });
 
   //--------------------------------------------------------------------------------/
@@ -378,9 +379,9 @@
     justify-content: center;
     align-items: center;
   }
-
+  
   .chat {
-    background-color: #5f5e5e;
+    background-color: #343a40;
     border: 1px solid #dedede;
     border-radius: 5px;
     padding: 1rem;

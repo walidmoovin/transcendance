@@ -38,6 +38,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect (socket: Socket): Promise<void> {
     await this.onLeaveChannel(socket)
+    socket.disconnect()
   }
 
   @SubscribeMessage('joinChannel')
@@ -84,7 +85,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async onLeaveChannel (socket: Socket): Promise<void> {
     const id = socket.id as any
     await this.connectedUserRepository.delete({ socket: id })
-    socket.disconnect()
   }
 
   @SubscribeMessage('addMessage')
@@ -99,7 +99,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const createdMessage: Message = await this.messageService.createMessage(
       message
     )
-    socket.in(channel.toString()).emit('newMessage', createdMessage)
+    console.log(createdMessage)
+    socket.in(channel.id.toString()).emit('newMessage', createdMessage)
   }
 
   @SubscribeMessage('kickUser')

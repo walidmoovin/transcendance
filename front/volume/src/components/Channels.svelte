@@ -187,9 +187,11 @@
               on:keydown={() => removeChannel(_channels.id)}>🗑️</button
             >
             <button on:click={() => inviteChannel(_channels.id)}>🤝</button>
+            {#if _channels.isPrivate}
             <button on:click={() => changePassword(_channels.id)}
               >Edit Password</button
             >
+            {/if}
             </div>
           </li>{/each}
       {:else}
@@ -227,7 +229,7 @@
   }
 
   .channels {
-    background-color: #5f5e5e;
+    background-color: #343a40;
     border: 1px solid #dedede;
     border-radius: 5px;
     padding: 1rem;
