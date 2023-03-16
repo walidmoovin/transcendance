@@ -128,18 +128,17 @@ export class UsersService {
   async getLeaderboard (): Promise<User[]> {
     const leaderboard = await this.usersRepository.find({
       order: {
-        winrate: 'ASC'
+        winrate: 'DESC'
       }
     })
-    const ret = leaderboard.filter((user) => user.matchs !== 0)
-    let r = 0
-    ret.forEach((usr) => {
+    let r = 1
+    let ret: Array<User> = [] 
+    for (let usr of leaderboard.filter((user) => user.matchs !== 0)) {
       usr.rank = r++
-      this.usersRepository.save(usr).catch((err) => {
-        console.log(err)
-      })
+      await this.usersRepository.save(usr)
+      ret.push(usr)
       usr.socketKey = ''
-    })
+    }
     return ret
   }
 
