@@ -10,13 +10,12 @@ import { MessageService } from './message.service'
 
 import Channel from './entity/channel.entity'
 import Message from './entity/message.entity'
-import ConnectedUser from './entity/connection.entity'
 
 @Module({
   imports: [
     UsersModule,
     AuthModule,
-    TypeOrmModule.forFeature([Channel, Message, ConnectedUser])
+    TypeOrmModule.forFeature([Channel, Message])
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, MessageService],

@@ -16,7 +16,6 @@ import { MessageService } from './message.service'
 import { CreateMessageDto } from './dto/create-message.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import ConnectedUser from './entity/connection.entity'
 import { ConnectionDto } from './dto/connection.dto'
 
 @WebSocketGateway({
@@ -30,8 +29,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly userService: UsersService,
     private readonly messageService: MessageService,
     private readonly chatService: ChatService,
-    @InjectRepository(ConnectedUser)
-    private readonly connectedUserRepository: Repository<ConnectedUser>
   ) {}
 
   async handleConnection (socket: Socket): Promise<void> {}
@@ -67,24 +64,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     } else await this.chatService.addUserToChannel(channel, user)
     console.log('5')
-    const conUser = {
-      user,
-      channel,
-      socket: socket.id
-    }
-    this.connectedUserRepository.create(conUser)
+    console.log('8')
     const messages = await this.messageService.findMessagesInChannelForUser(
       channel,
       user
     )
+    console.log('9')
     this.server.to(socket.id).emit('messages', messages)
+    console.log('10')
     await socket.join(channel.id.toString())
   }
 
   @SubscribeMessage('leaveChannel')
   async onLeaveChannel (socket: Socket): Promise<void> {
     const id = socket.id as any
-    await this.connectedUserRepository.delete({ socket: id })
   }
 
   @SubscribeMessage('addMessage')

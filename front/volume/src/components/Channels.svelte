@@ -43,11 +43,11 @@
     const channel = channels.find((c) => c.id === id);
     if (channel) {
       joinChannel(id);
+      console.log("joined a channel")
       onSelectChannel(channel);
     }
   };
 
-  //--------------------------------------------------------------------------------/
 
   const createChannel = async () => {
     let name, friend;

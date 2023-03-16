@@ -76,6 +76,7 @@ export class ChatService {
     rooms = [
       ...(await this.ChannelRepository.createQueryBuilder('room')
         .where('room.isPrivate = false')
+        .orderBy('room.id', 'DESC')
         .getMany())
     ]
 
@@ -102,7 +103,7 @@ export class ChatService {
   }
 
   async addUserToChannel (channel: Channel, user: User): Promise<Channel> {
-    channel.owner = user
+    channel.users.push(user)
     return await this.ChannelRepository.save(channel)
   }
 
@@ -119,6 +120,7 @@ export class ChatService {
       where: { id },
       relations: ['users', 'admins', 'banned', 'owner']
     })
+
     if (channel == null) {
       throw new NotFoundException(`Channel #${id} not found`)
     }
