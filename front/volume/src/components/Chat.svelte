@@ -265,6 +265,23 @@
   };
 
   //--------------------------------------------------------------------------------/
+
+  const leaveChannel = async () => {
+    const prompt = window.prompt("Are you sure you want to leave this channel? (y/n)");
+    if (prompt == "y") {
+      const response = await fetch(API_URL + "/channels/" + channel.id + "/leave", {
+        credentials: "include",
+        mode: "cors",
+      });
+      if (response.ok) {
+        window.location.href = "/channels";
+      } else {
+        alert("Failed to leave channel");
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------/
 </script>
 
 <div class="overlay">
@@ -333,6 +350,7 @@
         <img src="img/send.png" alt="send" />
       </button>
     </form>
+    <button on:click={leaveChannel}>Leave</button>
     <button
       on:click|stopPropagation={toggleChatMembers}
       on:keydown|stopPropagation
