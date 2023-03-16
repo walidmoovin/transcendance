@@ -30,7 +30,6 @@
 
   import { store, getUser, login, verify } from "./Auth";
   import FakeLogin from "./FakeLogin.svelte";
-    // import { channel } from "diagnostics_channel";
 
   // Single Page Application config
   let appState: string = APPSTATE.HOME;
@@ -59,15 +58,6 @@
     getUser();
   }, 15000);
 
-  let DMChannel: Array<ChannelsType> = [];
-  onMount(async () => {
-    const res = await fetch(API_URL + "/channels/dms/" + DMUsername, {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (res.ok) DMChannel = await res.json();
-  });
-
   function clickProfile() {
     setAppState(APPSTATE.PROFILE);
   }
@@ -79,15 +69,54 @@
   }
 
   let chan: Channels;
-  let DMUsername: string = "";
   async function openDirectChat(event: CustomEvent<string>) {
-	// pass profile to backend
-	// backend looks for a chat and if it doesn't exist it creates it
-	// backend send chat id to front end
-	// front opens chat with selectChat()
-	DMUsername = event.detail;
-	console.log(chan);
-	chan.selectChat(DMChannel[0].id);
+    const DMUsername = "test";
+    let DMChannel: Array<ChannelsType> = [];
+    const res = await fetch(API_URL + "/channels/dms/" + DMUsername, {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (res.ok) {
+      DMChannel = await res.json();
+      if (DMChannel.length != 0) {
+        chan.selectChat(DMChannel[0].id);
+      } else {
+        console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
+        const response = await fetch(API_URL + "/channels", {
+          credentials: "include",
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: $store.username + "&" + DMUsername,
+            owner: $store.ftId,
+            password: "",
+            isPrivate: true,
+            isDM: true,
+            otherDMedUsername: DMUsername
+          }),
+        });
+        if (response.ok) {
+          const res = await fetch(API_URL + "/channels/dms/" + DMUsername, {
+            credentials: "include",
+            mode: "cors",
+          });
+          if (res.ok) {
+              DMChannel = await res.json(); 
+              if (DMChannel.length != 0) {
+                console.log("Found DMChannel: ", DMChannel);
+                chan.selectChat(DMChannel[0].id);
+              } else {
+                alert("Error creating 1 DM");
+              }
+          } else {
+            alert("Error creating 2 DM");
+          }
+        }
+      }
+    }
   }
 
   async function clickHistory() {
@@ -155,7 +184,7 @@
     {#if appState.includes(APPSTATE.CHANNELS)}
       <!-- {#if appState.replace(APPSTATE.CHANNELS, "") !== ""} -->
         <div
-		class="{appState.replace(APPSTATE.CHANNELS, "") === "" ? 'hidden' : ''}"
+		      class="{appState.replace(APPSTATE.CHANNELS, "") === "" ? 'hidden' : ''}"
           on:click={() => setAppState(APPSTATE.CHANNELS)}
           on:keydown={() => setAppState(APPSTATE.CHANNELS)}
         >
@@ -164,14 +193,15 @@
             on:view-profile={openIdProfile}
             on:add-friend={addFriend}
             on:invite-to-game={pong.inviteToGame}
-			on:send-message={openDirectChat}
+			      on:send-message={openDirectChat}
           />
         </div>
       <!-- {:else} -->
         <div
-		class="{appState.replace(APPSTATE.CHANNELS, "") !== "" ? 'hidden' : ''}"
-		on:click={resetAppState}
-		on:keydown={resetAppState}>
+		      class="{appState.replace(APPSTATE.CHANNELS, "") !== "" ? 'hidden' : ''}"
+		      on:click={resetAppState}
+		      on:keydown={resetAppState}
+        >
           <Channels bind:this={chan} onSelectChannel={handleSelectChannel} />
         </div>
       <!-- {/if} -->

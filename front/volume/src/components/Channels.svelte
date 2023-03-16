@@ -32,20 +32,23 @@
   };
 
   let channels: Array<ChannelsType> = [];
-    onMount(async () => {
+  onMount(async () => {
     getChannels()
-    });
+  });
 
   //--------------------------------------------------------------------------------/
 
   export let onSelectChannel: (channel: ChannelsType) => void;
   export const selectChat = (id: number) => {
-	console.log(id);
-    const channel = channels.find((c) => c.id === id);
-    if (channel) {
-      joinChannel(id);
-      onSelectChannel(channel);
-    }
+    getChannels().then(() => {
+      const channel = channels.find((c) => c.id === id);
+      if (channel) {
+        joinChannel(id);
+        onSelectChannel(channel);
+      } else {
+        alert("Did not find channel");
+      }
+    });
   };
 
   //--------------------------------------------------------------------------------/
