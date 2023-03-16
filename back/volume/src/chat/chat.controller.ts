@@ -83,6 +83,11 @@ export class ChatController {
     await this.channelService.save(channel)
   }
 
+  @Get(':id/users')
+  async getUsersOfChannel (@Param('id') id: number): Promise<User[]> {
+    return (await this.channelService.getChannel(id)).users
+  }
+
   @Post(':id/admin')
   async addAdmin (
     @Param('id', ParseIntPipe) id: number,
