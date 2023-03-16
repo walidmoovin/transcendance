@@ -67,16 +67,15 @@
   }
 
   .history {
-    background-color: #343a40;
+    background-color: #343A40;
     border: 1px solid #198754;
     border-radius: 5px;
     padding: 1rem;
-    width: 300px;
-    display: flex;
+    width: 80%;
     justify-content: center;
     max-height: 500px;
-    overflow-y: scroll;
-    color: #e8e6e3;
+    overflow: auto;
+    color: #E8E6E3;
   }
 
   td {
