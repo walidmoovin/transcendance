@@ -94,7 +94,6 @@ import type User  from "./Profile.svelte";
       method: "POST",
       mode: "cors",
     });
-    const data2 = await res2.json();
     if (res2.ok) {
       alert("User blocked");
     } else {
@@ -115,7 +114,6 @@ import type User  from "./Profile.svelte";
       method: "DELETE",
       mode: "cors",
     });
-    const data2 = await res2.json();
     if (res2.ok) {
       alert("User unblocked");
     } else {
@@ -137,7 +135,6 @@ import type User  from "./Profile.svelte";
       method: "POST",
       mode: "cors",
     });
-    const data2 = await res2.json();
     if (res2.ok) {
       io.emit("kickUser", channel.id, $store.ftId, data1.ftId);
       alert("User banned");
@@ -171,7 +168,6 @@ import type User  from "./Profile.svelte";
       method: "POST",
       mode: "cors",
     });
-    const data2 = await res2.json();
     if (res2.ok) {
       alert("User muted");
     } else {
@@ -192,7 +188,6 @@ import type User  from "./Profile.svelte";
       method: "POST",
       mode: "cors",
     });
-    const data2 = await res2.json();
     if (res2.ok) {
       alert("User admined");
     } else {
@@ -213,7 +208,6 @@ import type User  from "./Profile.svelte";
       method: "DELETE",
       mode: "cors",
     });
-    const data2 = await res2.json();
     if (res2.ok) {
       alert("User admin removed");
     } else {
@@ -224,119 +218,86 @@ import type User  from "./Profile.svelte";
   //--------------------------------------------------------------------------------/
 </script>
 
-	<div class="overlay" >
-		<div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
-			<div class="messages" >
-				{ #each chatMessages as message }
-				<p class="message" >
-					{ #if !blockedUsers.filter((user) => user.username == message.author).length }
-					<span
-						class="message-name"
-						on:click = {() => openProfile(message.author)}
-						on:keydown = {() => openProfile(message.author)}
-						style = "cursor: pointer;"
-							>
-					{ message.author }
-	</span>: {message.text}
-{
-	/if}
-		</p>
-	{
-		/each}
-			</div>
-		{ #if showProfileMenu }
-		<div
-        class="profile-menu"
-		on:click|stopPropagation
-		on:keydown|stopPropagation
-			>
-			<ul>
-			<li>
-			<button on:click = {() => dispatch("send-message", selectedUser)
-	}
-              > Send Message </button
-		>
-		</li>
-		<li>
-		<button on:click = {() => dispatch("view-profile", selectedUser)
-}
-              > View Profile </button
-	>
-	</li>
-	<li>
-	<button on:click = {() => dispatch("add-friend", selectedUser)}
-              > Add Friend </button
-	>
-	</li>
-	<li>
-	<button on:click = {() => dispatch("invite-to-game", selectedUser)}
-              > Invite to Game </button
-	>
-	</li>
-	<li>
-{ #if !blockedUsers.filter((user) => user.username = selectedUser).length }
-<button on:click = {() => blockUser(selectedUser)}> Block User </button>
-{:else }
-<button on:click = {() => unblockUser(selectedUser)}> Unblock User </button>
-{
-	/if}
-		</li>
-		<li> <button on:click = { closeProfileMenu } > Close </button></li >
-			</ul>
-			</div>
-	{
-		/if}
-			<form on:submit|preventDefault={ sendMessage }>
-				<input type="text" placeholder = "Type a message..." bind:value={ newText } />
-					<button>
-					<img src="img/send.png" alt = "send" />
-						</button>
-						</form>
-						<button
-		on:click|stopPropagation={ toggleChatMembers }
-		on:keydown|stopPropagation > Chat Members </button
-			>
-			{ #if showChatMembers }
-			<div
-		class="chatMembers"
-		on:click|stopPropagation
-		on:keydown|stopPropagation
-			>
-			<div>
-			<ul>
-			{ #each chatMembers as member }
-			<li>
-			<p>
-			{ member.username }
-			<button on:click = {() => banUser(member.username)
-	}> ban </button>
-		<button on:click = {() => kickUser(member.username)
-}
-                    > kick </button
-	>
-	<button on:click = {() => muteUser(member.username)}
-                    > mute </button
-	>
-	<button on:click = {() => adminUser(member.username)}
-                    > promote </button
-	>
-	<button on:click = {() => removeAdminUser(member.username)}
-                    > demote </button
-	>
-	</p>
-	<p>
------------------------------------------------------------------------------------
-	</p>
-	</li>
-{
-	/each}
-		</ul>
-		</div>
-		</div>
-	{
-		/if}
-			</div>
-			</div>
+
+<div class="overlay" >
+  <div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
+    <div class="messages" >
+      { #each chatMessages as message }
+        <p class="message" >
+          { #if !blockedUsers.filter((user) => user.username == message.author).length }
+          <span
+            class="message-name"
+            on:click = {() => openProfile(message.author)}
+            on:keydown = {() => openProfile(message.author)}
+            style = "cursor: pointer;"
+          >
+          { message.author }
+          </span>: {message.text}
+          {/if}
+        </p>
+      {/each}
+    </div>
+    { #if showProfileMenu }
+    <div
+      class="profile-menu"
+      on:click|stopPropagation
+      on:keydown|stopPropagation
+    >
+    <ul>
+      <li>
+        <button on:click = {() => dispatch("send-message", selectedUser)}> Send Message </button>
+      </li>
+      <li>
+        <button on:click = {() => dispatch("view-profile", selectedUser)}> View Profile </button>
+      </li>
+      <li>
+        <button on:click = {() => dispatch("add-friend", selectedUser)}> Add Friend </button>
+      </li>
+      <li>
+        <button on:click = {() => dispatch("invite-to-game", selectedUser)}> Invite to Game </button>
+      </li>
+      <li>
+        { #if !blockedUsers.filter((user) => user.username = selectedUser).length }
+        <button on:click = {() => blockUser(selectedUser)}> Block User </button>
+        {:else }
+        <button on:click = {() => unblockUser(selectedUser)}> Unblock User </button>
+        {/if}
+      </li>
+      <li> <button on:click = { closeProfileMenu } > Close </button></li >
+    </ul>
+    </div>
+    {/if}
+    <form on:submit|preventDefault={ sendMessage }>
+      <input type="text" placeholder = "Type a message..." bind:value={ newText } />
+        <button>
+        <img src="img/send.png" alt = "send" />
+          </button>
+          </form>
+          <button on:click|stopPropagation={ toggleChatMembers } on:keydown|stopPropagation > Chat Members </button>
+    { #if showChatMembers }
+      <div
+        class="chatMembers"
+        on:click|stopPropagation
+        on:keydown|stopPropagation
+      >
+      </div>
+      <ul>
+        { #each chatMembers as member }
+          <li>
+            <p>
+              { member.username }
+              <button on:click = {() => banUser(member.username)}> ban </button>
+              <button on:click = {() => kickUser(member.username)}> kick </button>
+              <button on:click = {() => muteUser(member.username)}> mute </button>
+              <button on:click = {() => adminUser(member.username)}> promote </button>
+              <button on:click = {() => removeAdminUser(member.username)}> demote </button>
+            </p>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </div>
+</div>
 
 <style>
 				.overlay {
@@ -373,14 +334,4 @@ import type User  from "./Profile.svelte";
 			max-height: 100px;
 			overflow-y: scroll;
 		}
-
-  .chatMembers ul {
-			list-style: none;
-			padding: 0;
-			margin: 0;
-		}
-
-  .chatMembers button {
-    width: 6rem;
-  }
 </style>

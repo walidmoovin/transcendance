@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-
   export interface ChannelsType {
     id: number;
     name: string;
@@ -10,8 +9,6 @@
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
   import { io } from "../socket";
-  import Select from 'svelte-select';
-  
 </script>
 
 <script lang="ts">
@@ -167,15 +164,13 @@
           </li>{/each}
       {:else}
         <p>No channels available</p>
-        {/if}
+      {/if}
       <div>
         <select bind:value={channelMode} >
           {#each channelOptions as option}
-                  <option value={option} selected={channelMode === option}>
-                          {option}
-                  </option>
+                  <option value={option} selected={channelMode === option}>{option}</option>
           {/each}
-      </select>
+        </select>
         {#if channelMode!= ''}
           <button class="button" on:click={createChannel}>Create Channel</button>
         {/if}
@@ -205,42 +200,43 @@
   }
   
   select {
-        width: 100%;
-        height: 15%;
-        padding: 5px;
-        border-radius: 4px;
-        background: #eee;
-        border: none;
-        outline: grey;
-        display: inline-block;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        cursor: pointer;
-      }
+    width: 100%;
+    height: 15%;
+    padding: 5px;
+    border-radius: 4px;
+    background: #eee;
+    border: none;
+    outline: grey;
+    display: inline-block;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
 
-    .button {
-      color: white;
-      margin:0 auto; 
-      margin: auto;
-      width: 45%;
-      height: 15%;
-      padding: 5px;
-      border-radius: 4px;
-      background: #6B8E23;
-      border: none;
-      outline: grey;
-      display:block;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      cursor: pointer;
-    }
-    span { 
-      color: rgb(0, 0, 0); 
-      font-size: 150%; /* Taille de la police en pourcentage */ 
-      position: relative; /* Positionnement relatif */ 
-      padding: 10px;
-      top: 2px;
-}
+  .button {
+    color: white;
+    margin:0 auto; 
+    margin: auto;
+    width: 45%;
+    height: 15%;
+    padding: 5px;
+    border-radius: 4px;
+    background: #6B8E23;
+    border: none;
+    outline: grey;
+    display:block;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  span { 
+    color: rgb(0, 0, 0); 
+    font-size: 150%;
+    position: relative;
+    padding: 10px;
+    top: 2px;
+  }
 </style>

@@ -136,6 +136,7 @@
           on:keydown={() => setAppState(APPSTATE.CHANNELS)}
         >
           <Chat
+            channel={selectedChannel}
             on:view-profile={openIdProfile}
             on:add-friend={addFriend}
             on:invite-to-game={pong.inviteToGame}
