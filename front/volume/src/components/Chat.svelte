@@ -33,7 +33,10 @@
   });
 
   onDestroy(() => {
-    socket.emit("leaveChannel");
+    io.emit("LeaveChanel", async (response) => {
+      console.log(response.status);
+    });
+    io.disconnect();
   });
 
   //--------------------------------------------------------------------------------/

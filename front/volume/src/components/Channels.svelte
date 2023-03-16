@@ -23,14 +23,18 @@
     });
   };
 
-  let channels: Array<ChannelsType> = [];
-  onMount(async () => {
+  const getChannels = async () => {
     const res = await fetch(API_URL + "/channels", {
       credentials: "include",
       mode: "cors",
     });
     if (res.ok) channels = await res.json();
-  });
+  };
+  
+  let channels: Array<ChannelsType> = [];
+    onMount(async () => {
+    getChannels()
+    });
 
   //--------------------------------------------------------------------------------/
 
@@ -46,11 +50,25 @@
   //--------------------------------------------------------------------------------/
 
   const createChannel = async () => {
-    const name = prompt("Enter a name for the new channel:");
+    let name, friend;
+    if (channelMode === "direct") {
+      friend = prompt("Invite a friend to your channel:");
+      const response = await fetch(API_URL + "/users/" + friend + "/byname", {
+      credentials: "include",
+      method: "GET",
+      mode: "cors",});
+      if (!response.ok) {
+        alert("Error getting user infos");
+        return
+      }
+    }
+    else name = prompt("Enter a name for the new channel:");
     if (name) {
       let password = "";
-      if (channelMode !== "direct")
+      if (channelMode === "private")
         password = prompt("Enter a password for the new channel:");
+      if (friend !== undefined) name = "💬 " + $store.username + "/" + friend;
+      else name = "🚪 " + name;
       const response = await fetch(API_URL + "/channels", {
         credentials: "include",
         method: "POST",
@@ -62,7 +80,8 @@
           name: name,
           owner: $store.ftId,
           password: password,
-          isPrivate: channelMode === "private",
+          isPrivate: channelMode === "private" || channelMode === "direct",
+          direct: friend,
         }),
       });
       if (response.ok) {
@@ -70,6 +89,12 @@
       } else {
         alert("Error creating channel");
       }
+      const res = await fetch(API_URL + "/channels", {
+        credentials: "include",
+        mode: "cors",
+      });
+      if (res.ok) channels = await res.json();
+      getChannels()
     }
   };
 
