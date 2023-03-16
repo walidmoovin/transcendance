@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -20,7 +20,7 @@ export class ChatService {
   async createChannel (channel: CreateChannelDto): Promise<Channel> {
     const user: User | null = await this.usersService.findUser(channel.owner)
     if (user == null) {
-      throw new NotFoundException(`User #${channel.owner} not found`)
+      throw new BadRequestException(`User #${channel.owner} not found`)
     }
 
     let newChannel: Channel
@@ -29,9 +29,12 @@ export class ChatService {
         channel.otherDMedUsername
       )
       if (otherUser == null) {
-        throw new NotFoundException(
+        throw new BadRequestException(
           `User #${channel.otherDMedUsername} not found`
         )
+      }
+      if (otherUser.id === user.id) {
+        throw new BadRequestException('Cannot DM yourself')
       }
       newChannel = this.createDM(user, otherUser)
     } else {
@@ -50,13 +53,10 @@ export class ChatService {
     const newDM = new Channel()
     newDM.isPrivate = true
     newDM.password = ''
-
     newDM.owner = user
     newDM.users = [user, otherUser]
     newDM.admins = []
-    newDM.name = user.username + ' & ' + otherUser.username
-    newDM.isPrivate = true
-    newDM.password = ''
+    newDM.name = user.username + '&' + otherUser.username
     return newDM
   }
 
@@ -65,7 +65,7 @@ export class ChatService {
       id
     })
     if (channel === null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
     channel.password = password
     await this.ChannelRepository.save(channel)
@@ -110,7 +110,7 @@ export class ChatService {
   async getChannel (id: number): Promise<Channel> {
     const channel = await this.ChannelRepository.findOneBy({ id })
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
     return channel
   }
@@ -122,7 +122,7 @@ export class ChatService {
     })
 
     if (channel == null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
     return channel
   }
@@ -145,7 +145,7 @@ export class ChatService {
       relations: { owner: true }
     })
     if (channel === null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
     return channel.owner.ftId === userId
   }
@@ -156,7 +156,7 @@ export class ChatService {
       relations: { admins: true }
     })
     if (channel === null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
     return channel.admins.findIndex((user) => user.ftId === userId) !== -1
   }
@@ -167,7 +167,7 @@ export class ChatService {
       relations: { users: true }
     })
     if (channel === null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
     return channel.users.findIndex((user) => user.ftId === userId) !== -1
   }
@@ -178,7 +178,7 @@ export class ChatService {
       relations: { banned: true }
     })
     if (channel === null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
     return channel.banned.findIndex((user) => user.ftId === userId) !== -1
   }
@@ -188,7 +188,7 @@ export class ChatService {
       where: { id }
     })
     if (channel === null) {
-      throw new NotFoundException(`Channel #${id} not found`)
+      throw new BadRequestException(`Channel #${id} not found`)
     }
 
     const mutation: number[] | undefined = channel.muted.find(

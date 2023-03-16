@@ -214,22 +214,26 @@ export class ChatController {
     return await this.channelService.getChannelsForUser(+profile.id)
   }
 
-  @Get('dms/:otherId')
+  @Get('dms/:otherName')
   async getDMsForUser (
     @Profile42() profile: Profile,
       @Param('otherName') otherName: string
   ): Promise<Channel[]> {
+    const user = await this.usersService.findUser(profile.fdId)
     const other = await this.usersService.findUserByName(otherName)
-    const otherId = other.ftId
     const channels = await this.channelService.getChannelsForUser(+profile.id)
 
-    return channels.filter((channel: Channel) => {
+    if (user === null) {
+      throw new BadRequestException('User not found')
+    }
+    const dms = channels.filter((channel: Channel) => {
       return (
-        channel.users?.some((ch) => ch.id === otherId) &&
+        channel.name === (user.username + '&' + other.username) &&
         channel.isPrivate &&
-        channel.password === ''
+        (channel.password === undefined || channel.password === '')
       )
     })
+    return dms
   }
 
   @Get(':id/leave')
