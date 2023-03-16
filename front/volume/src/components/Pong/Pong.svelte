@@ -22,7 +22,7 @@
   export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
 
-  const SERVER_URL = `ws://${import.meta.env.VITE_HOST}:${
+  const SERVER_URL = `http://${import.meta.env.VITE_HOST}:${
     import.meta.env.VITE_BACK_PORT
   }`;
 

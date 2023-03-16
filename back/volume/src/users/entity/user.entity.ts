@@ -2,13 +2,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   ManyToMany,
   JoinTable
 } from 'typeorm'
 
-import Message from 'src/chat/entity/message.entity'
-import Channel from 'src/chat/entity/channel.entity'
 import Result from 'src/pong/entity/result.entity'
 
 @Entity()

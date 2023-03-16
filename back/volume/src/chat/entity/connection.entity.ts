@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn
-} from 'typeorm'
+import { Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 
 import Channel from './channel.entity'
 import User from 'src/users/entity/user.entity'

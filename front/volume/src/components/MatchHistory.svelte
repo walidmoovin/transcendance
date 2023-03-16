@@ -14,12 +14,6 @@
   import { onMount } from "svelte";
 
   export let username: string = "Global";
-  function formatDate(str: string) {
-    const splitT = str.split("T");
-    const splitDate = splitT[0].split("-");
-    const splitDot = splitT[1].split(".");
-    return `${splitDate[1]}/${splitDate[2]}-${splitDot[0]}`;
-  }
   let page: number = 1;
   let data: Array<Match> = [];
   let newBatch: Array<Match> = [];

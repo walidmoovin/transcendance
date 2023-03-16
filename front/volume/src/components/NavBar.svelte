@@ -1,5 +1,9 @@
 <script lang="ts">
-  let api = "http://" + import.meta.env.VITE_HOST + ":" + import.meta.env.VITE_BACK_PORT;
+  let api =
+    "http://" +
+    import.meta.env.VITE_HOST +
+    ":" +
+    import.meta.env.VITE_BACK_PORT;
 
   export let links = [
     { text: "Home" },

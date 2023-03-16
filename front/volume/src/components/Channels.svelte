@@ -14,10 +14,13 @@
 <script lang="ts">
   //--------------------------------------------------------------------------------/
   let channelMode = "";
-  const channelOptions = ['public','private','direct'];
+  const channelOptions = ["public", "private", "direct"];
 
   const joinChannel = async (id: number) => {
-    socket.emit("joinChannel", id, $store.ftId);
+    socket.emit("joinChannel", {
+      UserId: $store.ftId,
+      ChannelId: id,
+    });
   };
 
   let channels: Array<ChannelsType> = [];
@@ -46,7 +49,7 @@
     const name = prompt("Enter a name for the new channel:");
     if (name) {
       let password = "";
-      if (channelMode !== 'direct')
+      if (channelMode !== "direct")
         password = prompt("Enter a password for the new channel:");
       const response = await fetch(API_URL + "/channels", {
         credentials: "include",
@@ -166,13 +169,16 @@
         <p>No channels available</p>
       {/if}
       <div>
-        <select bind:value={channelMode} >
+        <select bind:value={channelMode}>
           {#each channelOptions as option}
-                  <option value={option} selected={channelMode === option}>{option}</option>
+            <option value={option} selected={channelMode === option}
+              >{option}</option
+            >
           {/each}
         </select>
-        {#if channelMode!= ''}
-          <button class="button" on:click={createChannel}>Create Channel</button>
+        {#if channelMode != ""}
+          <button class="button" on:click={createChannel}>Create Channel</button
+          >
         {/if}
       </div>
     </div>
@@ -223,7 +229,7 @@
   }
 
   button {
-    background-color: #6B8E23;
+    background-color: #6b8e23;
     color: #ffffff;
     border: none;
     border-radius: 5px;
@@ -248,7 +254,7 @@
   }
 
   .button {
-    background-color: #6B8E23;
+    background-color: #6b8e23;
     color: #ffffff;
     border: none;
     border-radius: 5px;
