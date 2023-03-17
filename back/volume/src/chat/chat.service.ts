@@ -40,8 +40,8 @@ export class ChatService {
       const channels = await this.getChannelsForUser(user.id)
       const dmAlreadyExists = channels.find((channel: Channel) => {
         return (
-          (channel.name === (user.ftId + '&' + otherUser.ftId) ||
-            channel.name === (otherUser.ftId + '&' + user.ftId)) &&
+          (channel.name === user.ftId + '&' + otherUser.ftId ||
+            channel.name === otherUser.ftId + '&' + user.ftId) &&
           channel.isPrivate &&
           (channel.password === undefined || channel.password === '')
         )
@@ -110,7 +110,7 @@ export class ChatService {
     const channels = await this.ChannelRepository.find({})
     channels.forEach((channel) => {
       channel.muted = channel.muted.filter((data) => {
-        return data[0] - Date.now() > 0
+        return data[1] - Date.now() > 0
       })
       void this.ChannelRepository.save(channel)
     })
@@ -118,13 +118,14 @@ export class ChatService {
 
   @Cron('*/6 * * * * *')
   async updateBanlists (): Promise<void> {
+    console.log('checking bans')
     const channels = await this.ChannelRepository.find({})
-    channels.forEach((channel) => {
+    for (const channel of channels) {
+      console.log((channel.banned.length) > 0)
       channel.banned = channel.banned.filter((data) => {
         return data[1] - Date.now() > 0
       })
-      void this.ChannelRepository.save(channel)
-    })
+    }
   }
 
   async addUserToChannel (channel: Channel, user: User): Promise<Channel> {
@@ -141,7 +142,7 @@ export class ChatService {
   }
 
   // Warning: those channels users contains socketKey.
-  // they have to be hidden before returned from a route 
+  // they have to be hidden before returned from a route
   // but not save them without the key.
   async getFullChannel (id: number): Promise<Channel> {
     const channel = await this.ChannelRepository.findOne({

@@ -15,6 +15,7 @@ import * as bcrypt from 'bcrypt'
 import { MessageService } from './message.service'
 import { CreateMessageDto } from './dto/create-message.dto'
 import { ConnectionDto } from './dto/connection.dto'
+import { kickUserDto } from './dto/kickUser.dto'
 
 @WebSocketGateway({
   cors: {
@@ -52,7 +53,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (channel.banned.findIndex((ban) => ban[0] === connect.UserId) !== -1) {
       throw new WsException('You are banned from entering this channel')
     }
-    
     const user = await this.userService.getFullUser(connect.UserId)
     if (channel.password && channel.password !== '') {
       if (
@@ -68,7 +68,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     )
     this.server.to(socket.id).emit('messages', messages)
     await socket.join(channel.id.toString())
-    console.log("joinchan succ")
   }
 
   @SubscribeMessage('getMessages')
@@ -84,7 +83,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('leaveChannel')
   async onLeaveChannel (socket: Socket): Promise<void> {
-    const id = socket.id as any
+    socket.disconnect()
   }
 
   @SubscribeMessage('addMessage')
@@ -102,16 +101,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('kickUser')
-  async onKickUser (
-    socket: Socket,
-    chan: number,
-    from: number,
-    to: number
-  ): Promise<void> {
-    const channel = await this.chatService.getChannel(chan)
+  async onKickUser (socket: Socket, msg: kickUserDto): Promise<void> {
+    console.log('kick called')
+    const channel = await this.chatService.getFullChannel(msg.chan)
     if (
-      channel.owner.id !== from ||
-      channel.admins.find((e) => e.id === from) == null
+      channel.owner.id !== msg.from &&
+      channel.admins.find((e) => e.id == msg.from) == null
     ) {
       throw new WsException('You do not have the required privileges')
     }

@@ -87,30 +87,6 @@ export class ChatController {
     await this.channelService.save(channel)
   }
 
-  @Delete(':id/kick')
-  async removeUser (
-    @Param('id', ParseIntPipe) id: number,
-      @Body() target: IdDto,
-      @Profile42() profile: Profile
-  ): Promise<void> {
-    const channel = await this.channelService.getFullChannel(id)
-    if (!(await this.channelService.isAdmin(channel.id, +profile.id))) {
-      throw new BadRequestException(
-        'You are not allowed to kick users from this channel'
-      )
-    }
-    if (!(await this.channelService.isUser(channel.id, target.id))) {
-      throw new BadRequestException('User is not in this channel')
-    }
-    if (await this.channelService.isOwner(channel.id, target.id)) {
-      throw new BadRequestException('You cannot kick the owner of the channel')
-    }
-    channel.users = channel.users.filter((usr: User) => {
-      return usr.ftId !== target.id
-    })
-    await this.channelService.save(channel)
-  }
-
   @Get(':id/users')
   async getUsersOfChannel (
     @Param('id', ParseIntPipe) id: number
@@ -166,27 +142,28 @@ export class ChatController {
   @Post(':id/ban')
   async addBan (
     @Param('id', ParseIntPipe) id: number,
-      @Body() target: IdDto,
-      @Body() duration: number,
+      @Body() target: MuteDto,
       @Profile42() profile: Profile
   ): Promise<void> {
     const channel = await this.channelService.getFullChannel(id)
-    const user: User | null = await this.usersService.findUser(target.id)
+    const user: User | null = await this.usersService.findUser(target.data[0])
+    console.log(target)
     if (user == null) {
-      throw new NotFoundException(`User #${target.id} not found`)
+      throw new NotFoundException(`User #${target.data[0]} not found`)
     }
     if (!(await this.channelService.isAdmin(channel.id, +profile.id))) {
       throw new BadRequestException(
         'You are not allowed to ban users from this channel'
       )
     }
-    if (await this.channelService.isOwner(channel.id, target.id)) {
+    if (await this.channelService.isOwner(channel.id, target.data[0])) {
       throw new BadRequestException('You cannot ban the owner of the channel')
     }
-    if (await this.channelService.isBanned(channel.id, target.id)) {
+    if (await this.channelService.isBanned(channel.id, target.data[0])) {
       throw new BadRequestException('User is already banned from this channel')
     }
-    channel.banned.push([user.id, duration])
+    channel.banned.push([target.data[0], Date.now() + target.data[1] * 1000])
+    console.log(channel.banned)
     await this.channelService.save(channel)
   }
 

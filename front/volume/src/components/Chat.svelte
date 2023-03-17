@@ -162,7 +162,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: target.ftId, duration: duration}),
+        body: JSON.stringify({ data: [target.ftId, duration]}),
       });
       socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
     }
@@ -203,8 +203,8 @@
     });
     if (response.ok) {
       const target = await response.json();
-      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
-    }
+      socket.emit("kickUser", {chan : channel.id, from : $store.ftId, to: target.ftId});
+    } else {alert("merde")}
   };
 
   //--------------------------------------------------------------------------------/
