@@ -13,7 +13,8 @@
   "devDependencies": {
     "prettier": "^2.8.4",
     "svelte-check": "^2.10.3",
-    "svelte-select": "^5.5.2"
+    "svelte-select": "^5.5.2",
+    "svelte-simple-modal": "^1.5.2"
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.2",

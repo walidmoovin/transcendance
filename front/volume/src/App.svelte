@@ -16,14 +16,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Navbar from "./components/NavBar.svelte";
-
+  import Modal from "svelte-simple-modal";
   import Profile from "./components/Profile.svelte";
   import MatchHistory from "./components/MatchHistory.svelte";
   import Friends, { addFriend } from "./components/Friends.svelte";
   import Chat from "./components/Chat.svelte";
   import Channels, { formatChannelNames } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
-
+  import { popup } from "./components/Alert/content";
   import Pong from "./components/Pong/Pong.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
   import { API_URL } from "./Auth";
@@ -189,6 +189,7 @@
 </script>
 
 <div>
+  <Modal show={$popup}>
   {#if $store === null}
     <div class="login-div">
       <h3 class="test">Please log in with 42 api to access the website.</h3>
@@ -203,6 +204,7 @@
   {:else if $store.twoFA === true && $store.isVerified === false}
     <h1><button type="button" on:click={verify}>verify</button></h1>
   {:else}
+
     <Navbar
       {clickProfile}
       {clickHistory}
@@ -282,6 +284,8 @@
       <Pong bind:this={pong} {appState} {setAppState} {fakeUser} />
     {/if}
   {/if}
+
+</Modal>
 </div>
 
 <style>

@@ -9,6 +9,7 @@
   import { socket } from "../socket";
   import type { ChannelsType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
+  
 </script>
 
 <script lang="ts">

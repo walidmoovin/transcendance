@@ -1,4 +1,11 @@
 <script lang="ts" context="module">
+  	import { getContext } from 'svelte';
+	  import Alert from './Alert/Alert.svelte';
+	  import { content,  popup} from './Alert/content'
+    import { bind } from 'svelte-simple-modal';
+	  const showDialog = () => {
+	  }
+
   export interface ChannelsType {
     id: number;
     name: string;
@@ -54,6 +61,7 @@
 </script>
 
 <script lang="ts">
+
   //--------------------------------------------------------------------------------//
   let channelMode = "";
   const channelOptions = ["public", "private", "protected"];
@@ -87,6 +95,7 @@
   export let onSelectChannel: (channel: ChannelsType) => void;
   export const selectChat = (id: number) => {
     console.log("channel: ", id)
+    popup.set(bind(Alert, {message:"Did not find channel", form : false}))
     getChannels().then(() => {
       const channel = channels.find((c) => c.id === id);
       if (channel) {

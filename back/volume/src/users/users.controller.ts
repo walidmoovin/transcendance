@@ -192,7 +192,6 @@ export class UsersController {
   }
 
   @Post(':id')
-  @UseGuards(AuthenticatedGuard)
   async createById (@Body() payload: UserDto): Promise<void> {
     const user = await this.usersService.findUser(payload.ftId)
     if (user != null) {
