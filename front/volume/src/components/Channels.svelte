@@ -56,7 +56,7 @@
 <script lang="ts">
   //--------------------------------------------------------------------------------/
   let channelMode = "";
-  const channelOptions = ["public", "private", "direct"];
+  const channelOptions = ["public", "private"];
 
   const joinChannel = async (id: number) => {
     socket.emit("joinChannel", {
@@ -99,25 +99,12 @@
   };
 
   const createChannel = async () => {
-    let name, friend;
-    if (channelMode === "direct") {
-      friend = prompt("Invite a friend to your channel:");
-      const response = await fetch(API_URL + "/users/" + friend + "/byname", {
-      credentials: "include",
-      method: "GET",
-      mode: "cors",});
-      if (!response.ok) {
-        alert("Error getting user infos");
-        return
-      }
-    }
-    else name = prompt("Enter a name for the new channel:");
+    let name;
+    name = prompt("Enter a name for the new channel:");
     if (name) {
       let password = "";
-      if (channelMode === "private")
-        password = prompt("Enter a password for the new channel:");
-      if (friend !== undefined) name = "💬 " + $store.username + "/" + friend;
-      else name = "🚪 " + name;
+      password = prompt("Enter a password for the new channel:");
+      name = "🚪 " + name;
       const response = await fetch(API_URL + "/channels", {
         credentials: "include",
         method: "POST",
@@ -129,20 +116,10 @@
           name: name,
           owner: $store.ftId,
           password: password,
-          isPrivate: channelMode === "private" || channelMode === "direct",
-          direct: friend,
+          isPrivate: channelMode === "private",
         }),
       });
-      if (response.ok) {
-        channels.push(await response.json());
-      } else {
-        alert("Error creating channel");
-      }
-      const res = await fetch(API_URL + "/channels", {
-        credentials: "include",
-        mode: "cors",
-      });
-      if (res.ok) channels = await res.json();
+      if (!response.ok) alert("Error creating channel");
       getChannels()
     }
   };
@@ -238,7 +215,10 @@
             {#if channel.isPrivate == true}
             <button on:click={() => inviteChannel(channel.id)}>🤝</button>
             {/if}
+            {#if channel.password !== ''}
             <button on:click={() => changePassword(channel.id)}>🔑</button>
+            {/if}
+
             </div>
           </li>
         {/each}
