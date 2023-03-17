@@ -102,7 +102,7 @@ export class UsersController {
 
   @Post('avatar')
   @UseGuards(AuthenticatedGuard)
-  @Redirect('http://localhost')
+  @Redirect(`http://${process.env.HOST ?? 'localhost'}`)
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: diskStorage({

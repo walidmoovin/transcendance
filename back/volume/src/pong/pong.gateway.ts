@@ -22,7 +22,7 @@ import { PongService } from './pong.service'
 import { UsersService } from 'src/users/users.service'
 
 @WebSocketGateway({
-  cors: { origin: /^(http|ws):\/\/localhost(:\d+)?$/ }
+  cors: { origin: new RegExp(`^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`) }
 })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor (
@@ -66,6 +66,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): Promise<{ event: string, data: boolean }> {
     let succeeded: boolean = false
     const user = await this.usersService.findUserByName(playerName.value)
+    console.log(socketKey.value, user?.socketKey)
     if (
       user !== null &&
       user.socketKey === socketKey.value &&

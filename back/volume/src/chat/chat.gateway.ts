@@ -14,12 +14,10 @@ import type Message from './entity/message.entity'
 import * as bcrypt from 'bcrypt'
 import { MessageService } from './message.service'
 import { CreateMessageDto } from './dto/create-message.dto'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
 import { ConnectionDto } from './dto/connection.dto'
 
 @WebSocketGateway({
-  cors: { origin: /^(http|ws):\/\/localhost(:\d+)?$/ }
+  cors: { origin: new RegExp(`^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`) }
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -81,8 +79,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('addMessage')
-  async onAddMessage (message: CreateMessageDto): Promise<void> {
-    console.log(JSON.stringify(message))
+  async onAddMessage (socket: Socket, message: CreateMessageDto): Promise<void> {
     const channel = await this.chatService.getChannel(message.ChannelId)
     if (
       (await this.chatService.getMuteDuration(channel.id, message.UserId)) > 0
