@@ -4,11 +4,12 @@
     name: string;
     isPrivate: boolean;
     password: string;
-    owner: number;
+    owner: User;
   }
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
   import { socket } from "../socket";
+  import type User from "./Profile.svelte";
 </script>
 
 <script lang="ts">
@@ -44,6 +45,7 @@
 
   export let onSelectChannel: (channel: ChannelsType) => void;
   export const selectChat = (id: number) => {
+    console.log("channel: ", id)
     getChannels().then(() => {
       const channel = channels.find((c) => c.id === id);
       if (channel) {
@@ -54,7 +56,6 @@
       }
     });
   };
-
 
   const createChannel = async () => {
     let name, friend;
@@ -225,23 +226,20 @@
     <div>
       {#if channels.length > 0}
         <h2>Channels</h2>
-        {#each channels.slice(0, 10) as _channels}
+        {#each channels.slice(0, 10) as channel}
           <li>
-            <span>{_channels.name}</span>
+            <span>{channel.name}</span>
             <div style="display:block; margin-right:10%">
-            <button on:click={() => selectChat(_channels.id)}>🔌</button>
+            <button on:click={() => selectChat(channel.id)}>🔌</button>
             <button
-              on:click={() => removeChannel(_channels.id)}
-              on:keydown={() => removeChannel(_channels.id)}>🗑️</button
+              on:click={() => removeChannel(channel.id)}
+              on:keydown={() => removeChannel(channel.id)}>🗑️</button
             >
-            <button on:click={() => inviteChannel(_channels.id)}>🤝</button>
-            {#if _channels.isPrivate}
-            <button on:click={() => changePassword(_channels.id)}
-              >Edit Password</button
-            >
-            {/if}
+            <button on:click={() => inviteChannel(channel.id)}>🤝</button>
+            <button on:click={() => changePassword(channel.id)}>🔑</button>
             </div>
-          </li>{/each}
+          </li>
+        {/each}
       {:else}
         <p>No channels available</p>
       {/if}

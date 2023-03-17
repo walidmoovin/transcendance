@@ -37,6 +37,7 @@ export class MessageService {
       .innerJoin('message.channel', 'channel')
       .where('channel.id = :chanId', { chanId: channel.id })
       .leftJoinAndSelect('message.author', 'author')
+      .orderBy('message.created_at', 'ASC')
       .getMany()
     return messages.filter((m) => !blockeds.includes(m.author.ftId))
   }

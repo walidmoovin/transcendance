@@ -30,6 +30,34 @@ export class ChatController {
     private readonly usersService: UsersService
   ) {}
 
+  @Get('dms/:otherName')
+  async getDMsForUser (
+    @Profile42() profile: Profile,
+      @Param('otherName') otherName: string
+  ): Promise<Channel[]> {
+    const user = await this.usersService.findUser(profile.fdId)
+    const other = await this.usersService.findUserByName(otherName)
+    const channels = await this.channelService.getChannelsForUser(+profile.id)
+
+    if (user === null) {
+      throw new BadRequestException('User not found')
+    }
+    const dms = channels.filter((channel: Channel) => {
+      return (
+        (channel.name === (user.ftId + '&' + other.ftId) ||
+          channel.name === (other.ftId + '&' + user.ftId)) &&
+        channel.isPrivate &&
+        (channel.password === undefined || channel.password === '')
+      )
+    })
+    dms.forEach((c) => {
+      c.users.forEach((u) => u.socketKey = '')
+      c.admins.forEach((u) => u.socketKey = '')
+      c.owner.socketKey = ''
+    })
+    return dms
+  }
+
   @Post(':id/invite')
   async addUser (
     @Param('id', ParseIntPipe) id: number,
@@ -211,34 +239,6 @@ export class ChatController {
     await this.channelService.updatePassword(id, data.password)
   }
 
-  @Get()
-  async getChannelsForUser (@Profile42() profile: Profile): Promise<Channel[]> {
-    return await this.channelService.getChannelsForUser(+profile.id)
-  }
-
-  @Get('dms/:otherName')
-  async getDMsForUser (
-    @Profile42() profile: Profile,
-      @Param('otherName') otherName: string
-  ): Promise<Channel[]> {
-    const user = await this.usersService.findUser(profile.fdId)
-    const other = await this.usersService.findUserByName(otherName)
-    const channels = await this.channelService.getChannelsForUser(+profile.id)
-
-    if (user === null) {
-      throw new BadRequestException('User not found')
-    }
-    const dms = channels.filter((channel: Channel) => {
-      return (
-        (channel.name === (user.ftId + '&' + other.ftId) ||
-          channel.name === (other.ftId + '&' + user.ftId)) &&
-        channel.isPrivate &&
-        (channel.password === undefined || channel.password === '')
-      )
-    })
-    return dms
-  }
-
   @Get(':id/leave')
   async leaveChannel (
     @Profile42() profile: Profile,
@@ -254,8 +254,18 @@ export class ChatController {
     await this.channelService.save(channel)
   }
 
+  @Get()
+  async getChannelsForUser (@Profile42() profile: Profile): Promise<Channel[]> {
+    let chan = await this.channelService.getChannelsForUser(+profile.id)
+    return chan;
+  }
+
   @Post()
   async createChannel (@Body() channel: CreateChannelDto): Promise<Channel> {
-    return await this.channelService.createChannel(channel)
+    let chan = await this.channelService.createChannel(channel)
+    chan.users.forEach((u) => u.socketKey = '')
+    chan.admins.forEach((u) => u.socketKey = '')
+    chan.owner.socketKey = ''
+    return chan;
   }
 }

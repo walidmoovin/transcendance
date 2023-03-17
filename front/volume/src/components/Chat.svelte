@@ -18,32 +18,31 @@
   let chatMessages: Array<chatMessagesType> = [];
   export let channel: ChannelsType;
   let newText = "";
+
   onMount(async () => {
-    let res = await fetch(API_URL + "/users/blocked/", {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (res.ok) {
-      blockedUsers = await res.json();
-      usersInterval = setInterval(async () => {
-        getMembers();
-      }, 1000);
-    }
+    socket.connect();
+    getMembers();
+    usersInterval = setInterval(async () => {
+      getMembers();
+    }, 3000);
   });
+
   socket.on("messages", (msgs: Array<chatMessagesType>) => {
     chatMessages = msgs;
   });
 
   async function getMembers() {
     if (!channel) return;
-    const res = await fetch(`${API_URL}/channels/${channel.id}/users`, {
+    let res = await fetch(API_URL + "/users/blocked/", {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (res.ok) blockedUsers = await res.json();
+    res = await fetch(`${API_URL}/channels/${channel.id}/users`, {
       credentials: "include",
       mode: "cors"
     })
-    if (res.ok) {
-      chatMembers = await res.json();
-    } else alert(res.text())
-    
+    if (res.ok) chatMembers = await res.json();
   }
 
   socket.on("newMessage", (msg: chatMessagesType) => {
