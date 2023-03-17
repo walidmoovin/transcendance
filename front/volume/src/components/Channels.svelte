@@ -235,7 +235,9 @@
               on:click={() => removeChannel(channel.id)}
               on:keydown={() => removeChannel(channel.id)}>🗑️</button
             >
+            {#if channel.isPrivate == true}
             <button on:click={() => inviteChannel(channel.id)}>🤝</button>
+            {/if}
             <button on:click={() => changePassword(channel.id)}>🔑</button>
             </div>
           </li>
