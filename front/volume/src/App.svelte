@@ -167,7 +167,7 @@
   let selectedChannel: ChannelsType;
   const handleSelectChannel = (channel: ChannelsType) => {
     selectedChannel = channel;
-    setAppState(APPSTATE.CHANNELS + "#" + channel.name);
+    setAppState(APPSTATE.CHANNELS + "#" + channel.id);
   };
 
   // GAME
