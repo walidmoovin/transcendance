@@ -92,7 +92,7 @@
       <div class="friends-controls">
         <h3>Add a friend</h3>
         <form on:submit={addFriend}>
-          <input type="text" />
+          <input type="text" required/>
           <button type="submit">Add</button>
         </form>
       </div>

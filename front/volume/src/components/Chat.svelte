@@ -12,6 +12,7 @@
 </script>
 
 <script lang="ts">
+  let usersInterval: ReturnType<typeof setInterval>;
   let blockedUsers: Array<User> = [];
   let chatMembers: Array<User> = [];
   let chatMessages: Array<chatMessagesType> = [];
@@ -22,11 +23,28 @@
       credentials: "include",
       mode: "cors",
     });
-    if (res.ok) blockedUsers = await res.json();
+    if (res.ok) {
+      blockedUsers = await res.json();
+      usersInterval = setInterval(async () => {
+        getMembers();
+      }, 1000);
+    }
   });
   socket.on("messages", (msgs: Array<chatMessagesType>) => {
     chatMessages = msgs;
   });
+
+  async function getMembers() {
+    if (!channel) return;
+    const res = await fetch(`${API_URL}/channels/${channel.id}/users`, {
+      credentials: "include",
+      mode: "cors"
+    })
+    if (res.ok) {
+      chatMembers = await res.json();
+    } else alert(res.text())
+    
+  }
 
   socket.on("newMessage", (msg: chatMessagesType) => {
     console.log(msg)
@@ -37,6 +55,7 @@
     socket.emit("LeaveChanel", async (response) => {
       console.log(response.status);
     });
+    clearInterval(usersInterval)
     socket.disconnect();
   });
 
@@ -281,9 +300,7 @@
     }
   }
 
-  //--------------------------------------------------------------------------------/
 </script>
-
 <div class="overlay">
   <div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="messages">
@@ -371,12 +388,8 @@
               <button on:click={() => banUser(member.username)}> ban </button>
               <button on:click={() => kickUser(member.username)}> kick </button>
               <button on:click={() => muteUser(member.username)}> mute </button>
-              <button on:click={() => adminUser(member.username)}>
-                promote
-              </button>
-              <button on:click={() => removeAdminUser(member.username)}>
-                demote
-              </button>
+              <button on:click={() => adminUser(member.username)}> promote </button>
+              <button on:click={() => removeAdminUser(member.username)}> demote </button>
             </p>
           </li>
         {/each}

@@ -111,7 +111,7 @@
         class="username"
         on:submit|preventDefault={handleSubmit}
       >
-        <input type="text" id="username" bind:value={user.username} />
+        <input type="text" id="username" bind:value={user.username} required/>
         <button type="submit" class="username" form="username-form"
           >Change</button
         >

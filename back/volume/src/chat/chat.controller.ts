@@ -84,8 +84,10 @@ export class ChatController {
   }
 
   @Get(':id/users')
-  async getUsersOfChannel (@Param('id') id: number): Promise<User[]> {
-    return (await this.channelService.getChannel(id)).users
+  async getUsersOfChannel (@Param('id', ParseIntPipe) id: number): Promise<User[]> {
+    let users = (await this.channelService.getFullChannel(id)).users
+    users.forEach((u) => u.socketKey = '')
+    return users;
   }
 
   @Post(':id/admin')
@@ -251,7 +253,6 @@ export class ChatController {
     })
     await this.channelService.save(channel)
   }
-
 
   @Post()
   async createChannel (@Body() channel: CreateChannelDto): Promise<Channel> {

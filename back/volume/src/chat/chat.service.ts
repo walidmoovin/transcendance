@@ -129,12 +129,14 @@ export class ChatService {
     return channel
   }
 
+  // Warning: those channels users contains socketKey.
+  // they have to be hidden before returned from a route 
+  // but not save them without the key.
   async getFullChannel (id: number): Promise<Channel> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
       relations: ['users', 'admins', 'banned', 'owner']
     })
-
     if (channel == null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }

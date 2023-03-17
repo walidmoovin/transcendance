@@ -89,7 +89,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const createdMessage: Message = await this.messageService.createMessage(
       message
     )
-    console.log(createdMessage)
     this.server.to(channel.id.toString()).emit('newMessage', createdMessage)
   }
 
