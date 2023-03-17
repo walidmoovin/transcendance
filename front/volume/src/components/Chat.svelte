@@ -154,6 +154,7 @@
     });
     if (response.ok) {
       const target = await response.json();
+      const duration = prompt("Enter a time for which the user will be banned from this channel")
       response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
         credentials: "include",
         method: "POST",
@@ -163,7 +164,7 @@
         },
         body: JSON.stringify({ id: target.ftId }),
       });
-      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId, duration);
     }
     if (response.ok) {
       alert("User banned");

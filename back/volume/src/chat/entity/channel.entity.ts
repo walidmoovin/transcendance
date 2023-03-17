@@ -13,6 +13,11 @@ import User from 'src/users/entity/user.entity'
 import Message from './message.entity'
 import * as bcrypt from 'bcrypt'
 
+export interface Ban {
+  user: User
+  duration: number
+}
+
 @Entity()
 export default class Channel {
   @PrimaryGeneratedColumn()

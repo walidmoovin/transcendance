@@ -56,7 +56,7 @@
 <script lang="ts">
   //--------------------------------------------------------------------------------/
   let channelMode = "";
-  const channelOptions = ["public", "private"];
+  const channelOptions = ["public", "private", "protected"];
 
   const joinChannel = async (id: number) => {
     socket.emit("joinChannel", {
@@ -100,10 +100,11 @@
 
   const createChannel = async () => {
     let name;
+    let password = "";
     name = prompt("Enter a name for the new channel:");
     if (name) {
-      let password = "";
-      password = prompt("Enter a password for the new channel:");
+      if (channelMode === 'protected')
+        password = prompt("Enter a password for the new channel:");
       name = "🚪 " + name;
       const response = await fetch(API_URL + "/channels", {
         credentials: "include",
@@ -212,12 +213,10 @@
               on:click={() => removeChannel(channel.id)}
               on:keydown={() => removeChannel(channel.id)}>🗑️</button
             >
-            {#if channel.isPrivate == true}
+            {#if channel.isPrivate == false}
             <button on:click={() => inviteChannel(channel.id)}>🤝</button>
             {/if}
-            {#if channel.password !== ''}
             <button on:click={() => changePassword(channel.id)}>🔑</button>
-            {/if}
 
             </div>
           </li>
