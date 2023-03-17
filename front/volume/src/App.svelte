@@ -122,7 +122,7 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: $store.username + "&" + DMUsername,
+            name: "none",
             owner: $store.ftId,
             password: "",
             isPrivate: true,

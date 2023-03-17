@@ -228,8 +228,8 @@ export class ChatController {
     }
     const dms = channels.filter((channel: Channel) => {
       return (
-        (channel.name === (user.username + '&' + other.username) ||
-          channel.name === (other.username + '&' + user.username)) &&
+        (channel.name === (user.ftId + '&' + other.ftId) ||
+          channel.name === (other.ftId + '&' + user.ftId)) &&
         channel.isPrivate &&
         (channel.password === undefined || channel.password === '')
       )

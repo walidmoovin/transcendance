@@ -40,8 +40,8 @@ export class ChatService {
       const channels = await this.getChannelsForUser(user.id)
       const dmAlreadyExists = channels.find((channel: Channel) => {
         return (
-          (channel.name === (user.username + '&' + otherUser.username) ||
-            channel.name === (otherUser.username + '&' + user.username)) &&
+          (channel.name === (user.ftId + '&' + otherUser.ftId) ||
+            channel.name === (otherUser.ftId + '&' + user.ftId)) &&
           channel.isPrivate &&
           (channel.password === undefined || channel.password === '')
         )
@@ -70,7 +70,7 @@ export class ChatService {
     newDM.owner = user
     newDM.users = [user, otherUser]
     newDM.admins = []
-    newDM.name = user.username + '&' + otherUser.username
+    newDM.name = user.ftId + '&' + otherUser.ftId
     return newDM
   }
 

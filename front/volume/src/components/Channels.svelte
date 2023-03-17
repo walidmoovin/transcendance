@@ -28,7 +28,11 @@
       credentials: "include",
       mode: "cors",
     });
-    if (res.ok) channels = await res.json();
+    if (res.ok) {
+      const newChannels: Array<ChannelsType> = await res.json();
+      await formatChannelNames(newChannels);
+      channels = newChannels;
+    }
   };
 
   let channels: Array<ChannelsType> = [];
@@ -173,6 +177,47 @@
   };
 
   //--------------------------------------------------------------------------------/
+
+  async function formatChannelNames(channel: Array<ChannelsType>): Promise<void> {
+    const res = await fetch(API_URL + "/users/all", {
+      credentials: "include",
+      mode: "cors",
+    })
+    if (res.ok) {
+      const users = await res.json()
+      if (users) {
+        channel.forEach((channel) => {
+          let channelName = channel.name;
+          if (channelName.startsWith("🚪 ")) return;
+
+          const split = channelName.split("&");
+          if (split.length > 1) {
+            const firstID = parseInt(split[0]);
+            const secondID = parseInt(split[1]);
+            let newChannelName = channelName;
+
+            users.forEach((user) => {
+              if (user.ftId === firstID) {
+                newChannelName = newChannelName.replace(
+                  split[0],
+                  user.username
+                );
+              }
+              if (user.ftId === secondID) {
+                newChannelName = newChannelName.replace(
+                  split[1],
+                  user.username
+                );
+              }
+            });
+            channel.name = newChannelName;
+          } else {
+            console.log("Could not format channel name")
+          }
+        });
+      }
+    }
+  }
 </script>
 
 <div class="overlay">
