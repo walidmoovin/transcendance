@@ -44,15 +44,15 @@ export class ChatController {
     }
     const dms = channels.filter((channel: Channel) => {
       return (
-        (channel.name === (user.ftId + '&' + other.ftId) ||
-          channel.name === (other.ftId + '&' + user.ftId)) &&
+        (channel.name === user.ftId + '&' + other.ftId ||
+          channel.name === other.ftId + '&' + user.ftId) &&
         channel.isPrivate &&
         (channel.password === undefined || channel.password === '')
       )
     })
     dms.forEach((c) => {
-      c.users.forEach((u) => u.socketKey = '')
-      c.admins.forEach((u) => u.socketKey = '')
+      c.users.forEach((u) => (u.socketKey = ''))
+      c.admins.forEach((u) => (u.socketKey = ''))
       c.owner.socketKey = ''
     })
     return dms
@@ -112,10 +112,12 @@ export class ChatController {
   }
 
   @Get(':id/users')
-  async getUsersOfChannel (@Param('id', ParseIntPipe) id: number): Promise<User[]> {
-    let users = (await this.channelService.getFullChannel(id)).users
-    users.forEach((u) => u.socketKey = '')
-    return users;
+  async getUsersOfChannel (
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<User[]> {
+    const users = (await this.channelService.getFullChannel(id)).users
+    users.forEach((u) => (u.socketKey = ''))
+    return users
   }
 
   @Post(':id/admin')
@@ -165,6 +167,7 @@ export class ChatController {
   async addBan (
     @Param('id', ParseIntPipe) id: number,
       @Body() target: IdDto,
+      @Body() duration: number,
       @Profile42() profile: Profile
   ): Promise<void> {
     const channel = await this.channelService.getFullChannel(id)
@@ -183,7 +186,7 @@ export class ChatController {
     if (await this.channelService.isBanned(channel.id, target.id)) {
       throw new BadRequestException('User is already banned from this channel')
     }
-    channel.banned.push(user)
+    channel.banned.push([user.id, duration])
     await this.channelService.save(channel)
   }
 
@@ -245,7 +248,7 @@ export class ChatController {
       @Param('id', ParseIntPipe) id: number
   ): Promise<void> {
     if (await this.channelService.isOwner(id, +profile.id)) {
-      this.channelService.removeChannel(id)  // -> verify that the deletion the break others users behaviors.
+      await this.channelService.removeChannel(id) // -> verify that the deletion the break others users behaviors.
     }
     const channel = await this.channelService.getFullChannel(id)
     channel.users = channel.users.filter((usr: User) => {
@@ -256,16 +259,16 @@ export class ChatController {
 
   @Get()
   async getChannelsForUser (@Profile42() profile: Profile): Promise<Channel[]> {
-    let chan = await this.channelService.getChannelsForUser(+profile.id)
-    return chan;
+    const chan = await this.channelService.getChannelsForUser(+profile.id)
+    return chan
   }
 
   @Post()
   async createChannel (@Body() channel: CreateChannelDto): Promise<Channel> {
-    let chan = await this.channelService.createChannel(channel)
-    chan.users.forEach((u) => u.socketKey = '')
-    chan.admins.forEach((u) => u.socketKey = '')
+    const chan = await this.channelService.createChannel(channel)
+    chan.users.forEach((u) => (u.socketKey = ''))
+    chan.admins.forEach((u) => (u.socketKey = ''))
     chan.owner.socketKey = ''
-    return chan;
+    return chan
   }
 }

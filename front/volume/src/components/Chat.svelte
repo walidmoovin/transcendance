@@ -162,9 +162,9 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: target.ftId }),
+        body: JSON.stringify({ id: target.ftId, duration: duration}),
       });
-      socket.emit("kickUser", channel.id, $store.ftId, target.ftId, duration);
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
     }
     if (response.ok) {
       alert("User banned");

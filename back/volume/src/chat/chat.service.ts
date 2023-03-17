@@ -116,6 +116,17 @@ export class ChatService {
     })
   }
 
+  @Cron('*/6 * * * * *')
+  async updateBanlists (): Promise<void> {
+    const channels = await this.ChannelRepository.find({})
+    channels.forEach((channel) => {
+      channel.banned = channel.banned.filter((data) => {
+        return data[1] - Date.now() > 0
+      })
+      void this.ChannelRepository.save(channel)
+    })
+  }
+
   async addUserToChannel (channel: Channel, user: User): Promise<Channel> {
     channel.users.push(user)
     return await this.ChannelRepository.save(channel)
@@ -135,7 +146,7 @@ export class ChatService {
   async getFullChannel (id: number): Promise<Channel> {
     const channel = await this.ChannelRepository.findOne({
       where: { id },
-      relations: ['users', 'admins', 'banned', 'owner']
+      relations: ['users', 'admins', 'owner']
     })
     if (channel == null) {
       throw new BadRequestException(`Channel #${id} not found`)
@@ -190,13 +201,12 @@ export class ChatService {
 
   async isBanned (id: number, userId: number): Promise<boolean> {
     const channel = await this.ChannelRepository.findOne({
-      where: { id },
-      relations: { banned: true }
+      where: { id }
     })
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-    return channel.banned.findIndex((user) => user.ftId === userId) !== -1
+    return channel.banned.findIndex((ban) => ban[0] === userId) !== -1
   }
 
   async getMuteDuration (id: number, userId: number): Promise<number> {

@@ -17,7 +17,11 @@ import { CreateMessageDto } from './dto/create-message.dto'
 import { ConnectionDto } from './dto/connection.dto'
 
 @WebSocketGateway({
-  cors: { origin: new RegExp(`^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`) }
+  cors: {
+    origin: new RegExp(
+      `^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`
+    )
+  }
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -26,7 +30,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor (
     private readonly userService: UsersService,
     private readonly messageService: MessageService,
-    private readonly chatService: ChatService,
+    private readonly chatService: ChatService
   ) {}
 
   async handleConnection (socket: Socket): Promise<void> {}
@@ -45,9 +49,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       connect.pwd
     )
     const channel = await this.chatService.getFullChannel(connect.ChannelId)
-    if (channel.banned.findIndex((ban) => ban.ftId === connect.UserId) !== -1) {
+    if (channel.banned.findIndex((ban) => ban[0] === connect.UserId) !== -1) {
       throw new WsException('You are banned from entering this channel')
     }
+    
     const user = await this.userService.getFullUser(connect.UserId)
     if (channel.password && channel.password !== '') {
       if (
@@ -63,13 +68,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     )
     this.server.to(socket.id).emit('messages', messages)
     await socket.join(channel.id.toString())
+    console.log("joinchan succ")
   }
 
   @SubscribeMessage('getMessages')
   async onGetMessages (socket: Socket, connect: ConnectionDto): Promise<void> {
     const user = await this.userService.getFullUser(connect.UserId)
     const channel = await this.chatService.getFullChannel(connect.ChannelId)
-    const messages = await this.messageService.findMessagesInChannelForUser(channel, user)
+    const messages = await this.messageService.findMessagesInChannelForUser(
+      channel,
+      user
+    )
     this.server.to(socket.id).emit('messages', messages)
   }
 
