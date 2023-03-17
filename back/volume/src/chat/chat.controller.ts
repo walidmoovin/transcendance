@@ -35,11 +35,11 @@ export class ChatController {
     @Profile42() profile: Profile,
       @Param('otherName') otherName: string
   ): Promise<Channel[]> {
-    const user = await this.usersService.findUser(profile.fdId)
+    const user = await this.usersService.findUser(+profile.id)
     const other = await this.usersService.findUserByName(otherName)
     const channels = await this.channelService.getChannelsForUser(+profile.id)
 
-    if (user === null) {
+    if (user === null || other === null) {
       throw new BadRequestException('User not found')
     }
     const dms = channels.filter((channel: Channel) => {
@@ -50,10 +50,19 @@ export class ChatController {
         (channel.password === undefined || channel.password === '')
       )
     })
-    dms.forEach((c) => {
-      c.users.forEach((u) => (u.socketKey = ''))
-      c.admins.forEach((u) => (u.socketKey = ''))
-      c.owner.socketKey = ''
+	if (dms && dms.length === 0) {
+	  throw new BadRequestException('No DMS found')
+	}
+	dms.forEach((c) => {
+	  if (c.users) {
+      	c.users.forEach((u) => (u.socketKey = ''))
+	  }
+	  if (c.admins) {
+      	c.admins.forEach((u) => (u.socketKey = ''))
+	  }
+	  if (c.owner) {
+	    c.owner.socketKey = ''
+	  }
     })
     return dms
   }
@@ -65,7 +74,7 @@ export class ChatController {
       @Profile42() profile: Profile
   ): Promise<void> {
     const channel = await this.channelService.getFullChannel(id)
-    const user: User | null = await this.usersService.findUser(target.id)
+    const user: User | null = await this.usersService.getFullUser(target.id)
     if (user == null) {
       throw new NotFoundException(`User #${target.id} not found`)
     }

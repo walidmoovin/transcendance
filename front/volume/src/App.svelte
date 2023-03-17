@@ -93,25 +93,27 @@
     setAppState(APPSTATE.PROFILE_ID);
   }
 
-  async function getDMs(username: string): Promise<Response> {
-    const response = await fetch(API_URL + "/channels/dms/" + username, {
-      credentials: "include",
-      mode: "cors",
-    });
-    return response;
+  async function getDMs(username: string): Promise<Response | null> {
+	const res = await fetch(API_URL + "/channels/dms/" + username, {
+		credentials: "include",
+		mode: "cors",
+	})
+	if (res.ok)
+		return res;
+	else
+		return null;
   }
 
   let chan: Channels;
   async function openDirectChat(event: CustomEvent<string>) {
-    const DMUsername = "test";
-    // const DMUsername = event.detail;
+    const DMUsername = event.detail;
     let DMChannel: Array<ChannelsType> = [];
-    const res = await getDMs($store.username)
-    if (res.ok) {
+    const res = await getDMs(DMUsername)
+    if (res && res.ok) {
       DMChannel = await res.json();
-      if (DMChannel.length != 0) {
+      if (DMChannel.length != 0)
         chan.selectChat(DMChannel[0].id);
-      } else {
+	} else {
         console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
         fetch(API_URL + "/channels", {
           credentials: "include",
@@ -129,8 +131,8 @@
             otherDMedUsername: DMUsername
           }),
         }).then(async () => {
-          const response = await getDMs($store.username)
-          if (response.ok) {
+          const response = await getDMs(DMUsername)
+          if (response && response.ok) {
               DMChannel = await response.json(); 
               if (DMChannel.length != 0) {
                 chan.selectChat(DMChannel[0].id);
@@ -141,13 +143,10 @@
             alert("Error creating DM");
           }
         }).catch((error) => {
-          alert(error.message);
+          alert("Error creating DM");
         })
       }
-    } else {
-      alert("Error creating DM");
     }
-  }
 
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);

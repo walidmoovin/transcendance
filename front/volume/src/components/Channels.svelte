@@ -54,7 +54,7 @@
 </script>
 
 <script lang="ts">
-  //--------------------------------------------------------------------------------/
+  //--------------------------------------------------------------------------------//
   let channelMode = "";
   const channelOptions = ["public", "private", "protected"];
 
@@ -99,9 +99,13 @@
   };
 
   const createChannel = async () => {
-    let name;
+    let name: string;
     let password = "";
     name = prompt("Enter a name for the new channel:");
+	if (name.includes("#")) {
+		alert("Channel name cannot contain #");
+		return;
+	}
     if (name) {
       if (channelMode === 'protected')
         password = prompt("Enter a password for the new channel:");
@@ -163,7 +167,7 @@
         }),
       });
       if (response2.ok) {
-        channels.push(await response2.json());
+		alert("User invited");
       } else {
         alert("Error inviting user");
       }
@@ -203,7 +207,7 @@
   <div class="channels" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
       {#if channels.length > 0}
-        <h2>Channels</h2>
+        <h2>Channels <button style="margin-right :auto;" on:click={() => getChannels()}>🔄</button> </h2>
         {#each channels.slice(0, 10) as channel}
           <li>
             <span>{channel.name}</span>
@@ -213,7 +217,7 @@
               on:click={() => removeChannel(channel.id)}
               on:keydown={() => removeChannel(channel.id)}>🗑️</button
             >
-            {#if channel.isPrivate == false}
+            {#if channel.isPrivate == true}
             <button on:click={() => inviteChannel(channel.id)}>🤝</button>
             {/if}
             <button on:click={() => changePassword(channel.id)}>🔑</button>

@@ -6,7 +6,8 @@ import {
   Res,
   Req,
   Post,
-  Body
+  Body,
+  BadRequestException
 } from '@nestjs/common'
 import { Response, Request } from 'express'
 
@@ -54,7 +55,7 @@ export class AuthController {
   async VerifyEmail (@Profile42() profile: Profile): Promise<void> {
     const ftId: number = profile.id
     const user = await this.usersService.findUser(ftId)
-    if (user == null) throw new Error('User not found')
+    if (user == null) throw new BadRequestException('User not found')
     await this.authService.sendConfirmationEmail(user)
   }
 

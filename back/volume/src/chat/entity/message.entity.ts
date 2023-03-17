@@ -22,7 +22,7 @@ export default class Message {
   @JoinColumn()
     author: User
 
-  @ManyToOne(() => Channel, (channel) => channel.messages, { cascade: true })
+  @ManyToOne(() => Channel, (channel) => channel.messages, {onDelete:'CASCADE'} )
   @JoinTable()
     channel: Channel
 

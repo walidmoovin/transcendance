@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 networks:
   transcendence:
@@ -31,26 +31,7 @@ services:
     image: postgres
     ports: [5432:5432]
     volumes:
-    - ./postgres:/var/lib/postgresql/data
+      - ./postgres:/var/lib/postgresql/data
     networks: [transcendence]
     restart: always
     env_file: .env
-  pgadmin:
-    links:
-    - postgres:postgres
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    ports:
-    - "8081:80"
-    volumes:
-    - /data/pgadmin:/root/.pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: 'usr@usr.com'
-      PGADMIN_DEFAULT_PASSWORD: 'pw'
-      GUNICORN_ACCESS_LOGFILE: '/dev/null'
-      PGADMIN_CONFIG_UPGRADE_CHECK_ENABLED: 'False'
-    depends_on:
-      - postgres
-    networks: [transcendence]
-    logging:
-      driver: none
