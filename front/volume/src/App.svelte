@@ -14,7 +14,6 @@
 </script>
 
 <script lang="ts">
-  import { ChatOpen } from "./components/Alert/content";
   import { onMount } from "svelte";
   import Navbar from "./components/NavBar.svelte";
   import Modal from "svelte-simple-modal";
@@ -221,7 +220,6 @@
         on:click={() => setAppState(APPSTATE.CHANNELS)}
         on:keydown={() => setAppState(APPSTATE.CHANNELS)}
       >
-      {#if $ChatOpen}
         <Chat
           channel={selectedChannel}
           on:view-profile={openIdProfile}
@@ -229,7 +227,6 @@
           on:invite-to-game={pong.inviteToGame}
           on:send-message={openDirectChat}
         />
-        {/if}
       </div>
     {/if}
     {#if appState.includes(APPSTATE.CHANNELS)}

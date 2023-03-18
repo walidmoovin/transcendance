@@ -14,7 +14,6 @@
   import { API_URL, store } from "../Auth";
   import { socket } from "../socket";
   import type User from "./Profile.svelte";
-  import { ChatOpen } from "./Alert/content";
 
   export async function formatChannelNames(channel: Array<ChannelsType>): Promise<void> {
     const res = await fetch(API_URL + "/users/all", {
@@ -79,7 +78,6 @@
       ChannelId: id,
     
     });
-    ChatOpen.set(true)
   };
 
   const getChannels = async () => {

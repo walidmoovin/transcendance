@@ -10,7 +10,6 @@
   import { show_popup, content } from "./Alert/content";
   import type { ChannelsType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
-  import { ChatOpen } from "./Alert/content";
 </script>
 
 <script lang="ts">
@@ -292,7 +291,6 @@
     await show_popup("Press \"Okay\" to leave this channel?", false);
     if ($content == 'ok') {
         socket.emit('leaveChannel');
-        ChatOpen.set(false)
       }
   }
   function onSendMessage() {
