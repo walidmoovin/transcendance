@@ -84,6 +84,7 @@
   }, 15000);
 
   function clickProfile() {
+    profileUsername = $store.username
     setAppState(APPSTATE.PROFILE);
   }
 
