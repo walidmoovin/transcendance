@@ -32,6 +32,7 @@
   <h2>{message}</h2>
   {#if form === true}
     <input
+      required
       type="text"
       bind:value
       on:keydown={(e) => e.which === 13 && _onOkay()}
@@ -52,6 +53,9 @@
 
   input {
     width: 100%;
+    text-align: center;
+    word-wrap:break-word;
+
   }
 
   .buttons {

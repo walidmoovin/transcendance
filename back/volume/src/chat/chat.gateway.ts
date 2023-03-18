@@ -61,7 +61,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ) {
         throw new WsException('Wrong password')
       }
-    } else await this.chatService.addUserToChannel(channel, user)
+    }
+    await this.chatService.addUserToChannel(channel, user)
     const messages = await this.messageService.findMessagesInChannelForUser(
       channel,
       user
@@ -93,6 +94,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const connect = await this.connectedUserRepository.findOneBy({
       socket: socket.id
     })
+    console.log("connection removed", connect?.user)
     if (connect == null) return
     const channel = await this.chatService.getFullChannel(connect.channel)
     socket.disconnect()

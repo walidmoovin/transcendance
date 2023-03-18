@@ -14,6 +14,7 @@
   import { API_URL, store } from "../Auth";
   import { socket } from "../socket";
   import type User from "./Profile.svelte";
+  import { ChatOpen } from "./Alert/content";
 
   export async function formatChannelNames(channel: Array<ChannelsType>): Promise<void> {
     const res = await fetch(API_URL + "/users/all", {
@@ -63,12 +64,22 @@
   let channelMode = "";
   const channelOptions = ["public", "private", "protected"];
 
+  const checkNamesChannel= (name : string) => {
+    channels.forEach((e) => {
+      if (e.name == name)
+        return false;
+    });
+    return true;
+  }
+
   const joinChannel = async (id: number) => {
+    console.log(channels)
     socket.emit("joinChannel", {
       UserId: $store.ftId,
       ChannelId: id,
-      
+    
     });
+    ChatOpen.set(true)
   };
 
   const getChannels = async () => {
@@ -109,14 +120,23 @@
     let password = "";
     await show_popup("Enter a name for the new channel:")
     name = $content;
+    
     if (name.includes("#")) {
         await show_popup("Channel name cannot contain #", false)
+      return;
+    }
+    if (!checkNamesChannel(name)) {
+        await show_popup("User may not have access", false)
       return;
     }
     if (name) {
       if (channelMode === 'protected'){
         await show_popup("Enter a password for the new channel:")
         password = $content
+        if (password == "") {
+          await show_popup("Password is required #", false)
+          return ;
+        }
       }
         name = "🚪 " + name;
         const response = await fetch(API_URL + "/channels", {
@@ -219,9 +239,9 @@
     <div>
       {#if channels.length > 0}
         <h2>Channels <button style="margin-right :auto;" on:click={() => getChannels()}>🔄</button> </h2>
-        {#each channels.slice(0, 10) as channel}
+        {#each channels as channel}
           <li>
-            <span>{channel.name}</span>
+            <span>{channel.name} : {channel.id}</span>
             <div style="display:block; margin-right:10%">
             <button on:click={() => selectChat(channel.id)}>🔌</button>
             <button
@@ -329,6 +349,7 @@
     -moz-appearance: none;
     appearance: none;
     cursor: pointer;
+    font-size: 100%;
   }
   
   .button {

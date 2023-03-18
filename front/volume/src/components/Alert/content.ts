@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import Alert__SvelteComponent_ from './Alert.svelte';
 export const content = writable("")
 export const popup = writable(null)
+export const ChatOpen = writable(false)
 import { bind } from 'svelte-simple-modal';
 
 let val;
@@ -26,5 +27,5 @@ export async function waitForCondition() {
              return await checkFlag();
       }
     }
-    return await checkFlag()
+    return   checkFlag()
 }

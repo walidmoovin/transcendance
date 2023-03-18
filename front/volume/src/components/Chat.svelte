@@ -7,9 +7,10 @@
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { store, API_URL } from "../Auth";
   import { socket } from "../socket";
-    import { show_popup, content } from "./Alert/content";
+  import { show_popup, content } from "./Alert/content";
   import type { ChannelsType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
+  import { ChatOpen } from "./Alert/content";
 </script>
 
 <script lang="ts">
@@ -290,21 +291,10 @@
   const leaveChannel = async () => {
     await show_popup("Press \"Okay\" to leave this channel?", false);
     if ($content == 'ok') {
-      const response = await fetch(API_URL + "/channels/" + channel.id + "/leave", {
-        credentials: "include",
-        mode: "cors",
-      });
-      if (response.ok) {
-		return {
-            status: 200,
-            redirect: "/channels/"
-        };
-      } else {
-        await show_popup("Failed to leave channel",false);
+        socket.emit('leaveChannel');
+        ChatOpen.set(false)
       }
-    }
   }
-
   function onSendMessage() {
     dispatch("send-message", selectedUser);
     showProfileMenu = false;
@@ -435,11 +425,11 @@
   }
 
   .messages {
-    height: 200px;
+    height : 400px;
+    width : 100%;
     overflow-y: scroll;
     border-bottom: 1px solid #dedede;
     padding-bottom: 1rem;
-    margin-bottom: 1rem;
   }
 
   .message {
@@ -457,7 +447,7 @@
   }
 
   input[type="text"] {
-    width: 80%;
+    width: 82%;
     padding: 0.5rem;
     border: 1px solid #dedede;
     border-radius: 5px;
