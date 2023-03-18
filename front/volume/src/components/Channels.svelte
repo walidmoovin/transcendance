@@ -114,9 +114,10 @@
       return;
     }
     if (name) {
-      if (channelMode === 'protected')
+      if (channelMode === 'protected'){
         await show_popup("Enter a password for the new channel:")
         password = $content
+      }
         name = "🚪 " + name;
         const response = await fetch(API_URL + "/channels", {
         credentials: "include",

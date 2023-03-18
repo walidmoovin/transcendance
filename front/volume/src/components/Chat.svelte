@@ -25,7 +25,7 @@
     getMembers();
     usersInterval = setInterval(async () => {
       getMembers();
-    }, 5000);
+    }, 1000);
   });
 
   socket.on("messages", (msgs: Array<chatMessagesType>) => {
@@ -63,7 +63,6 @@
 
   const sendMessage = () => {
     if (newText !== "") {
-      chatMessages = [...chatMessages.slice(-5 + 1)];
       socket.emit("addMessage", {
         text: newText,
         UserId: $store.ftId,
@@ -370,11 +369,12 @@
       </div>
     {/if}
     <form on:submit|preventDefault={sendMessage}>
-      <input type="text" placeholder="Type a message..." bind:value={newText} />
-      <button>
-        <img src="img/send.png" alt="send" />
+      <input  type="text" placeholder="Type a message..." bind:value={newText} />
+      <button style="background:#dedede; margin:auto" >
+        <img  src="img/send.png" alt="send" />
       </button>
     </form>
+    <div>
     <button on:click={leaveChannel}>Leave</button>
     <button
       on:click|stopPropagation={toggleChatMembers}
@@ -382,9 +382,10 @@
     >
       Chat Members
     </button>
+  </div>
+
     {#if showChatMembers}
       <div
-        class="chatMembers"
         on:click|stopPropagation
         on:keydown|stopPropagation
       />
@@ -424,7 +425,8 @@
     border: 1px solid #dedede;
     border-radius: 5px;
     padding: 1rem;
-    width: 300px;
+    max-width: 90%; 
+    width: auto;
     display: flex;
     flex-direction: column;
   }
@@ -439,8 +441,11 @@
 
   .message {
     font-size: 14px;
+    max-width: 90%;
+    width: auto;
     line-height: 1.4;
     margin-bottom: 0.5rem;
+    word-wrap:break-word;
   }
 
   .message-name {
@@ -449,7 +454,7 @@
   }
 
   input[type="text"] {
-    width: 100%;
+    width: 80%;
     padding: 0.5rem;
     border: 1px solid #dedede;
     border-radius: 5px;
@@ -486,7 +491,7 @@
     border: 1px solid #dedede;
     border-radius: 5px;
     padding: 1rem;
-    max-height: 100px;
+    max-height: 70%;
     overflow-y: scroll;
     z-index: 1;
   }
