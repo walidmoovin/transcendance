@@ -7,14 +7,19 @@
     winrate: number;
     rank: number;
     twoFA: boolean;
+    ftId: number;
   }
 </script>
 
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
+  import { bind } from 'svelte-simple-modal';
   import { API_URL, store, logout } from "../Auth";
+  import Alert from "./Alert/Alert.svelte";
+  import { popup } from "./Alert/content";
 
   export let username: string = $store.username;
+  export let gamePlaying: boolean;
 
   let edit: boolean = true;
   let user: Player = $store;
@@ -37,6 +42,11 @@
 
   const dispatch = createEventDispatcher();
   async function handleSubmit() {
+    if (gamePlaying) {
+      popup.set(bind(Alert, { message:"Cannot change username while playing.", form : false }))
+      return;
+    }
+
     let response = await fetch(API_URL + "/users", {
       headers: { "content-type": "application/json" },
       method: "POST",
@@ -44,8 +54,8 @@
       credentials: "include",
     });
     if (response.ok) {
-      alert("Succefully changed username.");
       $store.username = user.username;
+      popup.set(bind(Alert, { message: "Succefully changed username.", form : false }))
     }
   }
 
@@ -59,7 +69,10 @@
       credentials: "include",
     });
     if (response.ok) {
-      alert("Succefully " + (user.twoFA ? "enabled" : "disabled") + " 2FA");
+      popup.set(bind(Alert, {
+        message: "Succefully " + (user.twoFA ? "enabled" : "disabled") + " 2FA",
+        form : false
+      }))
     }
   }
 </script>
@@ -136,7 +149,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9998;
+    z-index: 50;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -17,12 +17,10 @@ export class PongService {
 
   async updateStats (
     player: User,
-    i: number,
-    result: Result,
-    maxScore: number
+    nameWhoWon: string
   ): Promise<void> {
     player.matchs++
-    if (result.score[i] === maxScore) player.wins++
+    if (player.username === nameWhoWon) player.wins++
     else player.looses++
     player.winrate = (100 * player.wins) / player.matchs
   }
@@ -30,11 +28,11 @@ export class PongService {
   async updatePlayer (
     i: number,
     result: Result,
-    maxScore: number
+    nameWhoWon: string
   ): Promise<void> {
     const player: User | null = result.players[i]
     if (player == null) return
-    if (result.ranked) await this.updateStats(player, i, result, maxScore)
+    if (result.ranked) await this.updateStats(player, nameWhoWon)
     player.results.push(result)
     player.status = 'online'
     await this.usersService.save(player)
@@ -49,7 +47,7 @@ export class PongService {
   async saveResult (
     players: Player[],
     ranked: boolean,
-    maxScore: number
+    nameWhoWon: string
   ): Promise<void> {
     const result = new Result()
     const ply = new Array<User | null>()
@@ -59,8 +57,8 @@ export class PongService {
     result.players = ply
     result.score = [players[0].score, players[1].score]
     await this.resultsRepository.save(result)
-    await this.updatePlayer(0, result, maxScore)
-    await this.updatePlayer(1, result, maxScore)
+    await this.updatePlayer(0, result, nameWhoWon)
+    await this.updatePlayer(1, result, nameWhoWon)
   }
 
   async getHistory (

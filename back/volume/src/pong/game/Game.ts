@@ -117,13 +117,26 @@ export class Game {
     }
   }
 
-  stop (): void {
+  stop (nameWhoLeft?: string): void {
     if (this.timer !== null) {
       clearInterval(this.timer)
     }
+    let nameWhoWon: string
+    if (this.players[0].score > this.players[1].score) {
+      nameWhoWon = this.players[0].name
+    } else {
+      nameWhoWon = this.players[1].name
+    }
+    if (nameWhoLeft !== undefined) {
+      this.players.forEach((p) => {
+        if (p.name !== nameWhoLeft) {
+          nameWhoWon = p.name
+        }
+      })
+    }
     this.timer = null
     this.pongService
-      .saveResult(this.players, this.ranked, DEFAULT_WIN_SCORE)
+      .saveResult(this.players, this.ranked, nameWhoWon)
       .then(() => {
         this.gameStoppedCallback(this.players[0].name)
         this.players = []

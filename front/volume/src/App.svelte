@@ -172,6 +172,7 @@
 
   // GAME
   let pong: Pong;
+  let gamePlaying: boolean = false;
 
   // FAKE LOGIN
   let usernameFake = "test";
@@ -260,7 +261,7 @@
     {/if}
     {#if appState === APPSTATE.PROFILE}
       <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Profile on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
+        <Profile {gamePlaying} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
       </div>
     {/if}
     {#if appState === APPSTATE.PROFILE_ID}
@@ -271,6 +272,7 @@
           setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
       >
         <Profile
+          {gamePlaying}
           username={profileUsername}
           on:view-history={() => setAppState(APPSTATE.HISTORY_ID)}
         />
@@ -282,7 +284,7 @@
       <button on:click={impersonate}>Impersonate</button>
       <button on:click={() => (fakemenu = false)}>No impersonate</button>
     {:else}
-      <Pong bind:this={pong} {appState} {setAppState} {fakeUser} />
+      <Pong bind:gamePlaying={gamePlaying} bind:this={pong} {appState} {setAppState} {fakeUser} />
     {/if}
   {/if}
 

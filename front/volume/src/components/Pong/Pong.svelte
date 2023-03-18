@@ -26,7 +26,7 @@
     import.meta.env.VITE_BACK_PORT
   }`;
 
-  let gamePlaying: boolean = false;
+  export let gamePlaying: boolean;
   let connected: boolean = false;
   let loggedIn: boolean = false;
   let failedLogIn: boolean = false;

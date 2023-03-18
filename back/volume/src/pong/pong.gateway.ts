@@ -46,10 +46,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const name: string | undefined = this.socketToPlayerName.get(client)
     const game: Game | undefined = this.games.playerGame(name)
-    if (game !== undefined) {
-      game.stop()
-    }
     if (name !== undefined) {
+      if (game !== undefined) {
+        game.stop(name)
+      }
       console.log('Disconnected ', this.socketToPlayerName.get(client))
       this.matchmakingQueue.removePlayer(name)
       this.socketToPlayerName.delete(client)
@@ -66,7 +66,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): Promise<{ event: string, data: boolean }> {
     let succeeded: boolean = false
     const user = await this.usersService.findUserByName(playerName.value)
-    console.log(socketKey.value, user?.socketKey)
+    // console.log(socketKey.value, user?.socketKey)
     if (
       user !== null &&
       user.socketKey === socketKey.value &&
