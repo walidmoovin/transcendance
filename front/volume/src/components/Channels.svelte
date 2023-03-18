@@ -120,7 +120,7 @@
     let password = "";
     await show_popup("Enter a name for the new channel:")
     name = $content;
-    
+
     if (name.includes("#")) {
         await show_popup("Channel name cannot contain #", false)
       return;
@@ -156,7 +156,7 @@
       if (!response.ok) 
         await show_popup("Error creating channel", false)
       getChannels()
-    }
+    } else await show_popup("Channel name is required", false)
   };
 
   //--------------------------------------------------------------------------------/
