@@ -2,6 +2,8 @@
 	  import { content, show_popup } from './Alert/content'
 	  const showDialog = () => {
 	  }
+  
+
 
   export interface ChannelsType {
     id: number;

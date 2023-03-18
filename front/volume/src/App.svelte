@@ -11,6 +11,7 @@
     MATCHMAKING = "/matchmaking",
     PROFILE_ID = "/profile_id",
   }
+
 </script>
 
 <script lang="ts">
@@ -226,6 +227,7 @@
           on:add-friend={addFriend}
           on:invite-to-game={pong.inviteToGame}
           on:send-message={openDirectChat}
+          on:return-home={resetAppState}
         />
       </div>
     {/if}

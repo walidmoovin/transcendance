@@ -56,6 +56,7 @@
     socket.disconnect();
   });
 
+
   //--------------------------------------------------------------------------------/
 
   const sendMessage = () => {
@@ -288,7 +289,8 @@
     await show_popup("Press \"Okay\" to leave this channel?", false);
     if ($content == 'ok') {
       socket.emit("LeaveChanel", async (response) => {
-        console.log(response.status);
+      console.log(response.status);
+      dispatch("return-home");
       });
     }
   }
