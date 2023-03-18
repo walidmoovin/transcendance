@@ -217,21 +217,6 @@ export class ChatController {
     await this.channelService.updatePassword(id, data.password)
   }
 
-  @Get(':id/leave')
-  async leaveChannel (
-    @Profile42() profile: Profile,
-      @Param('id', ParseIntPipe) id: number
-  ): Promise<void> {
-    if (await this.channelService.isOwner(id, +profile.id)) {
-      await this.channelService.removeChannel(id) // -> verify that the deletion the break others users behaviors.
-    }
-    const channel = await this.channelService.getFullChannel(id)
-    channel.users = channel.users.filter((usr: User) => {
-      return usr.ftId !== profile.id
-    })
-    await this.channelService.save(channel)
-  }
-
   @Get()
   async getChannelsForUser (@Profile42() profile: Profile): Promise<Channel[]> {
     const chan = await this.channelService.getChannelsForUser(+profile.id)

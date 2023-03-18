@@ -295,7 +295,10 @@
         mode: "cors",
       });
       if (response.ok) {
-        window.location.href = "/channels";
+		return {
+            status: 200,
+            redirect: "/channels/"
+        };
       } else {
         await show_popup("Failed to leave channel",false);
       }

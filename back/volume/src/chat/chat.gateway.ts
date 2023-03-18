@@ -16,6 +16,11 @@ import { MessageService } from './message.service'
 import { CreateMessageDto } from './dto/create-message.dto'
 import { ConnectionDto } from './dto/connection.dto'
 import { kickUserDto } from './dto/kickUser.dto'
+import ConnectedUser from './entity/connection.entity'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { connect } from 'http2'
+import User from 'src/users/entity/user.entity'
 
 @WebSocketGateway({
   cors: {
@@ -31,8 +36,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor (
     private readonly userService: UsersService,
     private readonly messageService: MessageService,
-    private readonly chatService: ChatService
-  ) {}
+    private readonly chatService: ChatService,
+    @InjectRepository(ConnectedUser)
+    private readonly connectedUserRepository: Repository<ConnectedUser>
+	) {}
 
   async handleConnection (socket: Socket): Promise<void> {}
 
@@ -66,6 +73,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       channel,
       user
     )
+	const conUser = {
+		user : user.id,
+		channel : channel.id,
+		socket: socket.id	
+	}
+	this.connectedUserRepository.create(conUser)
     this.server.to(socket.id).emit('messages', messages)
     await socket.join(channel.id.toString())
   }
@@ -83,8 +96,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('leaveChannel')
   async onLeaveChannel (socket: Socket): Promise<void> {
-    socket.disconnect()
-  }
+	const connect = await this.connectedUserRepository.findOneBy({socket : socket.id})
+	if (connect == null)
+		return
+	const channel = await this.chatService.getFullChannel(connect.channel)
+	socket.disconnect()
+	if (connect.user == channel.owner.id) {
+		this.server.in(channel.id.toString()).disconnectSockets()
+		this.chatService.removeChannel(channel.id)
+	} else {
+		channel.users = channel.users.filter((e) => e.id !== connect.user)
+	}
+	await this.connectedUserRepository.delete({ socket : socket.id })
+	}
 
   @SubscribeMessage('addMessage')
   async onAddMessage (socket: Socket, message: CreateMessageDto): Promise<void> {
@@ -101,15 +125,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('kickUser')
-  async onKickUser (socket: Socket, msg: kickUserDto): Promise<void> {
-    console.log('kick called')
-    const channel = await this.chatService.getFullChannel(msg.chan)
-    if (
-      channel.owner.id !== msg.from &&
-      channel.admins.findIndex((usr) => usr.id === msg.from) === -1
-    ) {
-      throw new WsException('You do not have the required privileges')
-    }
+  async onKickUser (socket: Socket, kick: kickUserDto): Promise<void> {
+	const channel = await this.chatService.getFullChannel(kick.chan); 
+	if (channel.owner.id == kick.to)
+		throw new WsException('You cannot kick the owner of a channel')
+	if (
+		channel.owner.id !== kick.from &&
+		channel.admins.findIndex((usr) => usr.id === kick.from) === -1
+	  ) {
+		throw new WsException('You do not have the required privileges')
+	  }
+	const user = await this.userService.findUser(kick.to) as User
+	const connect = await this.connectedUserRepository.findOneBy({user : user.id}) as ConnectedUser
     await this.onLeaveChannel(socket)
+	this.server.sockets.sockets.get(connect.socket)?.disconnect()
   }
 }
