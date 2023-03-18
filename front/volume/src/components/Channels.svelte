@@ -93,8 +93,6 @@
   export let onSelectChannel: (channel: ChannelsType) => void;
   export const selectChat = (id: number) => {
     console.log("channel: ", id)
-    
-    popup.set(bind(Alert, {message:"Did not find channel"}))
     getChannels().then(() => {
       const channel = channels.find((c) => c.id === id);
       if (channel) {
