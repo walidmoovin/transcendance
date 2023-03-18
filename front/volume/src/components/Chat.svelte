@@ -1,14 +1,9 @@
 <script lang="ts" context="module">
-  export interface chatMessagesType {
-    id: number;
-    author: User;
-    text: string;
-  }
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { store, API_URL } from "../Auth";
   import { socket } from "../socket";
   import { show_popup, content } from "./Alert/content";
-  import type { ChannelsType } from "./Channels.svelte";
+  import type { ChannelsType, chatMessagesType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
 </script>
 
@@ -16,21 +11,17 @@
   let usersInterval: ReturnType<typeof setInterval>;
   let blockedUsers: Array<User> = [];
   let chatMembers: Array<User> = [];
-  let chatMessages: Array<chatMessagesType> = [];
   export let channel: ChannelsType;
+  export let messages: Array<chatMessagesType> = [];
   let newText = "";
 
   onMount(async () => {
-    socket.connect();
     getMembers();
     usersInterval = setInterval(async () => {
       getMembers();
     }, 1000);
   });
 
-  socket.on("messages", (msgs: Array<chatMessagesType>) => {
-    chatMessages = msgs;
-  });
 
   async function getMembers() {
     if (!channel) return;
@@ -48,7 +39,7 @@
 
   socket.on("newMessage", (msg: chatMessagesType) => {
     console.log(msg)
-    chatMessages = [...chatMessages, msg];
+    messages = [...messages, msg];
   });
 
   onDestroy(() => {
@@ -301,7 +292,7 @@
 <div class="overlay">
   <div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="messages">
-      {#each chatMessages as message}
+      {#each messages as message}
         <p class="message">
           {#if !blockedUsers.filter((user) => user.username == message.author).length}
             <span

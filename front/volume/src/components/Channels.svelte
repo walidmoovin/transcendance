@@ -2,8 +2,6 @@
 	  import { content, show_popup } from './Alert/content'
 	  const showDialog = () => {
 	  }
-  
-
 
   export interface ChannelsType {
     id: number;
@@ -11,6 +9,11 @@
     isPrivate: boolean;
     password: string;
     owner: User;
+  }
+  export interface chatMessagesType {
+    id: number;
+    author: User;
+    text: string;
   }
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
@@ -73,13 +76,23 @@
     return true;
   }
 
-  const joinChannel = async (id: number) => {
+  const joinChannel = async (channel: ChannelsType) => {
     console.log(channels)
-    socket.emit("joinChannel", {
-      UserId: $store.ftId,
-      ChannelId: id,
-    
-    });
+    socket.connect();
+    if (!channel.password) {
+      socket.emit("joinChannel", {
+        UserId: $store.ftId,
+        ChannelId: channel.id,
+      });
+    } else {
+      await show_popup("Channel is protected, enter password:")
+      socket.emit("joinChannel", {
+        UserId: $store.ftId,
+        ChannelId: channel.id,
+        pwd: $content,
+      });
+    }
+    console.log("Try to join channel: ", $store.ftId, channel.id, $content)
   };
 
   const getChannels = async () => {
@@ -101,19 +114,30 @@
 
   //--------------------------------------------------------------------------------/
 
-  export let onSelectChannel: (channel: ChannelsType) => void;
+
+  export let onSelectChannel: (channel: ChannelsType, messages: Array<chatMessagesType>) => void;
+  let channel: ChannelsType;
   export const selectChat = (id: number) => {
     console.log("channel: ", id)
-    getChannels().then(() => {
-      const channel = channels.find((c) => c.id === id);
-      if (channel) {
-        joinChannel(id);
-        onSelectChannel(channel);
-      } else {
-        show_popup("Did not find channel", false)
-      }
-    });
+    channel = channels.find((c) => c.id === id);
+    if (channel) {
+      joinChannel(channel);
+    } else {
+      show_popup("Did not find channel", false)
+    }
   };
+
+  socket.on("messages", (msgs: Array<chatMessagesType>) => {
+    console.log("You are joining channel: ", channel.name)
+    onSelectChannel(channel, msgs);
+    channel = undefined;
+  });
+
+  socket.on("failedJoin", (error: string) => {
+    show_popup(`Failed to join channel: ${error}`, false)
+    channel = undefined;
+  });
+  
 
   const createChannel = async () => {
     let name: string;

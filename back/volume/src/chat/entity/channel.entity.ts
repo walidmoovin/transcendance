@@ -24,7 +24,7 @@ export default class Channel {
   @Column({ default: false })
     isPrivate: boolean
 
-  @Column({ select: false, default: '' })
+  @Column({ default: '' })
     password: string
 
   @BeforeInsert()

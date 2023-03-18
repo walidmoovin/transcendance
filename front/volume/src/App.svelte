@@ -22,7 +22,7 @@
   import MatchHistory from "./components/MatchHistory.svelte";
   import Friends, { addFriend } from "./components/Friends.svelte";
   import Chat from "./components/Chat.svelte";
-  import Channels, { formatChannelNames } from "./components/Channels.svelte";
+  import Channels, { formatChannelNames, type chatMessagesType } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
   import { popup } from "./components/Alert/content";
   import Pong from "./components/Pong/Pong.svelte";
@@ -47,7 +47,7 @@
           await formatChannelNames(channels);
           const channel = channels.find((c: ChannelsType) => c.name === currentChannelName);
           if (channel) {
-            chan.selectChat(channel.id);
+            //chan.selectChat(channel.id); // disabled as it causes a bug where joining a channel happen twice
           } else {
             alert("Failed loading channel");
           }
@@ -62,7 +62,7 @@
   window.onpopstate = (e: PopStateEvent) => {
     if (e.state) {
       appState = e.state.appState;
-      void updateChat();
+      void updateChat();  // why this?
     }
   };
 
@@ -167,8 +167,10 @@
     setAppState(APPSTATE.CHANNELS);
   }
   let selectedChannel: ChannelsType;
-  const handleSelectChannel = (channel: ChannelsType) => {
+  let selectedMessages: Array<chatMessagesType>;
+  const handleSelectChannel = (channel: ChannelsType, messages: Array<chatMessagesType>) => {
     selectedChannel = channel;
+    selectedMessages = messages;
     setAppState(APPSTATE.CHANNELS + "#" + channel.name);
   };
 
@@ -223,6 +225,7 @@
       >
         <Chat
           channel={selectedChannel}
+          messages={selectedMessages}
           on:view-profile={openIdProfile}
           on:add-friend={addFriend}
           on:invite-to-game={pong.inviteToGame}

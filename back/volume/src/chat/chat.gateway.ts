@@ -51,7 +51,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('here')
     const channel = await this.chatService.getFullChannel(connect.ChannelId)
     if (channel.banned.findIndex((ban) => ban[0] === connect.UserId) !== -1) {
-      throw new WsException('You are banned from entering this channel')
+        this.server.to(socket.id).emit('failedJoin', 'You are banned from this channel')
     }
     const user = await this.userService.getFullUser(connect.UserId)
     if (channel.password && channel.password !== '') {
@@ -59,7 +59,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         !connect.pwd ||
         !(await bcrypt.compare(connect.pwd, channel.password))
       ) {
-        throw new WsException('Wrong password')
+        this.server.to(socket.id).emit('failedJoin', 'Wrong password')
       }
     }
     await this.chatService.addUserToChannel(channel, user)
@@ -73,20 +73,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     conUser.socket = socket.id
     const test = await this.connectedUserRepository.save(conUser)
     console.log(test)
-    this.server.to(socket.id).emit('messages', messages)
     await socket.join(channel.id.toString())
-    console.log(this.server.sockets.adapter.rooms.get(channel.id.toString()))
-  }
-
-  @SubscribeMessage('getMessages')
-  async onGetMessages (socket: Socket, connect: ConnectionDto): Promise<void> {
-    const user = await this.userService.getFullUser(connect.UserId)
-    const channel = await this.chatService.getFullChannel(connect.ChannelId)
-    const messages = await this.messageService.findMessagesInChannelForUser(
-      channel,
-      user
-    )
     this.server.to(socket.id).emit('messages', messages)
+    console.log(this.server.sockets.adapter.rooms.get(channel.id.toString()))
   }
 
   @SubscribeMessage('leaveChannel')

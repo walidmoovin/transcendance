@@ -59,6 +59,7 @@ export class ChatService {
       newChannel.name = channel.name
       newChannel.isPrivate = channel.isPrivate
       newChannel.password = channel.password
+      console.log("New channel: ", JSON.stringify(newChannel))
     }
     return await this.ChannelRepository.save(newChannel)
   }
