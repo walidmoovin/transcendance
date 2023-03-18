@@ -420,6 +420,7 @@
     padding: 1rem;
     max-width: 90%; 
     width: auto;
+    margin: auto;
     display: flex;
     flex-direction: column;
   }

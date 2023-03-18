@@ -67,12 +67,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       channel,
       user
     )
-    const conUser = {
-      user: user.id,
-      channel: channel.id,
-      socket: socket.id
-    }
-    this.connectedUserRepository.create(conUser)
+    const conUser = new ConnectedUser()
+    conUser.user = user.id
+    conUser.channel = channel.id
+    conUser.socket = socket.id
+    const test = await this.connectedUserRepository.save(conUser)
+    console.log(test)
     this.server.to(socket.id).emit('messages', messages)
     await socket.join(channel.id.toString())
     console.log(this.server.sockets.adapter.rooms.get(channel.id.toString()))
@@ -94,7 +94,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const connect = await this.connectedUserRepository.findOneBy({
       socket: socket.id
     })
-    console.log("connection removed", connect?.user)
+    console.log('connection removed', connect?.user)
     if (connect == null) return
     const channel = await this.chatService.getFullChannel(connect.channel)
     socket.disconnect()
@@ -124,7 +124,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('kickUser')
   async onKickUser (socket: Socket, kick: kickUserDto): Promise<void> {
     const channel = await this.chatService.getFullChannel(kick.chan)
-    if (channel.owner.id === kick.to) { throw new WsException('You cannot kick the owner of a channel') }
+    if (channel.owner.id === kick.to) {
+      throw new WsException('You cannot kick the owner of a channel')
+    }
     if (
       channel.owner.id !== kick.from &&
       channel.admins.findIndex((usr) => usr.id === kick.from) === -1

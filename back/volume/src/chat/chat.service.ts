@@ -163,8 +163,8 @@ export class ChatService {
     await this.ChannelRepository.save(channel)
   }
 
-  async removeChannel (channelId: number): Promise<void> {
-    await this.ChannelRepository.delete(channelId)
+  async removeChannel(channelId: number): Promise<void> {
+    await this.ChannelRepository.remove(await this.getFullChannel(channelId))
   }
 
   async isOwner (id: number, userId: number): Promise<boolean> {
