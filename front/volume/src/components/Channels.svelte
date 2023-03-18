@@ -238,7 +238,7 @@
   <div class="channels" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
       {#if channels.length > 0}
-        <h2>Channels <button style="margin-right :auto;" on:click={() => getChannels()}>🔄</button> </h2>
+        <h2 >Channels <button class="refresh"  on:click={() => getChannels()}>🔄</button> </h2>
         {#each channels as channel}
           <li>
             <span>{channel.name} : {channel.id}</span>
@@ -352,6 +352,19 @@
     font-size: 100%;
   }
   
+  .refresh {
+    display: inline-block;
+    background-color: rgb(187, 187, 187);
+    color: #a0a0a0;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    position:relative; 
+    top:-10px;
+    right:auto
+  }
   .button {
     background-color: #6b8e23;
     color: #ffffff;

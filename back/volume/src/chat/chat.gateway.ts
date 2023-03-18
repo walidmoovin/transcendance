@@ -42,7 +42,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection (socket: Socket): Promise<void> {}
 
-  async handleDisconnect (socket: Socket): Promise<void> {}
+  async handleDisconnect (socket: Socket): Promise<void> {
+    console.log('socket %s has disconnected', socket.id)
+  }
 
   @SubscribeMessage('joinChannel')
   async onJoinChannel (socket: Socket, connect: ConnectionDto): Promise<void> {
@@ -135,7 +137,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const connect = (await this.connectedUserRepository.findOneBy({
       user: user.id
     })) as ConnectedUser
-    await this.onLeaveChannel(socket)
+    // await this.onLeaveChannel(socket)
+    await this.server.sockets.sockets
+      .get(connect.socket)
+      ?.leave(channel.id.toString())
     this.server.sockets.sockets.get(connect.socket)?.disconnect()
   }
 }

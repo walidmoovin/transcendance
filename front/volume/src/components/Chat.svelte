@@ -39,7 +39,7 @@
       mode: "cors",
     });
     if (res.ok) blockedUsers = await res.json();
-    res = await fetch(`${API_URL}/channels/${channel.id}/users`, {
+      res = await fetch(`${API_URL}/channels/${channel.id}/users`, {
       credentials: "include",
       mode: "cors"
     })
@@ -55,7 +55,6 @@
     clearInterval(usersInterval)
     socket.disconnect();
   });
-
 
   //--------------------------------------------------------------------------------/
 
@@ -140,8 +139,8 @@
         body: JSON.stringify({ id: target.ftId }),
       });
     }
-    if (response.ok) show_popup("User blocked", false);
-    else show_popup("Failed to block user", false);
+    if (response.ok) await show_popup("User blocked", false);
+    else await show_popup("Failed to block user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -164,11 +163,9 @@
         },
         body: JSON.stringify({ data: [target.ftId, duration]}),
       });
-      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId)
+      dispatch("return-home");
     }
-    if (response.ok) {
-      show_popup("User banned", false);
-    } else show_popup("Failed to ban user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -190,8 +187,8 @@
         body: JSON.stringify({ id: target.ftId }),
       });
     }
-    if (response.ok) show_popup("User unbanned",false);
-    else show_popup("Failed to unban user",false);
+    if (response.ok) await show_popup("User unbanned",false);
+    else await show_popup("Failed to unban user",false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -204,7 +201,8 @@
     if (response.ok) {
       const target = await response.json();
       socket.emit("kickUser", {chan : channel.id, from : $store.ftId, to: target.ftId});
-    } else {show_popup("merde",false)}
+      dispatch("return-home");
+    } else {await show_popup("merde",false)}
   };
 
   //--------------------------------------------------------------------------------/
@@ -217,7 +215,7 @@
     });
     const target = await response.json();
     if (response.ok) {
-      response = await fetch(API_URL + "/channels/" + channel.id + "/mute", {
+         response = await fetch(API_URL + "/channels/" + channel.id + "/mute", {
         credentials: "include",
         method: "POST",
         mode: "cors",
@@ -227,8 +225,8 @@
         body: JSON.stringify({ data: [target.ftId, +prompt] }),
       });
     }
-    if (response.ok) show_popup("User muted",false);
-    else show_popup("Failed to mute user",false);
+    if (response.ok) await show_popup("User muted",false);
+    else await show_popup("Failed to mute user",false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -251,9 +249,9 @@
       });
     }
     if (response.ok) {
-      show_popup("User admined",false);
+      await show_popup("User admined",false);
     } else {
-      show_popup("Failed to admin user",false);
+      await show_popup("Failed to admin user",false);
     }
   };
 
@@ -277,9 +275,9 @@
       });
     }
     if (response.ok) {
-      show_popup("User admined", false);
+      await show_popup("User admined", false);
     } else {
-      show_popup("Failed to admin user", false);
+      await show_popup("Failed to admin user", false);
     }
   };
 
@@ -288,10 +286,10 @@
   const leaveChannel = async () => {
     await show_popup("Press \"Okay\" to leave this channel?", false);
     if ($content == 'ok') {
-      socket.emit("LeaveChanel", async (response) => {
-      console.log(response.status);
+      socket.emit("leaveChannel");
       dispatch("return-home");
-      });
+      socket.disconnect()
+      
     }
   }
   function onSendMessage() {
