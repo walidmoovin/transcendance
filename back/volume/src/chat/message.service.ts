@@ -22,7 +22,7 @@ export class MessageService {
     const msg = new Message()
     msg.text = message.text
     msg.channel = await this.channelService.getChannel(message.ChannelId)
-    msg.author = await this.usersService.findUser(message.UserId)
+    msg.author = (await this.usersService.findUser(message.UserId)) as User
     msg.author.socketKey = ''
     return await this.MessageRepository.save(msg)
   }

@@ -55,9 +55,9 @@ export class UsersService {
     await this.getLeaderboard()
   }
 
-  async findUser (ftId: number): Promise<User> {
+  async findUser (ftId: number): Promise<User | null> {
     const user = await this.usersRepository.findOneBy({ ftId })
-    if (user == null) throw new BadRequestException('User not exist')
+    if (user == null) return null
     user.lastAccess = Date.now()
     if (user.status === 'offline') user.status = 'online'
     await this.update(user, user)
