@@ -42,9 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection (socket: Socket): Promise<void> {}
 
-  async handleDisconnect (socket: Socket): Promise<void> {
-    await this.onLeaveChannel(socket)
-  }
+  async handleDisconnect (socket: Socket): Promise<void> {}
 
   @SubscribeMessage('joinChannel')
   async onJoinChannel (socket: Socket, connect: ConnectionDto): Promise<void> {
