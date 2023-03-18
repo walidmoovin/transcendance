@@ -1,8 +1,5 @@
 <script lang="ts" context="module">
-  	import { getContext } from 'svelte';
-	  import Alert from './Alert/Alert.svelte';
-	  import { content,  popup} from './Alert/content'
-    import { bind } from 'svelte-simple-modal';
+	  import { content, show_popup } from './Alert/content'
 	  const showDialog = () => {
 	  }
 
@@ -104,7 +101,7 @@
         joinChannel(id);
         onSelectChannel(channel);
       } else {
-        popup.set(bind(Alert, {message:"Did not find channel", form : false}))
+        show_popup("Did not find channel", false)
       }
     });
   };
@@ -112,16 +109,18 @@
   const createChannel = async () => {
     let name: string;
     let password = "";
-    name = prompt("Enter a name for the new channel:");
-	if (name.includes("#")) {
-    popup.set(bind(Alert, {message:"Channel name cannot contain #", form : false}))
-		return;
-	}
+    await show_popup("Enter a name for the new channel:")
+    name = $content;
+    if (name.includes("#")) {
+        await show_popup("Channel name cannot contain #", false)
+      return;
+    }
     if (name) {
       if (channelMode === 'protected')
-        password = prompt("Enter a password for the new channel:");
-      name = "🚪 " + name;
-      const response = await fetch(API_URL + "/channels", {
+        await show_popup("Enter a password for the new channel:")
+        password = $content
+        name = "🚪 " + name;
+        const response = await fetch(API_URL + "/channels", {
         credentials: "include",
         method: "POST",
         mode: "cors",
@@ -136,7 +135,7 @@
         }),
       });
       if (!response.ok) 
-        popup.set(bind(Alert, {message:"Error creating channel", form : false}))
+        await show_popup("Error creating channel", false)
       getChannels()
     }
   };
@@ -144,8 +143,8 @@
   //--------------------------------------------------------------------------------/
 
   const removeChannel = async (id: number) => {
-    let string = prompt("type 'delete' to delete this channel");
-    if (string === "delete") {
+    await show_popup("press \"Okay\"to delete this channel", false);
+    if ($content === "ok") {
       const response = await fetch(API_URL + "/channels/" + id, {
         credentials: "include",
         method: "DELETE",
@@ -153,14 +152,15 @@
       });
       if (response.ok) channels = channels.filter((c) => c.id !== id);
       else
-        popup.set(bind(Alert, {message:"Error deleting channel", form : false}))
+        await show_popup("Error deleting channel", false)
     }
   };
 
   //--------------------------------------------------------------------------------/
 
   const inviteChannel = async (id: number) => {
-    let string = prompt("Enter the username of the user you want to invite");
+    await show_popup("Enter the username of the user you want to invite");
+    let string = $content
     const response = await fetch(API_URL + "/users/" + string + "/byname", {
       credentials: "include",
       method: "GET",
@@ -180,21 +180,20 @@
         }),
       });
       if (response2.ok) {
-        popup.set(bind(Alert, {message:"User invited", form : false}))
+        await show_popup("User invited", false)
       } else {
-        popup.set(bind(Alert, {message:"Error inviting user", form : false}))
+        await show_popup("Error inviting user", false)
       }
     } else {
-        popup.set(bind(Alert, {message:"Error getting user infos", form : false}))
+        await show_popup("Error getting user infos", false)
     }
   };
 
   //--------------------------------------------------------------------------------/
 
   const changePassword = async (id: number) => {
-    let string = prompt(
-      "Enter the new password for this channel (leave empty to remove password) :"
-    );
+    await show_popup("Enter the new password for this channel (leave empty to remove password) :");
+    let string = $content 
     const response = await fetch(API_URL + "/channels/" + id + "/password", {
       credentials: "include",
       method: "POST",
@@ -209,7 +208,7 @@
     if (response.ok) {
       channels.push(await response.json());
     } else {
-        popup.set(bind(Alert, {message:"Error changing password", form : false}))
+        await show_popup("Error changing password", false)
     }
   };
 

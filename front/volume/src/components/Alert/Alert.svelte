@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   export let message;
   export let form = true;
   export let onCancel = () => {};
@@ -18,14 +18,17 @@
 
   function _onOkay() {
     onOkay();
-    $content = value;
+    if (form)
+      $content = value;
+    else
+      $content = "ok"
     popup.set(null);
   }
 
   $: onChange();
 </script>
 
-<div class="overlay">
+<div>
   <h2>{message}</h2>
   {#if form === true}
     <input
@@ -43,7 +46,7 @@
 
 <style>
   h2 {
-    font-size: 2rem;
+    font-size: 1rem;
     text-align: center;
   }
 

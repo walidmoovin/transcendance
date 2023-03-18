@@ -7,9 +7,9 @@
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { store, API_URL } from "../Auth";
   import { socket } from "../socket";
+    import { show_popup, content } from "./Alert/content";
   import type { ChannelsType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
-  
 </script>
 
 <script lang="ts">
@@ -119,8 +119,9 @@
         body: JSON.stringify({ id: target.ftId }),
       });
     }
-    if (response.ok) alert("User blocked");
-    else alert("Failed to block user");
+    if (response.ok) 
+      await show_popup("User blocked", false);
+    else await show_popup("Failed to block user",false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -142,8 +143,8 @@
         body: JSON.stringify({ id: target.ftId }),
       });
     }
-    if (response.ok) alert("User blocked");
-    else alert("Failed to block user");
+    if (response.ok) show_popup("User blocked", false);
+    else show_popup("Failed to block user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -155,7 +156,8 @@
     });
     if (response.ok) {
       const target = await response.json();
-      const duration = prompt("Enter a time for which the user will be banned from this channel")
+      await show_popup("Enter a time for which the user will be banned from this channel")
+      const duration = $content 
       response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
         credentials: "include",
         method: "POST",
@@ -168,8 +170,8 @@
       socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
     }
     if (response.ok) {
-      alert("User banned");
-    } else alert("Failed to ban user");
+      show_popup("User banned", false);
+    } else show_popup("Failed to ban user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -191,8 +193,8 @@
         body: JSON.stringify({ id: target.ftId }),
       });
     }
-    if (response.ok) alert("User unbanned");
-    else alert("Failed to unban user");
+    if (response.ok) show_popup("User unbanned",false);
+    else show_popup("Failed to unban user",false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -205,7 +207,7 @@
     if (response.ok) {
       const target = await response.json();
       socket.emit("kickUser", {chan : channel.id, from : $store.ftId, to: target.ftId});
-    } else {alert("merde")}
+    } else {show_popup("merde",false)}
   };
 
   //--------------------------------------------------------------------------------/
@@ -228,8 +230,8 @@
         body: JSON.stringify({ data: [target.ftId, +prompt] }),
       });
     }
-    if (response.ok) alert("User muted");
-    else alert("Failed to mute user");
+    if (response.ok) show_popup("User muted",false);
+    else show_popup("Failed to mute user",false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -252,9 +254,9 @@
       });
     }
     if (response.ok) {
-      alert("User admined");
+      show_popup("User admined",false);
     } else {
-      alert("Failed to admin user");
+      show_popup("Failed to admin user",false);
     }
   };
 
@@ -278,17 +280,17 @@
       });
     }
     if (response.ok) {
-      alert("User admined");
+      show_popup("User admined", false);
     } else {
-      alert("Failed to admin user");
+      show_popup("Failed to admin user", false);
     }
   };
 
   //--------------------------------------------------------------------------------/
 
   const leaveChannel = async () => {
-    const prompt = window.prompt("Are you sure you want to leave this channel? (y/n)");
-    if (prompt == "y") {
+    await show_popup("Press \"Okay\" to leave this channel?", false);
+    if ($content == 'ok') {
       const response = await fetch(API_URL + "/channels/" + channel.id + "/leave", {
         credentials: "include",
         mode: "cors",
@@ -296,7 +298,7 @@
       if (response.ok) {
         window.location.href = "/channels";
       } else {
-        alert("Failed to leave channel");
+        await show_popup("Failed to leave channel",false);
       }
     }
   }

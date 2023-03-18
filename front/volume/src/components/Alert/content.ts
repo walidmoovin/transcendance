@@ -3,8 +3,13 @@ import Alert__SvelteComponent_ from './Alert.svelte';
 export const content = writable("")
 export const popup = writable(null)
 import { bind } from 'svelte-simple-modal';
+
 let val;
 export async function show_popup(message, form = true) {
+    const unsub = popup.subscribe((value) => {val = value})
+    unsub()
+    if (val != null)
+        return
     popup.set(bind(Alert__SvelteComponent_, {
         message,
         form
@@ -18,7 +23,7 @@ export async function waitForCondition() {
         if (val == null) {
             console.log("finished",val)
             unsub()
-            return new Promise(resolve => setTimeout(resolve, 0));
+            return new Promise(resolve => setTimeout(resolve, 100));
         } else {
             console.log("waiting")
             await new Promise(resolve => setTimeout(resolve, 1000));
