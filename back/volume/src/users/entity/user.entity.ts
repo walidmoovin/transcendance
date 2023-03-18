@@ -24,13 +24,13 @@ export class User {
   @Column({ select: false, nullable: true })
     authToken: string
 
-  @Column({ default: false }) 
+  @Column({ default: false })
     twoFA: boolean
 
   @Column({ default: false, nullable: true })
     isVerified: boolean
 
-  @Column('uuid', { unique: true })
+  @Column('uuid', { nullable: true, unique: true })
     socketKey: string
 
   @Column({ unique: true })

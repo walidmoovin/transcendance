@@ -65,7 +65,6 @@
     justify-content: center;
     align-items: center;
   }
-
   .history {
     background-color: #343A40;
     border: 1px solid #198754;

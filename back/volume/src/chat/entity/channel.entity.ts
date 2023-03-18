@@ -40,7 +40,7 @@ export default class Channel {
   @JoinTable()
     users: User[]
 
-  @OneToMany(() => Message, (message: Message) => message.channel, {onDelete:'CASCADE'})
+  @OneToMany(() => Message, (message: Message) => message.channel, { cascade: true })
     messages: Message[]
 
   @ManyToOne(() => User)
