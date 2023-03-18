@@ -212,9 +212,9 @@ export class UsersController {
   async updateUser (
     @Body() payload: UserDto,
       @Profile42() profile: Profile
-  ): Promise<BadRequestException | User | null> {
+  ): Promise<void> {
     const user = await this.usersService.findUser(profile.id)
     if (user == null) throw new BadRequestException('User not found.')
-    return await this.usersService.update(user, payload)
+    await this.usersService.update(user, payload)
   }
 }

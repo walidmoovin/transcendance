@@ -20,7 +20,7 @@ export class UsersService {
   }
 
   async update (user: User, changes: UserDto): Promise<void> {
-    this.usersRepository.update({id: user.id}, changes)
+    await this.usersRepository.update({ id: user.id }, changes)
   }
 
   async findUsers (): Promise<User[]> {
@@ -57,10 +57,10 @@ export class UsersService {
 
   async findUser (ftId: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ ftId })
-    if (user == null) throw new BadRequestException("User not exist")
+    if (user == null) throw new BadRequestException('User not exist')
     user.lastAccess = Date.now()
     if (user.status === 'offline') user.status = 'online'
-    await this.update.(user)
+    await this.update(user, user)
     return user
   }
 
