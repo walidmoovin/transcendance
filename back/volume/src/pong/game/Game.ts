@@ -63,7 +63,8 @@ export class Game {
       paddleSize: DEFAULT_PADDLE_SIZE,
       ballSize: DEFAULT_BALL_SIZE,
       winScore: DEFAULT_WIN_SCORE,
-      ranked: this.ranked
+      ranked: this.ranked,
+      playerNames: this.players.map((p) => p.name)
     }
   }
 

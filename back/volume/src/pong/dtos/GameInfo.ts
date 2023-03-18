@@ -9,4 +9,5 @@ export class GameInfo {
   ballSize!: Point
   winScore!: number
   ranked!: boolean
+  playerNames!: string[]
 }

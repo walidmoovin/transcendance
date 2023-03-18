@@ -3,10 +3,12 @@ import type { Paddle } from "./Paddle";
 export class Player {
   paddle: Paddle;
   score: number;
+  name: string;
 
-  constructor(paddle: Paddle) {
+  constructor(paddle: Paddle, name: string) {
     this.paddle = paddle;
     this.score = 0;
+    this.name = name;
   }
 
   draw(context: CanvasRenderingContext2D, color: string) {

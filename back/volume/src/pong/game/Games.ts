@@ -85,7 +85,8 @@ export class Games {
       paddleSize: DEFAULT_PADDLE_SIZE,
       ballSize: DEFAULT_BALL_SIZE,
       winScore: DEFAULT_WIN_SCORE,
-      ranked: false
+      ranked: false,
+      playerNames: []
     }
   }
 

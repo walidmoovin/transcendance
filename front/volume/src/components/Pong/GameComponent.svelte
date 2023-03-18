@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Socket } from "socket.io-client";
   import { onMount } from "svelte";
+    import { API_URL, getUser } from "../../Auth";
   import { GAME_EVENTS } from "./constants";
   import type { Game } from "./Game";
 
@@ -15,6 +16,7 @@
 
   let gameCanvas: HTMLCanvasElement;
   let renderCanvas: HTMLCanvasElement;
+  let gameUsers: any[] = [];
 
   onMount(() => {
     if (gameCanvas && renderCanvas) {
@@ -24,9 +26,33 @@
       }
     }
   });
+
+  $: {
+    if (game && game.players.length > 1) {
+      getGameUsers();
+    }
+  }
+
+  function getGameUsers() {
+    gameUsers = [];
+    game.players.forEach(player => {
+      fetch(API_URL + "/users/" + player.name + "/byname", {
+        credentials: "include",
+        method: "GET",
+        mode: "cors",
+      }).then((response) => {
+        if (response.ok) {
+          response.json().then((user) => {
+            gameUsers.push(user);
+            gameUsers = gameUsers;
+          });
+        }
+      });
+    });
+  }
 </script>
 
-<div hidden={!gamePlaying} class="gameDiv">
+<div hidden={!gamePlaying}>
   {#if game && !game.ranked}
     <button on:click={() => socket.emit(GAME_EVENTS.LEAVE_GAME)}>Leave</button>
     <button
@@ -34,25 +60,75 @@
       on:click={() => socket.emit(GAME_EVENTS.READY)}>Ready</button
     >
   {/if}
+  {#if gameUsers.length > 1}
+    <div class="game-header">
+      <div class="empty-header-space" />
+      <div class="user-header">
+        <img alt="avatar" src={API_URL + '/users/' + gameUsers[0].ftId + '/avatar' } />
+        <p>
+          {gameUsers[0].username}
+          <br />
+          ({(gameUsers[0].winrate).toFixed(1)} WR%)
+        </p>
+      </div>
+      <div class="vs">
+        VS
+      </div>
+      <div class="user-header">
+        <img alt="avatar" src={API_URL + '/users/' + gameUsers[1].ftId + '/avatar' } />
+        <p>
+          {gameUsers[1].username}
+          <br />
+          ({(gameUsers[1].winrate).toFixed(1)} WR%)
+        </p>
+      </div>
+      <div class="empty-header-space" />
+    </div>
+  {/if}
+
   <canvas hidden bind:this={gameCanvas} />
   <canvas bind:this={renderCanvas} class="renderCanvas" />
 </div>
 
 <style>
-  .gameDiv {
-    width: 100%;
-    height: 100%;
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8em;
+    text-align: center;
+  }
+
+  .user-header {
+    flex: 1;
+  }
+  
+  .user-header img {
+    position: relative;
+    height: 50px;
+    margin-right: 10px;
+  }
+
+  .empty-header-space {
+    flex: 1;
+  }
+
+  .vs {
+    flex: 2;
+    grid-area: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
   }
 
   .renderCanvas {
-    width: 100%;
-    max-height: 70vh;
+    display: block;
+    width: 80vw;
     height: auto;
-    padding-left: 0;
-    padding-right: 0;
     margin-left: auto;
     margin-right: auto;
-    display: block;
+    max-height: 70vh;
     touch-action: none;
     object-fit: contain;
   }

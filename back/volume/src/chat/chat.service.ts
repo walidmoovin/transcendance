@@ -118,10 +118,8 @@ export class ChatService {
 
   @Cron('*/6 * * * * *')
   async updateBanlists (): Promise<void> {
-    console.log('checking bans')
     const channels = await this.ChannelRepository.find({})
     for (const channel of channels) {
-      console.log((channel.banned.length) > 0)
       channel.banned = channel.banned.filter((data) => {
         return Date.now() - data[1] > 0
       })
