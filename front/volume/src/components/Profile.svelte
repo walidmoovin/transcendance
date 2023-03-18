@@ -17,17 +17,17 @@
   export let username: string = $store.username;
 
   let edit: boolean = true;
-  let user: any = $store;
+  let user: Player = $store;
 
   let avatarForm: HTMLFormElement;
 
   async function getUser() {
     if (username !== $store.username) {
       edit = false;
-      const res = await fetch(API_URL + "/users/" + username + "/byname", {
+      let res = await fetch(API_URL + "/users/" + username + "/byname", {
         mode: "cors",
       });
-      user = res.json();
+      user = await res.json();
     }
   }
 
@@ -69,7 +69,7 @@
     <h3>===| <mark>{user.username}'s Profile</mark> |===</h3>
     <div class="profile-header">
       {#if !edit}
-        <img src={API_URL + "/users/avatar"} alt="avatar" class="profile-img" />
+        <img src={`${API_URL}/users/${user.ftId}/avatar`} alt="avatar" class="profile-img" />
       {:else}
         <form
           action={`${API_URL}/users/avatar`}

@@ -92,6 +92,7 @@
     profileUsername = event.detail;
     setAppState(APPSTATE.PROFILE_ID);
   }
+$: console.log(profileUsername)
 
   async function getDMs(username: string): Promise<Response | null> {
 	const res = await fetch(API_URL + "/channels/dms/" + username, {

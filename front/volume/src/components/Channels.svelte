@@ -95,14 +95,13 @@
   export let onSelectChannel: (channel: ChannelsType) => void;
   export const selectChat = (id: number) => {
     console.log("channel: ", id)
-    popup.set(bind(Alert, {message:"Did not find channel", form : false}))
     getChannels().then(() => {
       const channel = channels.find((c) => c.id === id);
       if (channel) {
         joinChannel(id);
         onSelectChannel(channel);
       } else {
-        alert("Did not find channel");
+        popup.set(bind(Alert, {message:"Did not find channel", form : false}))
       }
     });
   };
@@ -112,7 +111,7 @@
     let password = "";
     name = prompt("Enter a name for the new channel:");
 	if (name.includes("#")) {
-		alert("Channel name cannot contain #");
+    popup.set(bind(Alert, {message:"Channel name cannot contain #", form : false}))
 		return;
 	}
     if (name) {
@@ -133,7 +132,8 @@
           isPrivate: channelMode === "private",
         }),
       });
-      if (!response.ok) alert("Error creating channel");
+      if (!response.ok) 
+        popup.set(bind(Alert, {message:"Error creating channel", form : false}))
       getChannels()
     }
   };
@@ -149,7 +149,8 @@
         mode: "cors",
       });
       if (response.ok) channels = channels.filter((c) => c.id !== id);
-      else alert("Error deleting channel");
+      else
+        popup.set(bind(Alert, {message:"Error deleting channel", form : false}))
     }
   };
 
@@ -176,12 +177,12 @@
         }),
       });
       if (response2.ok) {
-		alert("User invited");
+        popup.set(bind(Alert, {message:"User invited", form : false}))
       } else {
-        alert("Error inviting user");
+        popup.set(bind(Alert, {message:"Error inviting user", form : false}))
       }
     } else {
-      alert("Error getting user infos");
+        popup.set(bind(Alert, {message:"Error getting user infos", form : false}))
     }
   };
 
@@ -205,7 +206,7 @@
     if (response.ok) {
       channels.push(await response.json());
     } else {
-      alert("Error changing password");
+        popup.set(bind(Alert, {message:"Error changing password", form : false}))
     }
   };
 
