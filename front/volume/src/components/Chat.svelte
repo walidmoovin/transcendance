@@ -81,7 +81,7 @@
 
   const dispatch = createEventDispatcher();
   let showProfileMenu = false;
-  let selectedUser = null;
+  let selectedUser: string | null = null;
   function openProfile(username: string) {
     showProfileMenu = true;
     selectedUser = username;
@@ -301,7 +301,12 @@
     }
   }
 
+  function onSendMessage() {
+    dispatch("send-message", selectedUser);
+    showProfileMenu = false;
+  }
 </script>
+
 <div class="overlay">
   <div class="chat" on:click|stopPropagation on:keydown|stopPropagation>
     <div class="messages">
@@ -328,7 +333,7 @@
       >
         <ul>
           <li>
-            <button on:click={() => dispatch("send-message", selectedUser)}>
+            <button on:click={onSendMessage}>
               Send Message
             </button>
           </li>

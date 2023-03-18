@@ -113,7 +113,7 @@
       DMChannel = await res.json();
       if (DMChannel.length != 0)
         chan.selectChat(DMChannel[0].id);
-	} else {
+	  } else {
         console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
         fetch(API_URL + "/channels", {
           credentials: "include",
