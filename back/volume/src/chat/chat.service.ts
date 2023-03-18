@@ -40,10 +40,10 @@ export class ChatService {
       const channels = await this.getChannelsForUser(user.id)
       const dmAlreadyExists = channels.find((channel: Channel) => {
         return (
-          (channel.name === user.ftId + '&' + otherUser.ftId ||
-            channel.name === otherUser.ftId + '&' + user.ftId) &&
-          channel.isPrivate &&
-          (channel.password === undefined || channel.password === '')
+          (channel.name === `${user.ftId}&${otherUser.ftId}` ||
+            channel.name === `${otherUser.ftId}&${user.ftId}`) &&
+          (channel.password === undefined || channel.password === '') &&
+          channel.isPrivate
         )
       })
       if (dmAlreadyExists !== undefined) {
@@ -70,7 +70,7 @@ export class ChatService {
     newDM.owner = user
     newDM.users = [user, otherUser]
     newDM.admins = []
-    newDM.name = user.ftId + '&' + otherUser.ftId
+    newDM.name = `${user.ftId}&${otherUser.ftId}`
     return newDM
   }
 
@@ -82,7 +82,7 @@ export class ChatService {
       throw new BadRequestException(`Channel #${id} not found`)
     }
     channel.password = password
-    await this.ChannelRepository.save(channel)
+    await this.update(channel)
   }
 
   async getChannelsForUser (ftId: number): Promise<Channel[]> {
@@ -110,9 +110,9 @@ export class ChatService {
     const channels = await this.ChannelRepository.find({})
     channels.forEach((channel) => {
       channel.muted = channel.muted.filter((data) => {
-        return data[1] - Date.now() > 0
+        return Date.now() - data[1] > 0
       })
-      void this.ChannelRepository.save(channel)
+      void this.update(channel)
     })
   }
 
@@ -123,8 +123,9 @@ export class ChatService {
     for (const channel of channels) {
       console.log((channel.banned.length) > 0)
       channel.banned = channel.banned.filter((data) => {
-        return data[1] - Date.now() > 0
+        return Date.now() - data[1] > 0
       })
+      void this.update( channel)
     }
   }
 
