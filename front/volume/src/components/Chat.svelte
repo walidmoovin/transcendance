@@ -52,9 +52,6 @@
   });
 
   onDestroy(() => {
-    socket.emit("LeaveChanel", async (response) => {
-      console.log(response.status);
-    });
     clearInterval(usersInterval)
     socket.disconnect();
   });
@@ -290,8 +287,10 @@
   const leaveChannel = async () => {
     await show_popup("Press \"Okay\" to leave this channel?", false);
     if ($content == 'ok') {
-        socket.emit('leaveChannel');
-      }
+      socket.emit("LeaveChanel", async (response) => {
+        console.log(response.status);
+      });
+    }
   }
   function onSendMessage() {
     dispatch("send-message", selectedUser);
