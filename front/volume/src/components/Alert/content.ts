@@ -6,10 +6,6 @@ import { bind } from 'svelte-simple-modal';
 
 let val;
 export async function show_popup(message, form = true) {
-    const unsub = popup.subscribe((value) => {val = value})
-    unsub()
-    if (val != null)
-        return
     popup.set(bind(Alert__SvelteComponent_, {
         message,
         form
