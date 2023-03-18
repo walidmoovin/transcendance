@@ -125,13 +125,14 @@ export class ChatService {
       channel.banned = channel.banned.filter((data) => {
         return Date.now() - data[1] > 0
       })
-      void this.update( channel)
+      void this.update(channel)
     }
   }
 
   async addUserToChannel (channel: Channel, user: User): Promise<Channel> {
     channel.users.push(user)
-    return await this.ChannelRepository.save(channel)
+    await this.save(channel)
+    return channel
   }
 
   async getChannel (id: number): Promise<Channel> {

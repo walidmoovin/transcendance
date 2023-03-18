@@ -22,7 +22,8 @@ export class MessageService {
     const msg = new Message()
     msg.text = message.text
     msg.channel = await this.channelService.getChannel(message.ChannelId)
-    msg.author = (await this.usersService.findUser(message.UserId)) as User
+    msg.author = await this.usersService.findUser(message.UserId)
+    msg.author.socketKey = ''
     return await this.MessageRepository.save(msg)
   }
 
@@ -30,15 +31,16 @@ export class MessageService {
     channel: Channel,
     user: User
   ): Promise<Message[]> {
-    console.log('findMessagesInChannelForUser', channel.id, user.ftId)
     const blockeds = user.blocked.map((u) => +u.ftId)
-    console.log(JSON.stringify(blockeds))
     const messages = await this.MessageRepository.createQueryBuilder('message')
       .innerJoin('message.channel', 'channel')
       .where('channel.id = :chanId', { chanId: channel.id })
       .leftJoinAndSelect('message.author', 'author')
       .orderBy('message.created_at', 'ASC')
       .getMany()
+    messages.forEach((msg) => {
+      msg.author.socketKey = ''
+    })
     return messages.filter((m) => !blockeds.includes(m.author.ftId))
   }
 }

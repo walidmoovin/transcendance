@@ -214,9 +214,8 @@
       {clickChannels}
       {clickLeaderboard}
     />
-    {#if appState.includes(APPSTATE.CHANNELS)}
+    {#if appState.includes(`${APPSTATE.CHANNELS}#`)}
       <div
-        class="{appState.replace(APPSTATE.CHANNELS, "") === "" ? 'hidden' : ''}"
         on:click={() => setAppState(APPSTATE.CHANNELS)}
         on:keydown={() => setAppState(APPSTATE.CHANNELS)}
       >
@@ -228,8 +227,10 @@
           on:send-message={openDirectChat}
         />
       </div>
+    {/if}
+    {#if appState.includes(APPSTATE.CHANNELS)}
       <div
-        class="{appState.replace(APPSTATE.CHANNELS, "") !== "" ? 'hidden' : ''}"
+        class="{appState !== APPSTATE.CHANNELS ? 'hidden' : ''}"
         on:click={resetAppState}
         on:keydown={resetAppState}
       >

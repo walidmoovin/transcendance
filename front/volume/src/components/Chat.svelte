@@ -25,7 +25,7 @@
     getMembers();
     usersInterval = setInterval(async () => {
       getMembers();
-    }, 1000);
+    }, 5000);
   });
 
   socket.on("messages", (msgs: Array<chatMessagesType>) => {

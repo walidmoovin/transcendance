@@ -106,7 +106,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const channel = await this.chatService.getFullChannel(msg.chan)
     if (
       channel.owner.id !== msg.from &&
-      channel.admins.find((e) => e.id == msg.from) == null
+      channel.admins.findIndex((usr) => usr.id === msg.from) === -1
     ) {
       throw new WsException('You do not have the required privileges')
     }

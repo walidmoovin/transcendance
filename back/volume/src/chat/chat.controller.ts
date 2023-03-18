@@ -44,26 +44,15 @@ export class ChatController {
     }
     const dms = channels.filter((channel: Channel) => {
       return (
-        (channel.name === user.ftId + '&' + other.ftId ||
-          channel.name === other.ftId + '&' + user.ftId) &&
-        channel.isPrivate &&
-        (channel.password === undefined || channel.password === '')
+        (channel.name === `${user.ftId}&${other.ftId}` ||
+          channel.name === `${other.ftId}&${user.ftId}`) &&
+        (channel.password === undefined || channel.password === '') &&
+        channel.isPrivate
       )
     })
-	if (dms && dms.length === 0) {
-	  throw new BadRequestException('No DMS found')
-	}
-	dms.forEach((c) => {
-	  if (c.users) {
-      	c.users.forEach((u) => (u.socketKey = ''))
-	  }
-	  if (c.admins) {
-      	c.admins.forEach((u) => (u.socketKey = ''))
-	  }
-	  if (c.owner) {
-	    c.owner.socketKey = ''
-	  }
-    })
+    if (dms.length === 0) {
+      throw new BadRequestException('No DMS found')
+    }
     return dms
   }
 

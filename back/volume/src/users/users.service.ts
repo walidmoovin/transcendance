@@ -19,12 +19,18 @@ export class UsersService {
     await this.usersRepository.save(user)
   }
 
+  async update (user: User, changes: UserDto): Promise<void> {
+    this.usersRepository.update({id: user.id}, changes)
+  }
+
   async findUsers (): Promise<User[]> {
     const users = await this.usersRepository.find({})
     users.forEach((usr) => (usr.socketKey = ''))
     return users
   }
 
+  // WARNING: socketKey isn't removed here. it must be done before
+  // any return from it in a route.
   async findUserByName (username: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { username },
@@ -41,7 +47,7 @@ export class UsersService {
       if (Date.now() - usr.lastAccess > 60000) {
         usr.isVerified = false
         usr.status = 'offline'
-        this.usersRepository.save(usr).catch((err) => {
+        this.update(usr, usr).catch((err) => {
           console.log(err)
         })
       }
@@ -49,12 +55,12 @@ export class UsersService {
     await this.getLeaderboard()
   }
 
-  async findUser (ftId: number): Promise<User | null> {
+  async findUser (ftId: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ ftId })
-    if (user == null) return null
+    if (user == null) throw new BadRequestException("User not exist")
     user.lastAccess = Date.now()
     if (user.status === 'offline') user.status = 'online'
-    await this.usersRepository.save(user)
+    await this.update.(user)
     return user
   }
 
@@ -92,11 +98,6 @@ export class UsersService {
       .where('user.channel = :chan', { chan: channel })
       .andWhere('user.status := status)', { status: 'online' })
       .getMany()
-  }
-
-  async update (user: User, changes: UserDto): Promise<User | null> {
-    this.usersRepository.merge(user, changes)
-    return await this.usersRepository.save(user)
   }
 
   async addAvatar (ftId: number, filename: string): Promise<void> {
