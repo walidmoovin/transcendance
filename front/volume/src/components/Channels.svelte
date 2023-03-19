@@ -229,10 +229,14 @@
               on:click={() => removeChannel(channel.id)}
               on:keydown={() => removeChannel(channel.id)}>🗑️</button
             >
-            {#if channel.isPrivate == true}
-            <button on:click={() => inviteChannel(channel.id)}>🤝</button>
+            <!-- Show invite if channel has password but is not DM -->
+            {#if channel.isPrivate == true && channel.password}
+              <button on:click={() => inviteChannel(channel.id)}>🤝</button>
             {/if}
-            <button on:click={() => changePassword(channel.id)}>🔑</button>
+            <!-- Show change password if channel is not DM -->
+            {#if !(channel.isPrivate == true && !channel.password)}
+              <button on:click={() => changePassword(channel.id)}>🔑</button>
+            {/if}
 
             </div>
           </li>
