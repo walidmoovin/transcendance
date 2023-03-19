@@ -29,26 +29,25 @@
 
   $: {
     if (game && game.players.length > 1) {
-      getGameUsers();
+      void getGameUsers();
     }
   }
 
-  function getGameUsers() {
+  async function getGameUsers() {
     gameUsers = [];
-    game.players.forEach(player => {
-      fetch(API_URL + "/users/" + player.name + "/byname", {
+    for (const player of game.players) {
+      console.log(player.name)
+      const response = await fetch(API_URL + "/users/" + player.name + "/byname", {
         credentials: "include",
         method: "GET",
         mode: "cors",
-      }).then((response) => {
-        if (response.ok) {
-          response.json().then((user) => {
-            gameUsers.push(user);
-            gameUsers = gameUsers;
-          });
-        }
-      });
-    });
+      })
+      if (response.ok) {
+        const user = await response.json()
+        gameUsers.push(user);
+      }
+    }
+    gameUsers = gameUsers;
   }
 </script>
 
