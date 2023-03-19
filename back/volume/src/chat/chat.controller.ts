@@ -184,9 +184,7 @@ export class ChatController {
     if (await this.channelService.isOwner(channel.id, mute.data[0])) {
       throw new BadRequestException('You cannot mute the owner of the channel')
     }
-    if (
-      (await this.channelService.getMuteDuration(channel.id, mute.data[0])) > 0
-    ) {
+    if (await this.channelService.isMuted(channel.id, mute.data[0])) {
       throw new BadRequestException('User is already muted from this channel')
     }
     const newMute: number[] = [mute.data[0], Date.now() + mute.data[1] * 1000]

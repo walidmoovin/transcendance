@@ -110,7 +110,7 @@ export class ChatService {
     const channels = await this.ChannelRepository.find({})
     channels.forEach((channel) => {
       channel.muted = channel.muted.filter((data) => {
-        return Date.now() - data[1] > 0
+        return Date.now() - data[1] < 0
       })
       void this.update(channel)
     })
@@ -121,7 +121,7 @@ export class ChatService {
     const channels = await this.ChannelRepository.find({})
     for (const channel of channels) {
       channel.banned = channel.banned.filter((data) => {
-        return Date.now() - data[1] > 0
+        return Date.now() - data[1] < 0
       })
       void this.update(channel)
     }
@@ -210,18 +210,13 @@ export class ChatService {
     return channel.banned.findIndex((ban) => ban[0] === userId) !== -1
   }
 
-  async getMuteDuration (id: number, userId: number): Promise<number> {
+  async isMuted (id: number, userId: number): Promise<boolean> {
     const channel = await this.ChannelRepository.findOne({
       where: { id }
     })
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-
-    const mutation: number[] | undefined = channel.muted.find(
-      (mutation) => mutation[0] === userId
-    )
-    if (mutation == null) return 0
-    return mutation[1]
+    return channel.muted.findIndex((mute) => mute[0] === userId) !== -1
   }
 }

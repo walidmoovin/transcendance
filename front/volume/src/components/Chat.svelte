@@ -73,10 +73,16 @@
       }, 1000);
       console.log("You are joining channel: ", channel.name);
     });
+
     socket.on("failedJoin", (error: string) => {
       show_popup(`Failed to join channel: ${error}`, false);
       setAppState(APPSTATE.CHANNELS);
     });
+
+    socket.on("kicked", (msg: string) => {
+      show_popup(`You have been kicked from channel: ${msg}`, false);
+      setAppState(APPSTATE.CHANNELS);
+    })
 
     console.log("Try to join channel: ", $store.ftId, channel.id, $content);
   });
@@ -208,8 +214,9 @@
         },
         body: JSON.stringify({ data: [target.ftId, duration] }),
       });
-      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
-      dispatch("return-home");
+      if (response.ok) {
+        socket.emit("kickUser", {chan: channel.id, from: $store.ftId, to: target.ftId});
+      } else await show_popup(`Ban of ${username}: ${response.text}`, false);
     }
   };
 
