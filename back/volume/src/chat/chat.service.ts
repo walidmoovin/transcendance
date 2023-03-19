@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { Cron } from '@nestjs/schedule'
+import * as bcrypt from 'bcrypt'
 
 import { type CreateChannelDto } from './dto/create-channel.dto'
 import { UsersService } from 'src/users/users.service'
 
 import type User from 'src/users/entity/user.entity'
 import Channel from './entity/channel.entity'
-import { Cron } from '@nestjs/schedule'
 
 @Injectable()
 export class ChatService {
@@ -58,7 +59,7 @@ export class ChatService {
       newChannel.admins = [user]
       newChannel.name = channel.name
       newChannel.isPrivate = channel.isPrivate
-      newChannel.password = channel.password
+      newChannel.password = await this.hash(channel.password)
       console.log("New channel: ", JSON.stringify(newChannel))
     }
     return await this.ChannelRepository.save(newChannel)
@@ -75,15 +76,13 @@ export class ChatService {
     return newDM
   }
 
-  async updatePassword (id: number, password: string): Promise<void> {
-    const channel: Channel | null = await this.ChannelRepository.findOneBy({
-      id
-    })
-    if (channel === null) {
-      throw new BadRequestException(`Channel #${id} not found`)
-    }
-    channel.password = password
-    await this.update(channel)
+  async hash(password: string): Promise<string> {
+    if (!password) return ''
+      password = await bcrypt.hash(
+        password,
+        Number(process.env.HASH_SALT)
+      )
+    return password
   }
 
   async getChannelsForUser (ftId: number): Promise<Channel[]> {

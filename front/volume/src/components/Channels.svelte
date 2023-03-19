@@ -119,12 +119,14 @@
   let channel: ChannelsType;
   export const selectChat = (id: number) => {
     console.log("channel: ", id)
-    channel = channels.find((c) => c.id === id);
-    if (channel) {
-      joinChannel(channel);
-    } else {
-      show_popup("Did not find channel", false)
-    }
+    getChannels().then(() => {
+      channel = channels.find((c) => c.id === id);
+      if (channel) {
+        joinChannel(channel);
+      } else {
+        show_popup("Did not find channel", false)
+      }
+    })
   };
 
   socket.on("messages", (msgs: Array<chatMessagesType>) => {
@@ -248,11 +250,10 @@
         password: string,
       }),
     });
-    if (response.ok) {
-      channels.push(await response.json());
-    } else {
+    if (!response.ok) {
         await show_popup("Error changing password", false)
-    }
+    } else
+      getChannels()
   };
 
   //--------------------------------------------------------------------------------/

@@ -11,7 +11,6 @@ import {
 } from 'typeorm'
 import User from 'src/users/entity/user.entity'
 import Message from './message.entity'
-import * as bcrypt from 'bcrypt'
 
 @Entity()
 export default class Channel {
@@ -26,15 +25,6 @@ export default class Channel {
 
   @Column({ default: '' })
     password: string
-
-  @BeforeInsert()
-  async hashPassword (): Promise<void> {
-    if (this.password === '') return
-    this.password = await bcrypt.hash(
-      this.password,
-      Number(process.env.HASH_SALT)
-    )
-  }
 
   @ManyToMany(() => User)
   @JoinTable()

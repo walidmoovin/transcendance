@@ -211,10 +211,13 @@ export class ChatController {
       @Param('id', ParseIntPipe) id: number,
       @Body() data: PasswordDto
   ): Promise<void> {
-    if (await this.channelService.isOwner(id, +profile.id)) {
+    if (!(await this.channelService.isOwner(id, +profile.id))) {
       throw new BadRequestException('You are not the owner of this channel')
     }
-    await this.channelService.updatePassword(id, data.password)
+    let channel = (await this.channelService.getChannel(id)) as Channel
+    channel.password = await this.channelService.hash(data.password)
+    this.channelService.update(channel)
+
   }
 
   @Get()
