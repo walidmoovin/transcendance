@@ -81,7 +81,6 @@
 		return null;
   }
 
-  let chan: Channels;
   async function openDirectChat(event: CustomEvent<string>) {
     const DMUsername = event.detail;
     let DMChannel: Array<ChannelsType> = [];
@@ -89,41 +88,43 @@
     if (res && res.ok) {
       DMChannel = await res.json();
       if (DMChannel.length != 0)
-        chan.selectChat(DMChannel[0].id);
+        await formatChannelNames(DMChannel)
+        setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
 	  } else {
-        console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
-        fetch(API_URL + "/channels", {
-          credentials: "include",
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: "none",
-            owner: $store.ftId,
-            password: "",
-            isPrivate: true,
-            isDM: true,
-            otherDMedUsername: DMUsername
-          }),
-        }).then(async () => {
-          const response = await getDMs(DMUsername)
-          if (response && response.ok) {
-              DMChannel = await response.json(); 
-              if (DMChannel.length != 0) {
-                chan.selectChat(DMChannel[0].id);
-              } else {
-                alert("Error creating DM");
-              }
-          } else {
-            alert("Error creating DM");
-          }
-        }).catch((error) => {
+      console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
+      fetch(API_URL + "/channels", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "none",
+          owner: $store.ftId,
+          password: "",
+          isPrivate: true,
+          isDM: true,
+          otherDMedUsername: DMUsername
+        }),
+      }).then(async () => {
+        const response = await getDMs(DMUsername)
+        if (response && response.ok) {
+            DMChannel = await response.json(); 
+            if (DMChannel.length != 0) {
+              await formatChannelNames(DMChannel)
+              setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
+            } else {
+              alert("Error creating DM");
+            }
+        } else {
           alert("Error creating DM");
-        })
-      }
+        }
+      }).catch(() => {
+        alert("Error creating DM");
+      })
     }
+  }
 
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);
@@ -192,20 +193,23 @@
       {clickLeaderboard}
     />
     {#if appState.includes(`${APPSTATE.CHANNELS}#`)}
-      <div
-        on:click={() => setAppState(APPSTATE.CHANNELS)}
-        on:keydown={() => setAppState(APPSTATE.CHANNELS)}
-      >
-        <Chat
-          {setAppState}
-          channel={selectedChannel}
-          on:view-profile={openIdProfile}
-          on:add-friend={addFriend}
-          on:invite-to-game={pong.inviteToGame}
-          on:send-message={openDirectChat}
-          on:return-home={resetAppState}
-        />
-      </div>
+      {#key appState}
+        <div
+          on:click={() => setAppState(APPSTATE.CHANNELS)}
+          on:keydown={() => setAppState(APPSTATE.CHANNELS)}
+        >
+          <Chat
+            {appState}
+            {setAppState}
+            bind:channel={selectedChannel}
+            on:view-profile={openIdProfile}
+            on:add-friend={addFriend}
+            on:invite-to-game={pong.inviteToGame}
+            on:send-message={openDirectChat}
+            on:return-home={resetAppState}
+          />
+        </div>
+      {/key}
     {/if}
     {#if appState.includes(APPSTATE.CHANNELS)}
       <div
@@ -213,7 +217,7 @@
         on:click={resetAppState}
         on:keydown={resetAppState}
       >
-        <Channels bind:this={chan} onSelectChannel={handleSelectChannel} />
+        <Channels onSelectChannel={handleSelectChannel} />
       </div>
     {/if}
     {#if appState === APPSTATE.LEADERBOARD}

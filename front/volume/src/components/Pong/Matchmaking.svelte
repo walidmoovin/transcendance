@@ -28,5 +28,8 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 1rem;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
   }
 </style>

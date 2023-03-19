@@ -281,8 +281,7 @@
     border-radius: 5px;
     padding: 1rem;
     width: 500px;
-    overflow-y: scroll;
-    overflow-x: auto;
+    overflow: auto;
     max-height: 80%;
   }
 

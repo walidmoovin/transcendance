@@ -121,6 +121,8 @@
     padding: 1rem;
     width: 300px;
     color: #e8e6e3;
+    max-height: 80vh;
+    overflow: auto;
   }
 
   h2,

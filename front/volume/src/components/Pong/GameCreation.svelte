@@ -79,6 +79,9 @@
     border-radius: 5px;
     padding: 1rem;
     width: 50vw;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
   }
 
   .name-input {

@@ -169,6 +169,8 @@
     border-radius: 5px;
     padding: 1rem;
     max-width: 80%;
+    max-height: 80vh;
+    overflow: auto;
     width: 375px;
     color: #e8e6e3;
   }

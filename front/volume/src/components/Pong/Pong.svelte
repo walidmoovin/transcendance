@@ -224,6 +224,7 @@
 
   h1 {
     margin-bottom: 2rem;
+    text-align: center;
   }
 
   button {

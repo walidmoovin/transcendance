@@ -4,26 +4,49 @@
   import { io, Socket } from "socket.io-client";
   import { show_popup, content } from "./Alert/content";
   import { APPSTATE } from "../App.svelte";
-  import type { ChannelsType, chatMessagesType } from "./Channels.svelte";
+  import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
 </script>
 
 <script lang="ts">
+  export let channel: ChannelsType;
+  export let messages: Array<chatMessagesType> = [];
+  export let appState: string;
+  export let setAppState: (newState: APPSTATE | string) => void;
+
+  let socket: Socket;
+  let newText = "";
   let usersInterval: ReturnType<typeof setInterval>;
   let blockedUsers: Array<User> = [];
   let chatMembers: Array<User> = [];
-  export let channel: ChannelsType;
-  export let messages: Array<chatMessagesType> = [];
-  let newText = "";
 
-  export let setAppState: (newState: APPSTATE | string) => void;
-  let socket: Socket;
+  async function getCurrentChannel() {
+    const res = await fetch(API_URL + "/channels", {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (res.ok) {
+      const newChannels: Array<ChannelsType> = await res.json();
+      await formatChannelNames(newChannels);
+      newChannels.forEach((newChannel) => {
+        const urlSplit = appState.split("#", 2)
+        if (urlSplit.length > 1) {
+          const currentChannelName = appState.split("#", 2)[1];
+          if (newChannel.name === currentChannelName) {
+            channel = newChannel;
+          }
+        }
+      });
+    }
+  }
+
   onMount(async () => {
     socket = io(
       "http://" + (import.meta.env.VITE_HOST ?? "localhost") + ":3001"
     );
     socket.connect();
-    if (!channel) setAppState("/channels");
+    await getCurrentChannel();
+    if (!channel) setAppState(APPSTATE.CHANNELS);
     if (!channel.password) {
       socket.emit("joinChannel", {
         UserId: $store.ftId,
@@ -442,6 +465,7 @@
     border-radius: 5px;
     padding: 1rem;
     max-width: 90%;
+    max-height: 80vh;
     width: auto;
     margin: auto;
     display: flex;
@@ -451,7 +475,7 @@
   .messages {
     height: 400px;
     width: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     border-bottom: 1px solid #dedede;
     padding-bottom: 1rem;
   }
@@ -509,7 +533,7 @@
     border-radius: 5px;
     padding: 1rem;
     max-height: 70%;
-    overflow-y: scroll;
+    overflow-y: auto;
     z-index: 1;
   }
 
