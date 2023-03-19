@@ -63,9 +63,8 @@
         {/if}
       {/each}
     </div>
-    <button on:click={toggle}>
+    <button class="hamburger" on:click={toggle}>
       <svg
-        class="hamburger"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"

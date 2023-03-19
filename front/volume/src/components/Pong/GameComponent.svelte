@@ -96,6 +96,8 @@
     align-items: center;
     font-size: 0.8em;
     text-align: center;
+    overflow: auto;
+    max-height: 80vh;
   }
 
   .user-header {
