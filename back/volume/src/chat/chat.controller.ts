@@ -217,7 +217,6 @@ export class ChatController {
     let channel = (await this.channelService.getChannel(id)) as Channel
     channel.password = await this.channelService.hash(data.password)
     this.channelService.update(channel)
-
   }
 
   @Get()

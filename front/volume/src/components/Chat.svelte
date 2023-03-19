@@ -43,6 +43,12 @@
     messages = [...messages, msg];
   });
 
+
+  socket.on("messages", (msgs: Array<chatMessagesType>) => {
+    messages = msgs;
+    console.log("You are joining channel: ", channel.name)
+  });
+
   socket.on("failedJoin", (error: string) => {
     show_popup(`Failed to join channel: ${error}`, false) 
     setAppState("/channels")

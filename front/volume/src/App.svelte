@@ -46,6 +46,7 @@
         res.json().then(async (channels) => {
           await formatChannelNames(channels);
           const channel = channels.find((c: ChannelsType) => c.name === currentChannelName);
+          selectedChannel = channel;
           if (channel) {
             chan.selectChat(channel.id); // disabled as it causes a bug where joining a channel happen twice
           } else {
