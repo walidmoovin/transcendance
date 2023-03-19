@@ -24,7 +24,7 @@
   import Chat from "./components/Chat.svelte";
   import Channels, { formatChannelNames, type chatMessagesType } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
-  import { popup } from "./components/Alert/content";
+  import { popup, show_popup } from "./components/Alert/content";
   import Pong from "./components/Pong/Pong.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
   import { API_URL } from "./Auth";
@@ -115,13 +115,13 @@
               await formatChannelNames(DMChannel)
               setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
             } else {
-              alert("Error creating DM");
+              show_popup("Error: Couldn't create DM.", false)
             }
         } else {
-          alert("Error creating DM");
+          show_popup("Error: Couldn't create DM.", false)
         }
       }).catch(() => {
-        alert("Error creating DM");
+        show_popup("Error: Couldn't create DM.", false)
       })
     }
   }

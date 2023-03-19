@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-	  import { content, show_popup } from './Alert/content'
-	  const showDialog = () => {
-	  }
+  import { content, show_popup } from './Alert/content'
 
   export interface ChannelsType {
     id: number;

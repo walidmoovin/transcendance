@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { show_popup } from "./components/Alert/content";
 
 let _user = localStorage.getItem("user");
 export const store = writable(_user ? JSON.parse(_user) : null);
@@ -35,9 +36,9 @@ export function verify() {
     mode: "cors",
     credentials: "include",
   });
-  alert(
+  show_popup(
     "We have sent you an email to verify your account. Check the mailbox which is linked to your 42's profile."
-  );
+  , false);
 }
 
 export function logout() {

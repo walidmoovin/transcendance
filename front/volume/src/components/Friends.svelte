@@ -17,10 +17,10 @@
       mode: "cors",
     });
     if (response.ok) {
-      alert("Invitation send.");
+      show_popup("Invitation send.", false);
     } else {
       const error = (await response.json()).message;
-      alert("Invitation failed: " + error);
+      show_popup("Invitation failed: " + error, false);
     }
   }
 </script>
@@ -28,6 +28,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { API_URL, store } from "../Auth";
+    import { show_popup } from "./Alert/content";
 
   let friends: Friend[] = [];
   let invits: Friend[] = [];
