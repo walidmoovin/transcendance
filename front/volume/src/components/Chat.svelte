@@ -5,8 +5,7 @@
   import { show_popup, content } from "./Alert/content";
   import { APPSTATE } from "../App.svelte";
   import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
-  import type User from "./Profile.svelte";
-</script>
+  import type User from "./Profile.svelte"; </script>
 
 <script lang="ts">
   export let channel: ChannelsType;
@@ -79,9 +78,9 @@
       setAppState(APPSTATE.CHANNELS);
     });
 
-    socket.on("kicked", (msg: string) => {
-      show_popup(`You have been kicked from channel: ${msg}`, false);
-      setAppState(APPSTATE.CHANNELS);
+    socket.on("kicked", () => {
+      show_popup(`You have been kicked from channel`, false);
+      setAppState(APPSTATE.HOME);
     })
 
     console.log("Try to join channel: ", $store.ftId, channel.id, $content);
@@ -257,7 +256,6 @@
         from: $store.ftId,
         to: target.ftId,
       });
-      dispatch("return-home");
     } else {
       await show_popup("merde", false);
     }

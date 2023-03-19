@@ -76,7 +76,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       user
     );
     const conUser = new ConnectedUser();
-    conUser.user = user.id;
+    conUser.user = user.ftId;
     conUser.channel = channel.id;
     conUser.socket = socket.id;
     const test = await this.connectedUserRepository.save(conUser);
@@ -95,11 +95,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (connect == null) return;
     const channel = await this.chatService.getFullChannel(connect.channel);
     socket.disconnect();
-    if (connect.user === channel.owner.id) {
+    if (connect.user === channel.owner.ftId) {
       this.server.in(channel.id.toString()).disconnectSockets();
       await this.chatService.removeChannel(channel.id);
     } else {
-      channel.users = channel.users.filter((e) => e.id !== connect.user);
+      channel.users = channel.users.filter((e) => e.ftId !== connect.user);
     }
     await this.connectedUserRepository.delete({ socket: socket.id });
   }
@@ -107,7 +107,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("addMessage")
   async onAddMessage(socket: Socket, message: CreateMessageDto): Promise<void> {
     const channel = await this.chatService.getChannel(message.ChannelId);
-    if (await this.chatService.isMuted(message.UserId, channel.id)) {
+    if (await this.chatService.isMuted(channel.id, message.UserId)) {
       throw new WsException("You are muted");
     }
     const createdMessage: Message = await this.messageService.createMessage(
@@ -119,24 +119,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("kickUser")
   async onKickUser(socket: Socket, kick: kickUserDto): Promise<void> {
     const channel = await this.chatService.getFullChannel(kick.chan);
-    if (channel.owner.id === kick.to) {
+    if (channel.owner.ftId === kick.to) {
       throw new WsException("You cannot kick the owner of a channel");
     }
     if (
-      channel.owner.id !== kick.from &&
-      channel.admins.findIndex((usr) => usr.id === kick.from) === -1
+      channel.owner.ftId !== kick.from &&
+      channel.admins.findIndex((usr) => usr.ftId === kick.from) === -1
     ) {
       throw new WsException("You do not have the required privileges");
     }
     const user = (await this.userService.findUser(kick.to)) as User;
     const connect = (await this.connectedUserRepository.findOneBy({
-      user: user.id,
+      user: user.ftId,
     })) as ConnectedUser;
+    console.log(`kicking ${user.username} from ${channel.name}`);
     // await this.onLeaveChannel(socket)
-    await this.server.sockets.sockets
-      .get(connect.socket)
-      ?.leave(channel.id.toString());
     this.server.sockets.sockets.get(connect.socket)?.emit("kicked");
+    await this.server.sockets.sockets
+      .get(connect.socket)?.leave(channel.id.toString());
     this.server.sockets.sockets.get(connect.socket)?.disconnect();
   }
 }
