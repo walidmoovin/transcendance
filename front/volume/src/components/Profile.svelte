@@ -20,9 +20,11 @@
 
   export let username: string = $store.username;
   export let gamePlaying: boolean;
+  export let resetGameConnection: () => void = () => {};
 
   let edit: boolean = true;
   let user: Player = $store;
+  let newUsername: string = $store.username;
 
   let avatarForm: HTMLFormElement;
 
@@ -43,19 +45,25 @@
   const dispatch = createEventDispatcher();
   async function handleSubmit() {
     if (gamePlaying) {
-      popup.set(bind(Alert, { message:"Cannot change username while playing.", form : false }))
+      popup.set(bind(Alert, { message: "Cannot change username while playing.", form: false }))
+      return;
+    }
+    if ($store.username === newUsername) {
+      popup.set(bind(Alert, { message: `Username is already set to ${newUsername}.`, form: false }))
       return;
     }
 
     let response = await fetch(API_URL + "/users", {
       headers: { "content-type": "application/json" },
       method: "POST",
-      body: JSON.stringify({ username: user.username }),
+      body: JSON.stringify({ username: newUsername }),
       credentials: "include",
     });
     if (response.ok) {
-      $store.username = user.username;
-      popup.set(bind(Alert, { message: "Succefully changed username.", form : false }))
+      $store.username = newUsername;
+      username = newUsername;
+      popup.set(bind(Alert, { message: "Succefully changed username.", form: false }))
+      resetGameConnection();
     }
   }
 
@@ -79,7 +87,7 @@
 
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
-    <h3>===| <mark>{user.username}'s Profile</mark> |===</h3>
+    <h3>===| <mark>{username}'s Profile</mark> |===</h3>
     <div class="profile-header">
       {#if !edit}
         <img src={`${API_URL}/users/${user.ftId}/avatar`} alt="avatar" class="profile-img" />
@@ -109,7 +117,7 @@
     </div>
     <div class="profile-body">
       <p>
-        <button on:click={() => dispatch("view-history", user.username)}
+        <button on:click={() => dispatch("view-history")}
           >View History</button
         >
       </p>
@@ -124,7 +132,7 @@
         class="username"
         on:submit|preventDefault={handleSubmit}
       >
-        <input type="text" id="username" bind:value={user.username} required/>
+        <input type="text" id="username" bind:value={newUsername} required/>
         <button type="submit" class="username" form="username-form"
           >Change</button
         >

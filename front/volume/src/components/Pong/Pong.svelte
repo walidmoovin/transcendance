@@ -18,6 +18,13 @@
     invitedUsername = event.detail;
   }
 
+  export function resetGameConnection() {
+    connected = false;
+    loggedIn = false;
+    failedLogIn = false;
+    setupSocket(renderCanvas, canvas, context);
+  }
+
   export let fakeUser: boolean;
   export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
@@ -56,6 +63,8 @@
       backgroundColor
     );
 
+    socket.on("connect", onSocketOpen);
+    socket.on("disconnect", onSocketClose);
     socket.on(GAME_EVENTS.START_GAME, () => {
       game.start(socket);
     });
@@ -100,9 +109,6 @@
     socket.on(GAME_EVENTS.READY, (succeeded: boolean) => {
       game.youAreReady = succeeded;
     });
-
-    socket.on("connect", onSocketOpen);
-    socket.on("disconnect", onSocketClose);
   }
 
   async function onSocketOpen() {

@@ -89,12 +89,12 @@
     setAppState(APPSTATE.PROFILE);
   }
 
-  let profileUsername: string = "";
+  let profileUsername: string = $store?.username ?? "";
   async function openIdProfile(event: CustomEvent<string>) {
     profileUsername = event.detail;
     setAppState(APPSTATE.PROFILE_ID);
   }
-  $: console.log(profileUsername)
+  $: console.log("New profileUsername:", profileUsername)
 
   async function getDMs(username: string): Promise<Response | null> {
 	const res = await fetch(API_URL + "/channels/dms/" + username, {
@@ -177,6 +177,7 @@
   // GAME
   let pong: Pong;
   let gamePlaying: boolean = false;
+  let resetGameConnection: () => void;
 
   // FAKE LOGIN
   let usernameFake = "test";
@@ -268,7 +269,7 @@
     {/if}
     {#if appState === APPSTATE.PROFILE}
       <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Profile {gamePlaying} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
+        <Profile {resetGameConnection} {gamePlaying} bind:username={profileUsername} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
       </div>
     {/if}
     {#if appState === APPSTATE.PROFILE_ID}
@@ -280,7 +281,7 @@
       >
         <Profile
           {gamePlaying}
-          username={profileUsername}
+          bind:username={profileUsername}
           on:view-history={() => setAppState(APPSTATE.HISTORY_ID)}
         />
       </div>
@@ -291,7 +292,7 @@
       <button on:click={impersonate}>Impersonate</button>
       <button on:click={() => (fakemenu = false)}>No impersonate</button>
     {:else}
-      <Pong bind:gamePlaying={gamePlaying} bind:this={pong} {appState} {setAppState} {fakeUser} />
+      <Pong bind:gamePlaying={gamePlaying} bind:this={pong} {appState} {setAppState} {fakeUser} bind:resetGameConnection={resetGameConnection} />
     {/if}
   {/if}
 
