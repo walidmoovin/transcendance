@@ -33,7 +33,7 @@
   <div class="window" on:click|stopPropagation on:keydown|stopPropagation>
     Friend:
     <input class="name-input" bind:value={invitedUsername} />
-    <button on:click={createGame}>
+    <button on:click={createGame} disabled={invitedUsername === undefined || invitedUsername === ''}>
       Create game vs {invitedUsername}
     </button>
     <div>
@@ -74,7 +74,7 @@
   }
 
   .window {
-    background-color: #fff;
+    background-color: #343a40;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 1rem;

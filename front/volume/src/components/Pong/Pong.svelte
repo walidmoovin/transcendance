@@ -12,6 +12,9 @@
   import { io, Socket } from "socket.io-client";
   import type { GameUpdate } from "./dtos/GameUpdate";
   import type { GameInfo } from "./dtos/GameInfo";
+  import { popup } from "../Alert/content";
+  import Alert from "../Alert/Alert.svelte";
+  import { bind } from 'svelte-simple-modal';
 
   export function inviteToGame(event: CustomEvent<string>) {
     setAppState(APPSTATE.CREATE_GAME);
@@ -97,6 +100,9 @@
     socket.on(GAME_EVENTS.CREATE_GAME, (succeeded: boolean) => {
       if (succeeded) {
         gamePlaying = true;
+      } else {
+        gamePlaying = false;
+        popup.set(bind(Alert, { message: "Failed to invite user. Is he currently connected to the game?", form: false }))
       }
     });
     socket.on(GAME_EVENTS.MATCHMAKING, (data: MatchmakingDto) => {

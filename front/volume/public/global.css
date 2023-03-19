@@ -64,7 +64,7 @@ button {
 }
 
 button:disabled {
-	color: #6c757d;
+	color: #aab3bb;
 	cursor: not-allowed;
 }
 
