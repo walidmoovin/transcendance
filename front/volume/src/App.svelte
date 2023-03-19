@@ -47,7 +47,7 @@
           await formatChannelNames(channels);
           const channel = channels.find((c: ChannelsType) => c.name === currentChannelName);
           if (channel) {
-            //chan.selectChat(channel.id); // disabled as it causes a bug where joining a channel happen twice
+            chan.selectChat(channel.id); // disabled as it causes a bug where joining a channel happen twice
           } else {
             alert("Failed loading channel");
           }
@@ -167,10 +167,7 @@
     setAppState(APPSTATE.CHANNELS);
   }
   let selectedChannel: ChannelsType;
-  let selectedMessages: Array<chatMessagesType>;
-  const handleSelectChannel = (channel: ChannelsType, messages: Array<chatMessagesType>) => {
-    selectedChannel = channel;
-    selectedMessages = messages;
+  const handleSelectChannel = (channel: ChannelsType) => {
     setAppState(APPSTATE.CHANNELS + "#" + channel.name);
   };
 
@@ -225,8 +222,8 @@
         on:keydown={() => setAppState(APPSTATE.CHANNELS)}
       >
         <Chat
+          {setAppState}
           channel={selectedChannel}
-          messages={selectedMessages}
           on:view-profile={openIdProfile}
           on:add-friend={addFriend}
           on:invite-to-game={pong.inviteToGame}

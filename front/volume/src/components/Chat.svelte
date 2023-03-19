@@ -3,6 +3,7 @@
   import { store, API_URL } from "../Auth";
   import { socket } from "../socket";
   import { show_popup, content } from "./Alert/content";
+  import { APPSTATE } from "../App.svelte";
   import type { ChannelsType, chatMessagesType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
 </script>
@@ -15,13 +16,13 @@
   export let messages: Array<chatMessagesType> = [];
   let newText = "";
 
+  export let setAppState: (newState: APPSTATE | string) => void;
   onMount(async () => {
     getMembers();
     usersInterval = setInterval(async () => {
       getMembers();
     }, 1000);
   });
-
 
   async function getMembers() {
     if (!channel) return;
@@ -41,6 +42,12 @@
     console.log(msg)
     messages = [...messages, msg];
   });
+
+  socket.on("failedJoin", (error: string) => {
+    show_popup(`Failed to join channel: ${error}`, false) 
+    setAppState("/channels")
+  });
+
 
   onDestroy(() => {
     clearInterval(usersInterval)

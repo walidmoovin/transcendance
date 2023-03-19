@@ -115,8 +115,9 @@
   //--------------------------------------------------------------------------------/
 
 
-  export let onSelectChannel: (channel: ChannelsType, messages: Array<chatMessagesType>) => void;
+  export let onSelectChannel: (channel: ChannelsType) => void;
   let channel: ChannelsType;
+
   export const selectChat = (id: number) => {
     console.log("channel: ", id)
     getChannels().then(() => {
@@ -126,20 +127,9 @@
       } else {
         show_popup("Did not find channel", false)
       }
+
     })
   };
-
-  socket.on("messages", (msgs: Array<chatMessagesType>) => {
-    console.log("You are joining channel: ", channel.name)
-    onSelectChannel(channel, msgs);
-    channel = undefined;
-  });
-
-  socket.on("failedJoin", (error: string) => {
-    show_popup(`Failed to join channel: ${error}`, false)
-    channel = undefined;
-  });
-  
 
   const createChannel = async () => {
     let name: string;
@@ -268,7 +258,7 @@
           <li>
             <span>{channel.name} : {channel.id}</span>
             <div style="display:block; margin-right:10%">
-            <button on:click={() => selectChat(channel.id)}>🔌</button>
+            <button on:click={() => onSelectChannel(channel)}>🔌</button>
             <button
               on:click={() => removeChannel(channel.id)}
               on:keydown={() => removeChannel(channel.id)}>🗑️</button
