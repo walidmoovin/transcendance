@@ -43,6 +43,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection (socket: Socket): Promise<void> {}
 
   async handleDisconnect (socket: Socket): Promise<void> {
+    const connect = await this.connectedUserRepository.findOneBy({
+      socket: socket.id
+    })
+    if (connect)
+      await this.connectedUserRepository.delete({ socket: socket.id })
+    socket.disconnect()
     console.log('socket %s has disconnected', socket.id)
   }
 

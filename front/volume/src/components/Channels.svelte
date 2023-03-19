@@ -17,7 +17,6 @@
   }
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
-  import { socket } from "../socket";
   import type User from "./Profile.svelte";
 
   export async function formatChannelNames(channel: Array<ChannelsType>): Promise<void> {
@@ -76,25 +75,6 @@
     return true;
   }
 
-  const joinChannel = async (channel: ChannelsType) => {
-    console.log(channels)
-    socket.connect();
-    if (!channel.password) {
-      socket.emit("joinChannel", {
-        UserId: $store.ftId,
-        ChannelId: channel.id,
-      });
-    } else {
-      await show_popup("Channel is protected, enter password:")
-      socket.emit("joinChannel", {
-        UserId: $store.ftId,
-        ChannelId: channel.id,
-        pwd: $content,
-      });
-    }
-    console.log("Try to join channel: ", $store.ftId, channel.id, $content)
-  };
-
   const getChannels = async () => {
     const res = await fetch(API_URL + "/channels", {
       credentials: "include",
@@ -116,20 +96,6 @@
 
 
   export let onSelectChannel: (channel: ChannelsType) => void;
-  let channel: ChannelsType;
-
-  export const selectChat = (id: number) => {
-    console.log("channel: ", id)
-    getChannels().then(() => {
-      channel = channels.find((c) => c.id === id);
-      if (channel) {
-        joinChannel(channel);
-      } else {
-        show_popup("Did not find channel", false)
-      }
-
-    })
-  };
 
   const createChannel = async () => {
     let name: string;

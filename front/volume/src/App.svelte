@@ -34,36 +34,10 @@
 
   // Single Page Application config
   let appState: string = APPSTATE.HOME;
-
-  async function updateChat() {
-    const urlSplit = appState.split("#", 2)
-    if (appState.includes(APPSTATE.CHANNELS) && urlSplit.length > 1) {
-      const currentChannelName = appState.split("#", 2)[1];
-      fetch(API_URL + "/channels", {
-        credentials: "include",
-        mode: "cors",
-      }).then((res) => {
-        res.json().then(async (channels) => {
-          await formatChannelNames(channels);
-          const channel = channels.find((c: ChannelsType) => c.name === currentChannelName);
-          selectedChannel = channel;
-          if (channel) {
-            chan.selectChat(channel.id); // disabled as it causes a bug where joining a channel happen twice
-          } else {
-            alert("Failed loading channel");
-          }
-        });
-      }).catch(() => {
-        alert("Failed loading channel");
-      });
-    }
-  }
-
   history.replaceState({ appState: "" }, "", "/");
   window.onpopstate = (e: PopStateEvent) => {
     if (e.state) {
       appState = e.state.appState;
-      void updateChat();  // why this?
     }
   };
 
@@ -75,7 +49,6 @@
   if (newState === appState) return;
     appState = newState;
     history.pushState({ appState }, "", appState);
-    void updateChat();
   }
 
   onMount(() => {
@@ -169,6 +142,7 @@
   }
   let selectedChannel: ChannelsType;
   const handleSelectChannel = (channel: ChannelsType) => {
+    selectedChannel = channel;
     setAppState(APPSTATE.CHANNELS + "#" + channel.name);
   };
 

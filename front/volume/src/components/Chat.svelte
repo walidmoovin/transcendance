@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { store, API_URL } from "../Auth";
-  import { socket } from "../socket";
+  import { io, Socket } from "socket.io-client";
   import { show_popup, content } from "./Alert/content";
   import { APPSTATE } from "../App.svelte";
   import type { ChannelsType, chatMessagesType } from "./Channels.svelte";
@@ -17,11 +17,45 @@
   let newText = "";
 
   export let setAppState: (newState: APPSTATE | string) => void;
+  let socket: Socket;
   onMount(async () => {
-    getMembers();
-    usersInterval = setInterval(async () => {
+    socket = io(
+      "http://" + (import.meta.env.VITE_HOST ?? "localhost") + ":3001"
+    );
+    socket.connect();
+    if (!channel) setAppState("/channels");
+    if (!channel.password) {
+      socket.emit("joinChannel", {
+        UserId: $store.ftId,
+        ChannelId: channel.id,
+      });
+    } else {
+      await show_popup("Channel is protected, enter password:");
+      socket.emit("joinChannel", {
+        UserId: $store.ftId,
+        ChannelId: channel.id,
+        pwd: $content,
+      });
+    }
+    socket.on("newMessage", (msg: chatMessagesType) => {
+      console.log(msg);
+      messages = [...messages, msg];
+    });
+
+    socket.on("messages", (msgs: Array<chatMessagesType>) => {
+      messages = msgs;
       getMembers();
-    }, 1000);
+      usersInterval = setInterval(async () => {
+        getMembers();
+      }, 1000);
+      console.log("You are joining channel: ", channel.name);
+    });
+    socket.on("failedJoin", (error: string) => {
+      show_popup(`Failed to join channel: ${error}`, false);
+      setAppState(APPSTATE.CHANNELS);
+    });
+
+    console.log("Try to join channel: ", $store.ftId, channel.id, $content);
   });
 
   async function getMembers() {
@@ -31,32 +65,15 @@
       mode: "cors",
     });
     if (res.ok) blockedUsers = await res.json();
-      res = await fetch(`${API_URL}/channels/${channel.id}/users`, {
+    res = await fetch(`${API_URL}/channels/${channel.id}/users`, {
       credentials: "include",
-      mode: "cors"
-    })
+      mode: "cors",
+    });
     if (res.ok) chatMembers = await res.json();
   }
 
-  socket.on("newMessage", (msg: chatMessagesType) => {
-    console.log(msg)
-    messages = [...messages, msg];
-  });
-
-
-  socket.on("messages", (msgs: Array<chatMessagesType>) => {
-    messages = msgs;
-    console.log("You are joining channel: ", channel.name)
-  });
-
-  socket.on("failedJoin", (error: string) => {
-    show_popup(`Failed to join channel: ${error}`, false) 
-    setAppState("/channels")
-  });
-
-
   onDestroy(() => {
-    clearInterval(usersInterval)
+    clearInterval(usersInterval);
     socket.disconnect();
   });
 
@@ -119,9 +136,8 @@
         body: JSON.stringify({ id: target.ftId }),
       });
     }
-    if (response.ok) 
-      await show_popup("User blocked", false);
-    else await show_popup("Failed to block user",false);
+    if (response.ok) await show_popup("User blocked", false);
+    else await show_popup("Failed to block user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -156,8 +172,10 @@
     });
     if (response.ok) {
       const target = await response.json();
-      await show_popup("Enter a time for which the user will be banned from this channel")
-      const duration = $content 
+      await show_popup(
+        "Enter a time for which the user will be banned from this channel"
+      );
+      const duration = $content;
       response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
         credentials: "include",
         method: "POST",
@@ -165,9 +183,9 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: [target.ftId, duration]}),
+        body: JSON.stringify({ data: [target.ftId, duration] }),
       });
-      socket.emit("kickUser", channel.id, $store.ftId, target.ftId)
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
       dispatch("return-home");
     }
   };
@@ -191,8 +209,8 @@
         body: JSON.stringify({ id: target.ftId }),
       });
     }
-    if (response.ok) await show_popup("User unbanned",false);
-    else await show_popup("Failed to unban user",false);
+    if (response.ok) await show_popup("User unbanned", false);
+    else await show_popup("Failed to unban user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -204,9 +222,15 @@
     });
     if (response.ok) {
       const target = await response.json();
-      socket.emit("kickUser", {chan : channel.id, from : $store.ftId, to: target.ftId});
+      socket.emit("kickUser", {
+        chan: channel.id,
+        from: $store.ftId,
+        to: target.ftId,
+      });
       dispatch("return-home");
-    } else {await show_popup("merde",false)}
+    } else {
+      await show_popup("merde", false);
+    }
   };
 
   //--------------------------------------------------------------------------------/
@@ -219,7 +243,7 @@
     });
     const target = await response.json();
     if (response.ok) {
-         response = await fetch(API_URL + "/channels/" + channel.id + "/mute", {
+      response = await fetch(API_URL + "/channels/" + channel.id + "/mute", {
         credentials: "include",
         method: "POST",
         mode: "cors",
@@ -229,8 +253,8 @@
         body: JSON.stringify({ data: [target.ftId, +prompt] }),
       });
     }
-    if (response.ok) await show_popup("User muted",false);
-    else await show_popup("Failed to mute user",false);
+    if (response.ok) await show_popup("User muted", false);
+    else await show_popup("Failed to mute user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -253,9 +277,9 @@
       });
     }
     if (response.ok) {
-      await show_popup("User admined",false);
+      await show_popup("User admined", false);
     } else {
-      await show_popup("Failed to admin user",false);
+      await show_popup("Failed to admin user", false);
     }
   };
 
@@ -288,14 +312,13 @@
   //--------------------------------------------------------------------------------/
 
   const leaveChannel = async () => {
-    await show_popup("Press \"Okay\" to leave this channel?", false);
-    if ($content == 'ok') {
+    await show_popup('Press "Okay" to leave this channel?', false);
+    if ($content == "ok") {
       socket.emit("leaveChannel");
       dispatch("return-home");
-      socket.disconnect()
-      
+      socket.disconnect();
     }
-  }
+  };
   function onSendMessage() {
     dispatch("send-message", selectedUser);
     showProfileMenu = false;
@@ -328,9 +351,7 @@
       >
         <ul>
           <li>
-            <button on:click={onSendMessage}>
-              Send Message
-            </button>
+            <button on:click={onSendMessage}> Send Message </button>
           </li>
           <li>
             <button on:click={() => dispatch("view-profile", selectedUser)}>
@@ -363,26 +384,23 @@
       </div>
     {/if}
     <form on:submit|preventDefault={sendMessage}>
-      <input  type="text" placeholder="Type a message..." bind:value={newText} />
-      <button style="background:#dedede; margin:auto" >
-        <img  src="img/send.png" alt="send" />
+      <input type="text" placeholder="Type a message..." bind:value={newText} />
+      <button style="background:#dedede; margin:auto">
+        <img src="img/send.png" alt="send" />
       </button>
     </form>
     <div>
-    <button on:click={leaveChannel}>Leave</button>
-    <button
-      on:click|stopPropagation={toggleChatMembers}
-      on:keydown|stopPropagation
-    >
-      Chat Members
-    </button>
-  </div>
+      <button on:click={leaveChannel}>Leave</button>
+      <button
+        on:click|stopPropagation={toggleChatMembers}
+        on:keydown|stopPropagation
+      >
+        Chat Members
+      </button>
+    </div>
 
     {#if showChatMembers}
-      <div
-        on:click|stopPropagation
-        on:keydown|stopPropagation
-      />
+      <div on:click|stopPropagation on:keydown|stopPropagation />
       <ul>
         {#each chatMembers as member}
           <li>
@@ -391,8 +409,12 @@
               <button on:click={() => banUser(member.username)}> ban </button>
               <button on:click={() => kickUser(member.username)}> kick </button>
               <button on:click={() => muteUser(member.username)}> mute </button>
-              <button on:click={() => adminUser(member.username)}> promote </button>
-              <button on:click={() => removeAdminUser(member.username)}> demote </button>
+              <button on:click={() => adminUser(member.username)}>
+                promote
+              </button>
+              <button on:click={() => removeAdminUser(member.username)}>
+                demote
+              </button>
             </p>
           </li>
         {/each}
@@ -413,13 +435,13 @@
     justify-content: center;
     align-items: center;
   }
-  
+
   .chat {
     background-color: #343a40;
     border: 1px solid #dedede;
     border-radius: 5px;
     padding: 1rem;
-    max-width: 90%; 
+    max-width: 90%;
     width: auto;
     margin: auto;
     display: flex;
@@ -427,8 +449,8 @@
   }
 
   .messages {
-    height : 400px;
-    width : 100%;
+    height: 400px;
+    width: 100%;
     overflow-y: scroll;
     border-bottom: 1px solid #dedede;
     padding-bottom: 1rem;
@@ -440,7 +462,7 @@
     width: auto;
     line-height: 1.4;
     margin-bottom: 0.5rem;
-    word-wrap:break-word;
+    word-wrap: break-word;
   }
 
   .message-name {
