@@ -224,20 +224,15 @@
           <li>
             <span>{channel.name} : {channel.id}</span>
             <div style="display:block; margin-right:10%">
-            <button on:click={() => onSelectChannel(channel)}>🔌</button>
-            <button
-              on:click={() => removeChannel(channel.id)}
-              on:keydown={() => removeChannel(channel.id)}>🗑️</button
-            >
-            <!-- Show invite if channel has password but is not DM -->
-            {#if channel.isPrivate == true && channel.password}
-              <button on:click={() => inviteChannel(channel.id)}>🤝</button>
-            {/if}
-            <!-- Show change password if channel is not DM -->
-            {#if !(channel.isPrivate == true && !channel.password)}
+              <button on:click={() => onSelectChannel(channel)}>🔌</button>
+              <button
+                on:click={() => removeChannel(channel.id)}
+                on:keydown={() => removeChannel(channel.id)}>🗑️</button
+              >
+              {#if channel.isPrivate == true}
+                <button on:click={() => inviteChannel(channel.id)}>🤝</button>
+              {/if}
               <button on:click={() => changePassword(channel.id)}>🔑</button>
-            {/if}
-
             </div>
           </li>
         {/each}

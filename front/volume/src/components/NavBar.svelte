@@ -19,6 +19,7 @@
   export let clickFriends = () => {};
   export let clickChannels = () => {};
   export let clickLeaderboard = () => {};
+  export let failedGameLogIn: boolean;
 
   let hide = true;
 
@@ -27,7 +28,7 @@
   }
 </script>
 
-<nav class="navigation-bar">
+<nav class="navigation-bar" style={ failedGameLogIn ? "display: none" : '' } >
   <ul>
     <li>
       <img src="img/pong.png" alt="home-icon" />

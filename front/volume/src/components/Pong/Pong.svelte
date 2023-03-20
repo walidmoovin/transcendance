@@ -24,7 +24,7 @@
   export function resetGameConnection() {
     connected = false;
     loggedIn = false;
-    failedLogIn = false;
+    failedGameLogIn = false;
     setupSocket(renderCanvas, canvas, context);
   }
 
@@ -38,7 +38,7 @@
   export let gamePlaying: boolean;
   let connected: boolean = false;
   let loggedIn: boolean = false;
-  let failedLogIn: boolean = false;
+  export let failedGameLogIn: boolean = false;
   let socket: Socket;
   let elementsColor: string = "#FFFFFF";
   let backgroundColor: string = "#000000";
@@ -93,7 +93,7 @@
           updateGameInfo();
         }, 1000);
       } else {
-        failedLogIn = true;
+        failedGameLogIn = true;
       }
     });
     socket.on(GAME_EVENTS.CREATE_GAME, (succeeded: boolean) => {
@@ -206,7 +206,7 @@
     {/if}
   {:else if !connected}
     Connecting to game server...
-  {:else if failedLogIn}
+  {:else if failedGameLogIn}
     Failed to log in to game server. Do you have multiple pages open at the same
     time? If yes, please close them and try again.
   {:else if !loggedIn}

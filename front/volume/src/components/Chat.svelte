@@ -180,18 +180,14 @@
     });
     if (response.ok) {
       const target = await response.json();
-      response = await fetch(API_URL + "/users/" + target.ftId + "/block", {
+      response = await fetch(API_URL + "/users/block/" + target.ftId, {
         credentials: "include",
         method: "DELETE",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: target.ftId }),
+        mode: "cors"
       });
     }
-    if (response.ok) await show_popup("User blocked", false);
-    else await show_popup("Failed to block user", false);
+    if (response.ok) await show_popup("User unblocked", false);
+    else await show_popup("Failed to unblock user", false);
   };
 
   //--------------------------------------------------------------------------------/
@@ -218,7 +214,7 @@
       });
       if (response.ok) {
         socket.emit("kickUser", {chan: channel.id, from: $store.ftId, to: target.ftId});
-      } else await show_popup(`Ban of ${username}: ${response.text}`, false);
+      } else await show_popup(`Ban of ${username}: ${await response.text()}`, false);
     }
   };
 
@@ -260,14 +256,14 @@
         to: target.ftId,
       });
     } else {
-      await show_popup("merde", false);
+      await show_popup("Failed to kick: " + await response.text(), false);
     }
   };
 
   //--------------------------------------------------------------------------------/
 
   const muteUser = async (username: string) => {
-    const prompt = window.prompt("Enter mute duration in seconds");
+    await show_popup("Enter mute duration in seconds");
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
@@ -281,7 +277,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: [target.ftId, +prompt] }),
+        body: JSON.stringify({ data: [target.ftId, +$content] }),
       });
     }
     if (response.ok) await show_popup("User muted", false);
@@ -400,15 +396,9 @@
             </button>
           </li>
           <li>
-            {#if !blockedUsers.filter((user) => (user.username = selectedUser)).length}
-              <button on:click={() => blockUser(selectedUser)}>
-                Block User
-              </button>
-            {:else}
-              <button on:click={() => unblockUser(selectedUser)}>
-                Unblock User
-              </button>
-            {/if}
+            <button on:click={() => blockUser(selectedUser)}>
+              Block User
+            </button>
           </li>
           <li><button on:click={closeProfileMenu}> Close </button></li>
         </ul>
@@ -445,6 +435,9 @@
               </button>
               <button on:click={() => removeAdminUser(member.username)}>
                 demote
+              </button>
+              <button on:click={() => unblockUser(member.username)}>
+                unblock
               </button>
             </p>
           </li>

@@ -149,6 +149,7 @@
   // GAME
   let pong: Pong;
   let gamePlaying: boolean = false;
+  let failedGameLogIn: boolean = false;
   let resetGameConnection: () => void;
 </script>
 
@@ -175,6 +176,7 @@
       {clickFriends}
       {clickChannels}
       {clickLeaderboard}
+      {failedGameLogIn}
     />
     {#if appState.includes(`${APPSTATE.CHANNELS}#`)}
       {#key appState}
@@ -246,7 +248,7 @@
         />
       </div>
     {/if}
-    <Pong bind:gamePlaying={gamePlaying} bind:this={pong} {appState} {setAppState} bind:resetGameConnection={resetGameConnection} />
+    <Pong bind:gamePlaying={gamePlaying} bind:this={pong} bind:failedGameLogIn={failedGameLogIn} {appState} {setAppState} bind:resetGameConnection={resetGameConnection} />
   {/if}
 
 </Modal>

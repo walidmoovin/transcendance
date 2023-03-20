@@ -55,6 +55,7 @@ export class UsersController {
     if (user === null || target === null) {
       throw new BadRequestException('User not found')
     }
+    if (user.ftId === id) throw new BadRequestException('Cannot block yourself')
     user.blocked.push(target)
     console.log('user', JSON.stringify(user))
     console.log('user', JSON.stringify(target))
@@ -69,9 +70,11 @@ export class UsersController {
   ): Promise<void> {
     const user = await this.usersService.getFullUser(+profile.id)
     if (user === null) throw new BadRequestException('User not found')
+    const lenBefore = user.blocked.length
     user.blocked = user.blocked.filter((usr: User) => {
-      return usr.id !== id
+      return usr.ftId !== id
     })
+    if (lenBefore === user.blocked.length) throw new BadRequestException('User not found')
     await this.usersService.save(user)
   }
 
