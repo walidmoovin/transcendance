@@ -5,7 +5,7 @@
   export let onOkay = () => {};
   import { content, popup } from "./content";
 
-  let value;
+  let value = '';
   let onChange = () => {
     $content = "";
   };

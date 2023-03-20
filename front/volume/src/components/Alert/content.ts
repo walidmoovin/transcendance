@@ -10,8 +10,7 @@ export async function show_popup(message, form = true) {
         message,
         form
     }))
-     await waitForCondition()
-     await waitForCondition()
+    await waitForCondition()
 }
 
 export async function waitForCondition() {
@@ -25,5 +24,5 @@ export async function waitForCondition() {
              return await checkFlag();
       }
     }
-    return   checkFlag()
+    return await checkFlag()
 }

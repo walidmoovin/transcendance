@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { type User } from 'src/users/entity/user.entity'
 import { UsersService } from 'src/users/users.service'
 import { MailerService } from '@nestjs-modules/mailer'
@@ -25,16 +25,22 @@ export class AuthService {
 
   async sendConfirmationEmail (user: User): Promise<void> {
     user.authToken = Math.floor(10000 + Math.random() * 90000).toString()
+    console.log(`email sent to ${user.email}`)
     await this.usersService.save(user)
-    await this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Welcome to ft_transcendence! Confirm Email',
-      template: 'confirm',
-      context: {
-        username: user.username,
-        code: user.authToken
-      }
-    })
+    try {
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Welcome to ft_transcendence! Confirm Email',
+        template: 'confirm',
+        context: {
+          username: user.username,
+          code: user.authToken
+        }
+      })
+    } catch {
+      throw new BadRequestException("Email doesnt't seem to be valid")
+    }
+    console.log(`email sent to ${user.email}`)
   }
 
   async verifyAccount (code: string): Promise<boolean> {

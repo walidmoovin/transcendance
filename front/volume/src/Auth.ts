@@ -31,6 +31,7 @@ export function login() {
 }
 
 export async function verify() {
+  if (get(store).twoFa === true) return;
   let email : string;
   await show_popup("Enter your preferred email adress:\n(defaults to 42 email)")
   email = get(content);
@@ -46,7 +47,6 @@ export async function verify() {
     })
     if (response.ok) {await show_popup("Email set",false)}
     else {await show_popup("Couldn't set Email",false); return }
-   console.log(response.ok)
 }
   console.log(API_URL)
   const response = await fetch(API_URL + "/log/verify", {
@@ -56,9 +56,11 @@ export async function verify() {
   });
   console.log(response.ok)
   if (response.ok) {
-  console.log("here")
+  console.log("here") 
   await show_popup("We have sent you an email to verify your account. Check your mailbox!.", false);
-  } else { await show_popup("Email doensn't seem valid", false);}
+  } else {
+  console.log("there") 
+  await show_popup("Email doensn't seem valid", false);}
 
 
 }

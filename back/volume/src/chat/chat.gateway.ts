@@ -138,8 +138,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = (await this.userService.findUser(kick.to)) as User
     const connect = (await this.connectedUserRepository.findOneBy({
       user: user.ftId
-    })) as ConnectedUser
-    if (connect) {
+    }))
+    if (connect !== null) {
       console.log(`kicking ${user.username} from ${channel.name} with socket ${connect.socket}`)
       this.server.to(connect.socket).emit('kicked')
     }

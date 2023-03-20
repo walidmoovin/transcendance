@@ -18,7 +18,7 @@ import { Profile42 } from './42.decorator'
 import { AuthService } from './auth.service'
 import { UsersService } from 'src/users/users.service'
 import { EmailDto } from 'src/chat/dto/updateUser.dto'
-import User from 'src/users/entity/user.entity'
+import type User from 'src/users/entity/user.entity'
 
 const frontHost =
   process.env.HOST !== undefined && process.env.HOST !== ''
@@ -30,7 +30,7 @@ const frontPort =
     : '80'
 
 @Controller('log')
-export class AuthController { 
+export class AuthController {
   constructor (
     private readonly authService: AuthService,
     private readonly usersService: UsersService
@@ -42,10 +42,10 @@ export class AuthController {
     @Profile42() profile: Profile,
       @Body() body: EmailDto
   ): Promise<void> {
-    console.log('in')
     const email = body.email
-    const user = (await this.usersService.findUser(+profile.id)) as User
+    const user = (await this.usersService.getFullUser(+profile.id))
     user.email = email
+    console.log(`email sent to ${user.email}`)
     await this.usersService.save(user)
   }
 

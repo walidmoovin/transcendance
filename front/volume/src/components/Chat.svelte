@@ -210,6 +210,8 @@
         "Enter a time for which the user will be banned from this channel"
       );
       const duration = $content;
+      if (duration == "") 
+        return;
       response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
         credentials: "include",
         method: "POST",
@@ -217,16 +219,15 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: target.ftId, duration }),
+        body: JSON.stringify({ data: [target.ftId, duration] }),
       });
       if (response.ok) {
         await show_popup(`User banned for: ${duration} seconds`, false);
         socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
       } else {
-        const error = await response.json();
-        await show_popup(error.message, false);
-      }   
-      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
+         const error = await response.json();
+        await show_popup(error.message, false)
+      } 
     }
   };
 

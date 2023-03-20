@@ -1,4 +1,4 @@
-import { InternalServerErrorException, Logger } from '@nestjs/common'
+import { InternalServerErrorException, Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import * as session from 'express-session'
@@ -15,13 +15,17 @@ async function bootstrap (): Promise<void> {
       ? +process.env.BACK_PORT
       : 3001
   const cors = {
-    origin: new RegExp(`^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`),
+    origin: new RegExp(
+      `^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`
+    ),
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true,
-    allowedHeaders: ['Accept', 'Content-Type', 'Authorization']
+    allowedHeaders:
+     ['Accept', 'Content-Type', 'Authorization']
   }
+  app.useGlobalPipes(new ValidationPipe())
   app.use(
     session({
       resave: false,
