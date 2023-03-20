@@ -160,7 +160,6 @@ export class ChatController {
     if (await this.channelService.isBanned(channel.id, target.data[0])) {
       throw new BadRequestException('User is already banned from this channel')
     }
-    console.log(channel.banned)
     channel.banned.push([target.data[0], Date.now() + target.data[1] * 1000])
     await this.channelService.save(channel)
   }

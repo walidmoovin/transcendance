@@ -338,7 +338,7 @@
       });
     }
     if (response.ok) {
-      await show_popup("User admined", false);
+      await show_popup("User de-admined", false);
     } else {
       await show_popup("Failed to admin user", false);
     }

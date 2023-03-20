@@ -5,26 +5,26 @@ import {
   WebSocketGateway,
   WebSocketServer,
   WsException,
-} from "@nestjs/websockets";
-import { Socket, Server } from "socket.io";
+} from '@nestjs/websockets';
+import { Socket, Server } from 'socket.io';
 // import { User } from 'users/user.entity';
-import { UsersService } from "src/users/users.service";
-import { ChatService } from "./chat.service";
-import type Message from "./entity/message.entity";
-import * as bcrypt from "bcrypt";
-import { MessageService } from "./message.service";
-import { CreateMessageDto } from "./dto/create-message.dto";
-import { ConnectionDto } from "./dto/connection.dto";
-import { kickUserDto } from "./dto/kickUser.dto";
-import ConnectedUser from "./entity/connection.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import type User from "src/users/entity/user.entity";
+import { UsersService } from 'src/users/users.service';
+import { ChatService } from './chat.service';
+import type Message from './entity/message.entity';
+import * as bcrypt from 'bcrypt';
+import { MessageService } from './message.service';
+import { CreateMessageDto } from './dto/create-message.dto';
+import { ConnectionDto } from './dto/connection.dto';
+import { kickUserDto } from './dto/kickUser.dto';
+import ConnectedUser from './entity/connection.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import type User from 'src/users/entity/user.entity';
 
 @WebSocketGateway({
   cors: {
     origin: new RegExp(
-      `^(http|ws)://${process.env.HOST ?? "localhost"}(:\\d+)?$`
+      `^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`
     ),
   },
 })
@@ -44,31 +44,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket): Promise<void> {
     const connect = await this.connectedUserRepository.findOneBy({
-      socket: socket.id,
+      socket: socket.id
     });
     if (connect) {
-      await this.connectedUserRepository.delete({ socket: socket.id });
+      await this.connectedUserRepository.delete({ user: connect.user })
     }
-    socket.disconnect();
-    console.log("socket %s has disconnected", socket.id);
+    socket.disconnect()
+    console.log('socket %s has disconnected', socket.id)
   }
 
-  @SubscribeMessage("joinChannel")
+  @SubscribeMessage('joinChannel')
   async onJoinChannel(socket: Socket, connect: ConnectionDto): Promise<void> {
-    console.log("here");
+    await this.connectedUserRepository.delete({ user: connect.UserId })
+
     const channel = await this.chatService.getFullChannel(connect.ChannelId);
-    if (channel.banned.findIndex((ban) => ban[0] === +connect.UserId) !== -1) {
+    if (channel.banned.findIndex((ban) => +ban[0] === +connect.UserId) !== -1) {
       this.server
         .to(socket.id)
-        .emit("failedJoin", "You are banned from this channel");
+        .emit('failedJoin', 'You are banned from this channel');
+      throw new WsException('You are banned from this channel');
     }
     const user = await this.userService.getFullUser(connect.UserId);
-    if (channel.password && channel.password !== "") {
+    if (channel.password && channel.password !== '') {
       if (
         !connect.pwd ||
         !(await bcrypt.compare(connect.pwd, channel.password))
       ) {
-        this.server.to(socket.id).emit("failedJoin", "Wrong password");
+        this.server.to(socket.id).emit('failedJoin', 'Wrong password');
+        throw new WsException('Wrong password');
       }
     }
     await this.chatService.addUserToChannel(channel, user);
@@ -81,18 +84,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     conUser.channel = channel.id;
     conUser.socket = socket.id;
     const test = await this.connectedUserRepository.save(conUser);
-    console.log(test);
     await socket.join(channel.id.toString());
-    this.server.to(socket.id).emit("messages", messages);
-    console.log(this.server.sockets.adapter.rooms.get(channel.id.toString()));
+    this.server.to(socket.id).emit('messages', messages);
   }
 
-  @SubscribeMessage("leaveChannel")
+  @SubscribeMessage('leaveChannel')
   async onLeaveChannel(socket: Socket): Promise<void> {
     const connect = await this.connectedUserRepository.findOneBy({
       socket: socket.id,
     });
-    console.log("connection removed", connect?.user);
     if (connect == null) return;
     const channel = await this.chatService.getFullChannel(connect.channel);
     socket.disconnect();
@@ -105,37 +105,38 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.connectedUserRepository.delete({ socket: socket.id });
   }
 
-  @SubscribeMessage("addMessage")
+  @SubscribeMessage('addMessage')
   async onAddMessage(socket: Socket, message: CreateMessageDto): Promise<void> {
     const channel = await this.chatService.getChannel(message.ChannelId);
     if (await this.chatService.isMuted(channel.id, message.UserId)) {
-      throw new WsException("You are muted");
+      throw new WsException('You are muted');
     }
     const createdMessage: Message = await this.messageService.createMessage(
       message
     );
-    this.server.to(channel.id.toString()).emit("newMessage", createdMessage);
+    this.server.to(channel.id.toString()).emit('newMessage', createdMessage);
   }
 
-  @SubscribeMessage("kickUser")
+  @SubscribeMessage('kickUser')
   async onKickUser(socket: Socket, kick: kickUserDto): Promise<void> {
     const channel = await this.chatService.getFullChannel(kick.chan);
     if (channel.owner.ftId === kick.to) {
-      throw new WsException("You cannot kick the owner of a channel");
+      throw new WsException('You cannot kick the owner of a channel');
     }
     if (
       channel.owner.ftId !== kick.from &&
       channel.admins.findIndex((usr) => +usr.ftId === kick.from) === -1
     ) {
-      throw new WsException("You do not have the required privileges");
+      throw new WsException('You do not have the required privileges')
     }
-    const user = (await this.userService.findUser(kick.to)) as User;
+    const user = (await this.userService.findUser(kick.to)) as User
     const connect = (await this.connectedUserRepository.findOneBy({
-      user: user.ftId,
-    })) as ConnectedUser;
+      user: user.ftId
+    })) as ConnectedUser
     if (connect) {
-      console.log(`kicking ${user.username} from ${channel.name}`);
-      this.server.sockets.sockets.get(connect.socket)?.emit("kicked");
+      console.log(`kicking ${user.username} from ${channel.name} with socket ${connect.socket}`)
+      // this.server.sockets.sockets.get(connect.socket)?.emit('kicked');
+      this.server.to(connect.socket).emit('kicked')
     }
   }
 }

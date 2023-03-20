@@ -207,7 +207,7 @@ export class ChatService {
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-    return channel.banned.findIndex((ban) => ban[0] === userId) !== -1
+    return channel.banned.findIndex((ban) => +ban[0] === userId) !== -1
   }
 
   async isMuted (id: number, userId: number): Promise<boolean> {
@@ -217,6 +217,6 @@ export class ChatService {
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-    return channel.muted.findIndex((mute) => mute[0] === userId) !== -1
+    return channel.muted.findIndex((mute) => +mute[0] === userId) !== -1
   }
 }
