@@ -109,6 +109,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('addMessage')
   async onAddMessage(socket: Socket, message: CreateMessageDto): Promise<void> {
     const channel = await this.chatService.getChannel(message.ChannelId);
+    if (channel == null) {
+      this.server.to(socket.id).emit('kicked')
+      throw new WsException('Channel has been removed by owner');
+    }
     if (await this.chatService.isMuted(channel.id, message.UserId)) {
       throw new WsException('You are muted');
     }
@@ -136,7 +140,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     })) as ConnectedUser
     if (connect) {
       console.log(`kicking ${user.username} from ${channel.name} with socket ${connect.socket}`)
-      // this.server.sockets.sockets.get(connect.socket)?.emit('kicked');
       this.server.to(connect.socket).emit('kicked')
     }
   }
