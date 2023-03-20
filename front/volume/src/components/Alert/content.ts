@@ -18,11 +18,9 @@ export async function waitForCondition() {
     const unsub = popup.subscribe((value) => {val = value})
     async function checkFlag() {
         if (val == null) {
-            console.log("finished",val)
             unsub()
-            return new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 100));
         } else {
-            console.log("waiting")
             await new Promise(resolve => setTimeout(resolve, 1000));
              return await checkFlag();
       }

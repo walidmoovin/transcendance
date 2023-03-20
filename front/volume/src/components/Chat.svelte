@@ -217,7 +217,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: [target.ftId, duration] }),
+        body: JSON.stringify({ data: target.ftId, duration }),
       });
       if (response.ok) {
         await show_popup(`User banned for: ${duration} seconds`, false);
@@ -225,7 +225,8 @@
       } else {
         const error = await response.json();
         await show_popup(error.message, false);
-      }
+      }   
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
     }
   };
 

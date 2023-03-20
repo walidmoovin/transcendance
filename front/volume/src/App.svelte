@@ -167,9 +167,12 @@
       >
     </div>
   {:else if $store.twoFA === true && $store.isVerified === false}
-    <h1><button type="button" on:click={verify}>verify</button></h1>
+  <div class="login-div">
+    <button class="login-button" type="button" style="width:100%;height:100%;font-size:xx-large;" on:click={verify}>Verify</button
+    >
+  </div>
   {:else}
-    <Navbar
+    <Navbar 
       {clickProfile}
       {clickHistory}
       {clickFriends}

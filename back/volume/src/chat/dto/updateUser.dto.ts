@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator'
+import { IsEmail, IsNumber, IsString } from 'class-validator'
 
 export class IdDto {
   @IsNumber()
@@ -12,4 +12,9 @@ export class PasswordDto {
 
 export class MuteDto {
   data: number[]
+}
+
+export class EmailDto {
+  @IsEmail()
+    email: string
 }
