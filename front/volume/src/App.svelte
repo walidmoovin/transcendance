@@ -30,7 +30,6 @@
   import { API_URL } from "./Auth";
 
   import { store, getUser, login, verify } from "./Auth";
-  import FakeLogin from "./FakeLogin.svelte";
 
   // Single Page Application config
   let appState: string = APPSTATE.HOME;
@@ -151,21 +150,6 @@
   let pong: Pong;
   let gamePlaying: boolean = false;
   let resetGameConnection: () => void;
-
-  // FAKE LOGIN
-  let usernameFake = "test";
-  let ftIdFake = "42";
-  let fakemenu = true;
-  let fakeUser = false;
-  function impersonate() {
-    const user = {
-      username: usernameFake,
-      socketKey: ftIdFake,
-    };
-    store.set(user);
-    fakeUser = true;
-    fakemenu = false;
-  }
 </script>
 
 <div>
@@ -262,14 +246,7 @@
         />
       </div>
     {/if}
-
-    {#if fakemenu}
-      <FakeLogin bind:username={usernameFake} bind:ftId={ftIdFake} />
-      <button on:click={impersonate}>Impersonate</button>
-      <button on:click={() => (fakemenu = false)}>No impersonate</button>
-    {:else}
-      <Pong bind:gamePlaying={gamePlaying} bind:this={pong} {appState} {setAppState} {fakeUser} bind:resetGameConnection={resetGameConnection} />
-    {/if}
+    <Pong bind:gamePlaying={gamePlaying} bind:this={pong} {appState} {setAppState} bind:resetGameConnection={resetGameConnection} />
   {/if}
 
 </Modal>

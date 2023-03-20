@@ -70,7 +70,6 @@ export class UsersService {
       relations: ['results', 'blocked', 'friends']
     })
     if (user === null) throw new BadRequestException('User not found.')
-    user.socketKey = ''
     return user
   }
 

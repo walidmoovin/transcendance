@@ -161,14 +161,10 @@
     });
     if (response.ok) {
       const target = await response.json();
-      response = await fetch(API_URL + "/users/" + target.ftId + "/block", {
+      response = await fetch(API_URL + "/users/block/" + target.ftId, {
+        method: "GET",
         credentials: "include",
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: target.ftId }),
+        mode: "cors"
       });
     }
     if (response.ok) await show_popup("User blocked", false);
@@ -312,9 +308,9 @@
       });
     }
     if (response.ok) {
-      await show_popup("User admined", false);
+      await show_popup("User promoted", false);
     } else {
-      await show_popup("Failed to admin user", false);
+      await show_popup("Failed to promote user", false);
     }
   };
 
@@ -338,9 +334,9 @@
       });
     }
     if (response.ok) {
-      await show_popup("User de-admined", false);
+      await show_popup("User demoted", false);
     } else {
-      await show_popup("Failed to admin user", false);
+      await show_popup("Failed to demote user", false);
     }
   };
 

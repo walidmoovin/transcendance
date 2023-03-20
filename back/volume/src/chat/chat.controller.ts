@@ -81,6 +81,7 @@ export class ChatController {
     if (await this.channelService.isBanned(channel.id, target.id)) {
       throw new BadRequestException('User is banned from this channel')
     }
+    user.socketKey = ''
     channel.users.push(user)
     await this.channelService.save(channel)
   }

@@ -65,6 +65,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException('You are banned from this channel');
     }
     const user = await this.userService.getFullUser(connect.UserId);
+    user.socketKey = '';
     if (channel.password && channel.password !== '') {
       if (
         !connect.pwd ||

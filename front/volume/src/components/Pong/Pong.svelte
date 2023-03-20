@@ -28,7 +28,6 @@
     setupSocket(renderCanvas, canvas, context);
   }
 
-  export let fakeUser: boolean;
   export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
 
@@ -118,7 +117,7 @@
   }
 
   async function onSocketOpen() {
-    if (!fakeUser) await getUser();
+    await getUser();
     void logIn();
     connected = true;
   }

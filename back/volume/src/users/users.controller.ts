@@ -38,8 +38,9 @@ export class UsersController {
   @Get('blocked')
   @UseGuards(AuthenticatedGuard)
   async getBlockedUsers (@Profile42() profile: Profile): Promise<User[]> {
-    const user = await this.usersService.getFullUser(profile.id)
+    const user = await this.usersService.getFullUser(+profile.id)
     if (user === null) throw new BadRequestException('User not found')
+    user.socketKey = ''
     return user.blocked
   }
 
@@ -47,14 +48,16 @@ export class UsersController {
   @UseGuards(AuthenticatedGuard)
   async blockUser (
     @Profile42() profile: Profile,
-      @Param('id') id: number
+      @Param('id', ParseIntPipe) id: number
   ): Promise<void> {
-    const user = await this.usersService.getFullUser(profile.id)
+    const user = await this.usersService.getFullUser(+profile.id)
     const target = await this.usersService.findUser(id)
     if (user === null || target === null) {
       throw new BadRequestException('User not found')
     }
     user.blocked.push(target)
+    console.log('user', JSON.stringify(user))
+    console.log('user', JSON.stringify(target))
     await this.usersService.save(user)
   }
 
@@ -62,9 +65,9 @@ export class UsersController {
   @UseGuards(AuthenticatedGuard)
   async unblockUser (
     @Profile42() profile: Profile,
-      @Param('id') id: number
+      @Param('id', ParseIntPipe) id: number
   ): Promise<void> {
-    const user = await this.usersService.getFullUser(profile.id)
+    const user = await this.usersService.getFullUser(+profile.id)
     if (user === null) throw new BadRequestException('User not found')
     user.blocked = user.blocked.filter((usr: User) => {
       return usr.id !== id
@@ -85,13 +88,13 @@ export class UsersController {
   @Get('friends')
   @UseGuards(AuthenticatedGuard)
   async getFriends (@Profile42() profile: Profile): Promise<User[]> {
-    return await this.usersService.getFriends(profile.id)
+    return await this.usersService.getFriends(+profile.id)
   }
 
   @Get('invits')
   @UseGuards(AuthenticatedGuard)
   async getInvits (@Profile42() profile: Profile): Promise<User[]> {
-    return await this.usersService.getInvits(profile.id)
+    return await this.usersService.getInvits(+profile.id)
   }
 
   @Get('leaderboard')
@@ -127,7 +130,7 @@ export class UsersController {
       @UploadedFile() file: Express.Multer.File
   ): Promise<void> {
     if (file === undefined) return
-    await this.usersService.addAvatar(profile.id, file.filename)
+    await this.usersService.addAvatar(+profile.id, file.filename)
   }
 
   @Get('avatar')
@@ -136,7 +139,7 @@ export class UsersController {
     @Profile42() profile: Profile,
       @Res({ passthrough: true }) response: Response
   ): Promise<StreamableFile> {
-    return await this.getAvatarById(profile.id, response)
+    return await this.getAvatarById(+profile.id, response)
   }
 
   @Get(':name/byname')
@@ -161,7 +164,7 @@ export class UsersController {
     if (+profile.id === +target.ftId) {
       throw new BadRequestException("You can't invite yourself.")
     }
-    const ret: string = await this.usersService.invit(profile.id, target.ftId)
+    const ret: string = await this.usersService.invit(+profile.id, target.ftId)
     if (ret !== 'OK') throw new BadRequestException(ret)
   }
 
@@ -189,16 +192,6 @@ export class UsersController {
     if (user == null) throw new BadRequestException('User unknown.')
     user.socketKey = ''
     return user
-  }
-
-  @Post(':id')
-  async createById (@Body() payload: UserDto): Promise<void> {
-    const user = await this.usersService.findUser(payload.ftId)
-    if (user != null) {
-      await this.usersService.update(user, payload)
-    } else {
-      await this.usersService.create(payload)
-    }
   }
 
   @Get()
