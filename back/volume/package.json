@@ -64,6 +64,8 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "deep-email-validator": "^0.1.21",
+    "email-deep-validator-ts": "^1.0.1",
     "eslint": "^8.34.0",
     "eslint-config-standard-with-typescript": "^34.0.0",
     "eslint-plugin-import": "^2.27.5",

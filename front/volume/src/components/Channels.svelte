@@ -149,11 +149,10 @@
       const response = await fetch(API_URL + "/channels/" + id, {
         credentials: "include",
         method: "DELETE",
-        mode: "cors",
+        mode: "cors", 
       });
-      if (response.ok) channels = channels.filter((c) => c.id !== id);
-      else
-        await show_popup("Error deleting channel", false)
+      if (response.ok) getChannels();
+      else await show_popup("Error deleting channel", false)
     }
   };
 

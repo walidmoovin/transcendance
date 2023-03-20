@@ -153,7 +153,7 @@
 </script>
 
 <div>
-  <Modal show={$popup}>
+  <Modal closeButton={false} show={$popup}>
   {#if $store === null}
     <div class="login-div">
       <h3 class="test">Please log in with 42 api to access the website.</h3>
@@ -166,7 +166,21 @@
       >
     </div>
   {:else if $store.twoFA === true && $store.isVerified === false}
-    <h1><button type="button" on:click={verify}>verify</button></h1>
+    <div style="  margin: 0px;
+    height:99.1vh;
+    width: 99.4vw;
+    position: relative;
+    border: 5px solid green; "><button type="button" style="  margin: 0;
+    position: absolute;
+    height:10%;
+    width:30%;
+    min-width:150px;
+    max-width:300px
+    font-size:large;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);" on:click={verify}>Verify</button></div>
   {:else}
 
     <Navbar

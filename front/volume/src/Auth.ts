@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
-import { show_popup } from "./components/Alert/content";
-
+import { content, show_popup } from "./components/Alert/content";
+import {get} from 'svelte/store'
 let _user = localStorage.getItem("user");
 export const store = writable(_user ? JSON.parse(_user) : null);
 store.subscribe((value) => {
@@ -30,15 +30,33 @@ export function login() {
   window.location.replace(API_URL + "/log/in");
 }
 
-export function verify() {
-  fetch(API_URL + "/log/verify", {
-    method: "get",
+export async function verify() {
+  let email : string;
+  await show_popup("Enter your preferred email adress:\n(defaults to 42 email)")
+  email = get(content);
+  console.log(email)
+  if (email == '')
+    return ;
+  if (email != 'ok') { 
+    const response = await fetch(API_URL + "/log/email", {
+      method: "POST",
+      mode: "cors",
+      headers: {"Content-Type": "application/json",}, 
+      credentials: "include",
+      body: JSON.stringify({email: email})
+    })
+    if (response.ok) {await show_popup("Email set",false)}
+    else {await show_popup("Couldn't set Email",false); return }
+  }
+  console.log(API_URL)
+  const response = await fetch(API_URL + "/log/verify", {
     mode: "cors",
     credentials: "include",
   });
-  show_popup(
-    "We have sent you an email to verify your account. Check the mailbox which is linked to your 42's profile."
-  , false);
+  if (response.ok) {  await show_popup("We have sent you an email to verify your account. Check your mailbox!.", false);
+  } else { await show_popup("Email doensn't seem valid",false); return }
+
+
 }
 
 export function logout() {

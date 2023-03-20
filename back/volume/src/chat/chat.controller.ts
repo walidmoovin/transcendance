@@ -145,23 +145,25 @@ export class ChatController {
       @Profile42() profile: Profile
   ): Promise<void> {
     const channel = await this.channelService.getFullChannel(id)
-    const user: User | null = await this.usersService.findUser(target.data[0])
+    const user: User | null = await this.usersService.findUser(target.userId)
     console.log(target)
     if (user == null) {
-      throw new NotFoundException(`User #${target.data[0]} not found`)
+      throw new NotFoundException(`User #${target.userId} not found`)
     }
-    if (!(await this.channelService.isAdmin(channel.id, +profile.id))) {
+    console.log((+profile.id !== channel.owner.id))
+    if (+profile.id !== channel.owner.id && !(await this.channelService.isAdmin(channel.id, +profile.id))) {
       throw new BadRequestException(
         'You are not allowed to ban users from this channel'
       )
     }
-    if (await this.channelService.isOwner(channel.id, target.data[0])) {
+    if (await this.channelService.isOwner(channel.id, target.userId)) {
       throw new BadRequestException('You cannot ban the owner of the channel')
     }
-    if (await this.channelService.isBanned(channel.id, target.data[0])) {
+    if (await this.channelService.isBanned(channel.id, target.userId)) {
       throw new BadRequestException('User is already banned from this channel')
     }
-    channel.banned.push([target.data[0], Date.now() + target.data[1] * 1000])
+    channel.banned.push([target.userId, Date.now() + target.duration * 1000])
+    console.log(channel.banned)
     await this.channelService.save(channel)
   }
 
@@ -172,22 +174,24 @@ export class ChatController {
       @Profile42() profile: Profile
   ): Promise<void> {
     const channel = await this.channelService.getFullChannel(id)
-    const user: User | null = await this.usersService.findUser(mute.data[0])
+    const user: User | null = await this.usersService.findUser(mute.userId)
     if (user == null) {
-      throw new NotFoundException(`User #${mute.data[0]} not found`)
+      throw new NotFoundException(`User #${mute.userId} not found`)
     }
     if (!(await this.channelService.isAdmin(channel.id, +profile.id))) {
       throw new BadRequestException(
         'You are not allowed to mute users from this channel'
       )
     }
-    if (await this.channelService.isOwner(channel.id, mute.data[0])) {
+    if (await this.channelService.isOwner(channel.id, mute.userId)) {
       throw new BadRequestException('You cannot mute the owner of the channel')
     }
-    if (await this.channelService.isMuted(channel.id, mute.data[0])) {
+    if (
+      (await this.channelService.getMuteDuration(channel.id, mute.userId)) > 0
+    ) {
       throw new BadRequestException('User is already muted from this channel')
     }
-    const newMute: number[] = [mute.data[0], Date.now() + mute.data[1] * 1000]
+    const newMute: number[] = [mute.userId, Date.now() + mute.duration * 1000]
     channel.muted.push(newMute)
     await this.channelService.save(channel)
   }

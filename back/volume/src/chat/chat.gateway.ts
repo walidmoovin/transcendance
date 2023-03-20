@@ -8,19 +8,18 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 // import { User } from 'users/user.entity';
-import { UsersService } from 'src/users/users.service';
-import { ChatService } from './chat.service';
-import type Message from './entity/message.entity';
-import * as bcrypt from 'bcrypt';
-import { MessageService } from './message.service';
-import { CreateMessageDto } from './dto/create-message.dto';
-import { ConnectionDto } from './dto/connection.dto';
-import { kickUserDto } from './dto/kickUser.dto';
-import ConnectedUser from './entity/connection.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import type User from 'src/users/entity/user.entity';
-
+import { UsersService } from 'src/users/users.service'
+import { ChatService } from './chat.service'
+import type Message from './entity/message.entity'
+import * as bcrypt from 'bcrypt'
+import { MessageService } from './message.service'
+import { CreateMessageDto } from './dto/create-message.dto'
+import { ConnectionDto } from './dto/connection.dto'
+import { kickUserDto } from './dto/kickUser.dto'
+import ConnectedUser from './entity/connection.entity'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import type User from 'src/users/entity/user.entity'
 @WebSocketGateway({
   cors: {
     origin: new RegExp(
@@ -132,12 +131,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     const user = (await this.userService.findUser(kick.to)) as User
     const connect = (await this.connectedUserRepository.findOneBy({
-      user: user.ftId
-    })) as ConnectedUser
-    if (connect) {
-      console.log(`kicking ${user.username} from ${channel.name} with socket ${connect.socket}`)
-      // this.server.sockets.sockets.get(connect.socket)?.emit('kicked');
-      this.server.to(connect.socket).emit('kicked')
-    }
+      user: user.id,
+    })) as ConnectedUser;
+    // await this.onLeaveChannel(socket)
+    await this.server.sockets.sockets
+      .get(connect.socket)
+      ?.leave(channel.id.toString())
+    const toKick = this.server.sockets.sockets.get(connect.socket)
+      ?.id as string
+    this.server.to(toKick).emit('userKicked')
   }
 }

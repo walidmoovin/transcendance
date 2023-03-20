@@ -5,27 +5,26 @@
   export let onOkay = () => {};
   import { content, popup } from "./content";
 
-  let value;
-  let onChange = () => {
-    $content = "";
+  let value = '';
+
+  let _onChange = () => {
+    content.set('')
   };
 
   function _onCancel() {
-    onCancel();
-    $content = "";
+    $content = ''
+    content.set('')
     popup.set(null);
   }
 
   function _onOkay() {
-    onOkay();
-    if (form)
-      $content = value;
-    else
-      $content = "ok"
+    if (form) {$content = value;}
+    else {content.set("ok")
+    }
     popup.set(null);
   }
 
-  $: onChange();
+  $: _onChange();
 </script>
 
 <div>

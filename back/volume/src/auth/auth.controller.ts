@@ -7,7 +7,8 @@ import {
   Req,
   Post,
   Body,
-  BadRequestException
+  BadRequestException,
+  Header
 } from '@nestjs/common'
 import { Response, Request } from 'express'
 
@@ -17,7 +18,9 @@ import { Profile42 } from './42.decorator'
 
 import { AuthService } from './auth.service'
 import { UsersService } from 'src/users/users.service'
-
+import { EmailDto } from 'src/chat/dto/updateUser.dto'
+import validate from 'deep-email-validator'
+import type User from 'src/users/entity/user.entity'
 const frontHost =
   process.env.HOST !== undefined && process.env.HOST !== ''
     ? process.env.HOST
@@ -47,6 +50,27 @@ export class AuthController {
   ): any {
     console.log('cookie:', request.cookies['connect.sid'])
     response.cookie('connect.sid', request.cookies['connect.sid'])
+  }
+
+  @Post('/email')
+  @UseGuards(AuthenticatedGuard)
+  async setEmail (
+    @Profile42() profile: Profile,
+      @Body() body: EmailDto
+  ): Promise<void> {
+    console.log('in')
+    const email = body.email
+    // let val
+    // try {
+    //   if (!(val = await validate(email)).valid) {
+    //     throw new BadRequestException('Email not valid')
+    //   }
+    // } catch (error) {
+    //   console.log(error, val?.reason, email)
+    // }
+    const user = (await this.usersService.findUser(+profile.id)) as User
+    user.email = email
+    await this.usersService.save(user)
   }
 
   @Get('/verify')

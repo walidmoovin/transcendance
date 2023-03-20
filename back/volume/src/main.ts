@@ -15,7 +15,10 @@ async function bootstrap (): Promise<void> {
       ? +process.env.BACK_PORT
       : 3001
   const cors = {
-    origin: new RegExp(`^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`),
+    origin: [
+      new RegExp(`^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`),
+      'http://localhost:80', 'http://localhost'
+    ],
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,

@@ -6,6 +6,10 @@
   import { APPSTATE } from "../App.svelte";
   import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
   import type User from "./Profile.svelte"; </script>
+  import type User from "./Profile.svelte";
+  import {get} from 'svelte/store'
+
+</script>
 
 <script lang="ts">
   export let channel: ChannelsType;
@@ -85,9 +89,9 @@
       setAppState(APPSTATE.CHANNELS);
     });
 
-    socket.on("kicked", () => {
-      show_popup(`You have been kicked from channel`, false);
-      setAppState(APPSTATE.HOME);
+    socket.on("userKicked", (msg: string) => {
+      show_popup(`You have been kicked from channel: ${msg}`, false);
+      setAppState(APPSTATE.CHANNELS);
     })
 
     console.log("Try to join channel: ", $store.ftId, channel.id, $content);
@@ -203,22 +207,26 @@
     });
     if (response.ok) {
       const target = await response.json();
-      await show_popup(
-        "Enter a time for which the user will be banned from this channel"
-      );
-      const duration = $content;
+      await show_popup("Enter a time for which the user will be banned from this channel")
+      const duration = $content
+      console.log(duration)
+      if (duration == '') return;
       response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
-        credentials: "include",
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ data: [target.ftId, duration] }),
-      });
+          credentials: "include",
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: [target.ftId, duration]}),
+        })
       if (response.ok) {
-        socket.emit("kickUser", {chan: channel.id, from: $store.ftId, to: target.ftId});
-      } else await show_popup(`Ban of ${username}: ${response.text}`, false);
+        await show_popup(`User banned for: ${duration} seconds`, false)
+      } else {
+        const msg = (await JSON.parse(await response.text())).message
+        await show_popup(msg, false)
+      }
+      socket.emit("kickUser", channel.id, $store.ftId, target.ftId)
     }
   };
 
@@ -267,7 +275,10 @@
   //--------------------------------------------------------------------------------/
 
   const muteUser = async (username: string) => {
-    const prompt = window.prompt("Enter mute duration in seconds");
+    await show_popup("Enter mute duration in seconds");
+    let prompt = $content;
+    if (prompt == '')
+      return ;
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
@@ -473,7 +484,6 @@
     border-radius: 5px;
     padding: 1rem;
     max-width: 90%;
-    max-height: 80vh;
     width: auto;
     margin: auto;
     display: flex;
@@ -483,7 +493,7 @@
   .messages {
     height: 400px;
     width: 100%;
-    overflow-y: auto;
+    overflow-y: scroll;
     border-bottom: 1px solid #dedede;
     padding-bottom: 1rem;
   }
