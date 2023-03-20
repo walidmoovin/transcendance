@@ -61,16 +61,23 @@
     }
     socket.on("newMessage", (msg: chatMessagesType) => {
       console.log(msg);
-      messages = [...messages, msg];
+      if (blockedUsers.findIndex((user) => msg.author.ftId === user.ftId) === -1)
+        messages = [...messages, msg];
     });
 
     socket.on("messages", (msgs: Array<chatMessagesType>) => {
       messages = msgs;
-      getMembers();
+      getMembers().then(() => {
+        console.log("You are joining channel: ", channel.name);
+        console.log(`Blocked users: ${blockedUsers.map((user) => user.username)}`);
+        console.log(`Chat members: ${chatMembers.map((user) => user.username)}`);
+        console.log(`Banned members: ${channel.banned.map((user) => user.username)}`);
+        console.log(`Muted users: ${channel.muted.map((user) => user.username)}`);
+      });
+
       usersInterval = setInterval(async () => {
         getMembers();
       }, 1000);
-      console.log("You are joining channel: ", channel.name);
     });
 
     socket.on("failedJoin", (error: string) => {

@@ -46,8 +46,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const connect = await this.connectedUserRepository.findOneBy({
       socket: socket.id,
     });
-    if (connect)
+    if (connect) {
       await this.connectedUserRepository.delete({ socket: socket.id });
+    }
     socket.disconnect();
     console.log("socket %s has disconnected", socket.id);
   }
@@ -124,7 +125,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     if (
       channel.owner.ftId !== kick.from &&
-      channel.admins.findIndex((usr) => usr.ftId === kick.from) === -1
+      channel.admins.findIndex((usr) => +usr.ftId === kick.from) === -1
     ) {
       throw new WsException("You do not have the required privileges");
     }
@@ -132,11 +133,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const connect = (await this.connectedUserRepository.findOneBy({
       user: user.ftId,
     })) as ConnectedUser;
-    console.log(`kicking ${user.username} from ${channel.name}`);
-    // await this.onLeaveChannel(socket)
-    this.server.sockets.sockets.get(connect.socket)?.emit("kicked");
-    await this.server.sockets.sockets
-      .get(connect.socket)?.leave(channel.id.toString());
-    this.server.sockets.sockets.get(connect.socket)?.disconnect();
+    if (connect) {
+      console.log(`kicking ${user.username} from ${channel.name}`);
+      this.server.sockets.sockets.get(connect.socket)?.emit("kicked");
+    }
   }
 }

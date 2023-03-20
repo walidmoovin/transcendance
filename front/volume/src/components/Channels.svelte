@@ -7,6 +7,8 @@
     isPrivate: boolean;
     password: string;
     owner: User;
+    banned: Array<User>;
+    muted: Array<User>;  
   }
   export interface chatMessagesType {
     id: number;
