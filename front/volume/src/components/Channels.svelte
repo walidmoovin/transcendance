@@ -136,8 +136,10 @@
           isPrivate: channelMode === "private",
         }),
       });
-      if (!response.ok) 
-        await show_popup("Error creating channel", false)
+      if (!response.ok)  {
+        const error = await response.json();
+        await show_popup(error.message, false)
+      }
       getChannels()
     } else await show_popup("Channel name is required", false)
   };
@@ -153,8 +155,10 @@
         mode: "cors",
       });
       if (response.ok) channels = channels.filter((c) => c.id !== id);
-      else
-        await show_popup("Error deleting channel", false)
+      else {
+        const error = await response.json();
+        await show_popup(error.message, false)
+      }
     }
   };
 
@@ -184,10 +188,12 @@
       if (response2.ok) {
         await show_popup("User invited", false)
       } else {
-        await show_popup("Error inviting user", false)
+        const error = await response2.json();
+        await show_popup(error.message, false)
       }
     } else {
-        await show_popup("Error getting user infos", false)
+      const error = await response.json();
+      await show_popup(error.message, false)
     }
   };
 
@@ -208,7 +214,8 @@
       }),
     });
     if (!response.ok) {
-        await show_popup("Error changing password", false)
+      const error = await response.json();
+      await show_popup(error.message, false)
     } else
       getChannels()
   };

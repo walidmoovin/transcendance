@@ -5,7 +5,8 @@
   import { show_popup, content } from "./Alert/content";
   import { APPSTATE } from "../App.svelte";
   import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
-  import type User from "./Profile.svelte"; </script>
+  import type User from "./Profile.svelte";
+</script>
 
 <script lang="ts">
   export let channel: ChannelsType;
@@ -168,7 +169,10 @@
       });
     }
     if (response.ok) await show_popup("User blocked", false);
-    else await show_popup("Failed to block user", false);
+    else {
+      const error = await response.json();
+      await show_popup(error.message, false);
+    }
   };
 
   //--------------------------------------------------------------------------------/
@@ -187,7 +191,10 @@
       });
     }
     if (response.ok) await show_popup("User unblocked", false);
-    else await show_popup("Failed to unblock user", false);
+    else {
+      const error = await response.json();
+      await show_popup(error.message, false);
+    }
   };
 
   //--------------------------------------------------------------------------------/
@@ -213,8 +220,12 @@
         body: JSON.stringify({ data: [target.ftId, duration] }),
       });
       if (response.ok) {
-        socket.emit("kickUser", {chan: channel.id, from: $store.ftId, to: target.ftId});
-      } else await show_popup(`Ban of ${username}: ${await response.text()}`, false);
+        await show_popup(`User banned for: ${duration} seconds`, false);
+        socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
+      } else {
+        const error = await response.json();
+        await show_popup(error.message, false);
+      }
     }
   };
 
@@ -238,7 +249,10 @@
       });
     }
     if (response.ok) await show_popup("User unbanned", false);
-    else await show_popup("Failed to unban user", false);
+    else {
+      const error = await response.json();
+      await show_popup(error.message, false);
+    }
   };
 
   //--------------------------------------------------------------------------------/
@@ -256,7 +270,8 @@
         to: target.ftId,
       });
     } else {
-      await show_popup("Failed to kick: " + await response.text(), false);
+      const error = await response.json();
+      await show_popup(error.message, false);
     }
   };
 
@@ -281,7 +296,10 @@
       });
     }
     if (response.ok) await show_popup("User muted", false);
-    else await show_popup("Failed to mute user", false);
+    else {
+      const error = await response.json()
+      await show_popup(error.message, false);
+    }
   };
 
   //--------------------------------------------------------------------------------/
@@ -306,7 +324,8 @@
     if (response.ok) {
       await show_popup("User promoted", false);
     } else {
-      await show_popup("Failed to promote user", false);
+      const error = await response.json();
+      await show_popup(error.message, false);
     }
   };
 
@@ -332,7 +351,8 @@
     if (response.ok) {
       await show_popup("User demoted", false);
     } else {
-      await show_popup("Failed to demote user", false);
+      const error = await response.json();
+      await show_popup(error.message, false);
     }
   };
 
