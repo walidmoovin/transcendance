@@ -6,7 +6,6 @@
   import { APPSTATE } from "../App.svelte";
   import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
-  import {get} from 'svelte/store'
 
 </script>
 

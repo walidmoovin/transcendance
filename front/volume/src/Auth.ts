@@ -34,7 +34,6 @@ export async function verify() {
   let email : string;
   await show_popup("Enter your preferred email adress:\n(defaults to 42 email)")
   email = get(content);
-  console.log(email)
   if (email == '')
     return ;
   if (email != 'ok') { 
@@ -50,11 +49,13 @@ export async function verify() {
   }
   console.log(API_URL)
   const response = await fetch(API_URL + "/log/verify", {
+    method: "GET",
     mode: "cors",
     credentials: "include",
   });
-  if (response.ok) {  await show_popup("We have sent you an email to verify your account. Check your mailbox!.", false);
-  } else { await show_popup("Email doensn't seem valid",false); return }
+  if (response.ok) {
+    await show_popup("We have sent you an email to verify your account. Check your mailbox!.", false);
+  } else { await show_popup("Email doensn't seem valid", false);}
 
 
 }

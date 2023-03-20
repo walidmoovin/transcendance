@@ -13,7 +13,8 @@ export async function show_popup(message, form = true) {
     await waitForCondition()
     await waitForCondition()
 }
-
+    
+await waitForCondition()
 export async function waitForCondition() {
     const unsub = popup.subscribe((value) => {val = value})
     async function checkFlag() {
