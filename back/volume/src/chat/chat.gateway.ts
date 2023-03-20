@@ -20,6 +20,7 @@ import ConnectedUser from './entity/connection.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import type User from 'src/users/entity/user.entity';
+import Channel from './entity/channel.entity';
 
 @WebSocketGateway({
   cors: {
@@ -106,8 +107,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('addMessage')
-  async onAddMessage(socket: Socket, message: CreateMessageDto): Promise<void> {
-    const channel = await this.chatService.getChannel(message.ChannelId);
+  async onAddMessage (socket: Socket, message: CreateMessageDto): Promise<void> {
+    let channel: Channel | null = null
+    channel = await this.chatService.getChannel(message.ChannelId).catch(() => { return null })
     if (channel == null) {
       this.server.to(socket.id).emit('kicked')
       throw new WsException('Channel has been removed by owner');
