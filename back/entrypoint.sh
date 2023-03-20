@@ -22,9 +22,7 @@ FT_OAUTH_CLIENT_SECRET=$FT_OAUTH_CLIENT_SECRET
 FT_OAUTH_CALLBACK_URL=$FT_OAUTH_CALLBACK_URL
 EOF
 
-if [[ $NODE_ENV == "production" ]]; then
-  npm run build && npm run start:prod;
-elif [[ $NODE_ENV == "debug" ]]; then
+if [[ $NODE_ENV == "debug" ]]; then
   npm run start:debug;
 elif [[ $NODE_ENV == "check" ]]; then
   npm run format && npm run lint; echo "=== FINISH ===";

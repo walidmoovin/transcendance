@@ -3,22 +3,19 @@ USER = gavaniwast
 
 all: clean dev
 
-prod:
-	NODE_ENV="production" docker compose -f docker-compose.yml up --build
-
 dev:
-	NODE_ENV="development" docker compose -f docker-compose.yml up --build
+	NODE_ENV="development" docker-compose up --build
 
 check:
-	NODE_ENV="check" docker compose -f docker-compose.yml run back --build
-	NODE_ENV="check" docker compose -f docker-compose.yml run front --build
-	docker compose -f docker-compose.yml down
+	NODE_ENV="check" docker-compose run back --build
+	NODE_ENV="check" docker-compose run front --build
+	docker-compose down
 	
 debug:
-	NODE_ENV="debug" BUILDKIT_PROGRESS=plain docker compose -f docker-compose.yml up --build
+	NODE_ENV="debug" BUILDKIT_PROGRESS=plain docker-compose up --build
 
 stop:
-	docker compose -f docker-compose.yml down
+	docker-compose down
 
 clean: stop
 	docker system prune -f
@@ -29,4 +26,4 @@ fclean: stop
 
 re: fclean dev
 
-.PHONY: all prod dev check debug stop clean fclean re 
+.PHONY: all dev check debug stop clean fclean re 

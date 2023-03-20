@@ -6,9 +6,7 @@ VITE_BACK_PORT=$BACK_PORT
 EOF
 
 npm install;
-if [[ $NODE_ENV == "production" ]]; then
-  npm run build && npm run preview;
-elif [[ $NODE_ENV == "development" ]]; then
+if [[ $NODE_ENV == "development" ]]; then
   npm run dev;
 elif [[ $NODE_ENV == "debug"  ]]; then
   npm run dev;
