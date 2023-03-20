@@ -150,8 +150,11 @@ export class ChatController {
     if (user == null) {
       throw new NotFoundException(`User #${target.userId} not found`)
     }
-    console.log((+profile.id !== channel.owner.id))
-    if (+profile.id !== channel.owner.id && !(await this.channelService.isAdmin(channel.id, +profile.id))) {
+    console.log(+profile.id !== channel.owner.id)
+    if (
+      +profile.id !== channel.owner.id &&
+      !(await this.channelService.isAdmin(channel.id, +profile.id))
+    ) {
       throw new BadRequestException(
         'You are not allowed to ban users from this channel'
       )
@@ -187,7 +190,7 @@ export class ChatController {
       throw new BadRequestException('You cannot mute the owner of the channel')
     }
     if (
-      (await this.channelService.getMuteDuration(channel.id, mute.userId)) > 0
+      (await this.channelService.isMuted(channel.id, mute.userId))
     ) {
       throw new BadRequestException('User is already muted from this channel')
     }
@@ -216,9 +219,9 @@ export class ChatController {
     if (!(await this.channelService.isOwner(id, +profile.id))) {
       throw new BadRequestException('You are not the owner of this channel')
     }
-    let channel = (await this.channelService.getChannel(id)) as Channel
+    const channel = (await this.channelService.getChannel(id))
     channel.password = await this.channelService.hash(data.password)
-    this.channelService.update(channel)
+    await this.channelService.update(channel)
   }
 
   @Get()
