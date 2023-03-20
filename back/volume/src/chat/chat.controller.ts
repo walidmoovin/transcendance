@@ -62,7 +62,7 @@ export class ChatController {
   ): Promise<void> {
     const channel = await this.channelService.getFullChannel(id)
     const user: User | null = await this.usersService.getFullUser(target.id)
-    if (user == null) {
+    if (user == null || target === undefined) {
       throw new NotFoundException(`User #${target.id} not found`)
     }
     if (!(await this.channelService.isUser(channel.id, +profile.id))) {
@@ -76,7 +76,6 @@ export class ChatController {
     if (await this.channelService.isBanned(channel.id, target.id)) {
       throw new BadRequestException('User is banned from this channel')
     }
-    user.socketKey = ''
     channel.users.push(user)
     await this.channelService.save(channel)
   }

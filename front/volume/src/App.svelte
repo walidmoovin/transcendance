@@ -169,7 +169,6 @@
   {:else if $store.twoFA === true && $store.isVerified === false}
     <h1><button type="button" on:click={verify}>verify</button></h1>
   {:else}
-
     <Navbar
       {clickProfile}
       {clickHistory}
@@ -177,7 +176,9 @@
       {clickChannels}
       {clickLeaderboard}
       {failedGameLogIn}
+      {gamePlaying}
     />
+
     {#if appState.includes(`${APPSTATE.CHANNELS}#`)}
       {#key appState}
         <div

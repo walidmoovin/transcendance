@@ -174,6 +174,7 @@
     });
     if (response.ok) {
       const user = await response.json();
+      console.log(user)
       const response2 = await fetch(API_URL + "/channels/" + id + "/invite", {
         credentials: "include",
         method: "POST",
@@ -182,7 +183,7 @@
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: user.ftId,
+          id: user.ftId
         }),
       });
       if (response2.ok) {

@@ -56,7 +56,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('joinChannel')
   async onJoinChannel(socket: Socket, connect: ConnectionDto): Promise<void> {
     await this.connectedUserRepository.delete({ user: connect.UserId })
-
     const channel = await this.chatService.getFullChannel(connect.ChannelId);
     if (channel.banned.findIndex((ban) => +ban[0] === +connect.UserId) !== -1) {
       this.server
