@@ -9,6 +9,7 @@
     owner: User;
     banned: Array<User>;
     muted: Array<User>;  
+    isDM: boolean;
   }
   export interface chatMessagesType {
     id: number;
@@ -229,10 +230,12 @@
                 on:click={() => removeChannel(channel.id)}
                 on:keydown={() => removeChannel(channel.id)}>🗑️</button
               >
-              {#if channel.isPrivate == true}
+              {#if channel.isPrivate == true && !channel.isDM}
                 <button on:click={() => inviteChannel(channel.id)}>🤝</button>
               {/if}
-              <button on:click={() => changePassword(channel.id)}>🔑</button>
+              {#if !channel.isDM}
+                <button on:click={() => changePassword(channel.id)}>🔑</button>
+              {/if}
             </div>
           </li>
         {/each}

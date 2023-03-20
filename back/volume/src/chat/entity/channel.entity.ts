@@ -46,4 +46,7 @@ export default class Channel {
 
   @Column('text', { array: true, default: [] })
     muted: number[][]
+
+  @Column({ default: false })
+    isDM: boolean
 }

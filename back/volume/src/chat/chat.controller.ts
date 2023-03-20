@@ -45,9 +45,7 @@ export class ChatController {
     const dms = channels.filter((channel: Channel) => {
       return (
         (channel.name === `${user.ftId}&${other.ftId}` ||
-          channel.name === `${other.ftId}&${user.ftId}`) &&
-        (channel.password === undefined || channel.password === '') &&
-        channel.isPrivate
+          channel.name === `${other.ftId}&${user.ftId}`)
       )
     })
     if (dms.length === 0) {
@@ -66,9 +64,6 @@ export class ChatController {
     const user: User | null = await this.usersService.getFullUser(target.id)
     if (user == null) {
       throw new NotFoundException(`User #${target.id} not found`)
-    }
-    if (channel.isPrivate && channel.password === '') {
-      throw new BadRequestException('You cannot add more users to a DM')
     }
     if (!(await this.channelService.isUser(channel.id, +profile.id))) {
       throw new BadRequestException(
@@ -213,6 +208,7 @@ export class ChatController {
       throw new BadRequestException('You are not the owner of this channel')
     }
     let channel = (await this.channelService.getChannel(id)) as Channel
+    if (channel.isDM) throw new BadRequestException('You cannot set a password on a DM channel')
     channel.password = await this.channelService.hash(data.password)
     this.channelService.update(channel)
   }

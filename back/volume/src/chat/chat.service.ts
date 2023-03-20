@@ -42,9 +42,7 @@ export class ChatService {
       const dmAlreadyExists = channels.find((channel: Channel) => {
         return (
           (channel.name === `${user.ftId}&${otherUser.ftId}` ||
-            channel.name === `${otherUser.ftId}&${user.ftId}`) &&
-          (channel.password === undefined || channel.password === '') &&
-          channel.isPrivate
+            channel.name === `${otherUser.ftId}&${user.ftId}`)
         )
       })
       if (dmAlreadyExists !== undefined) {
@@ -60,6 +58,7 @@ export class ChatService {
       newChannel.name = channel.name
       newChannel.isPrivate = channel.isPrivate
       newChannel.password = await this.hash(channel.password)
+      newChannel.isDM = false
       console.log("New channel: ", JSON.stringify(newChannel))
     }
     return await this.ChannelRepository.save(newChannel)
@@ -73,6 +72,7 @@ export class ChatService {
     newDM.users = [user, otherUser]
     newDM.admins = []
     newDM.name = `${user.ftId}&${otherUser.ftId}`
+    newDM.isDM = true
     return newDM
   }
 
