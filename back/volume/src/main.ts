@@ -25,7 +25,6 @@ async function bootstrap (): Promise<void> {
     allowedHeaders:
      ['Accept', 'Content-Type', 'Authorization']
   }
-  app.useGlobalPipes(new ValidationPipe())
   app.use(
     session({
       resave: false,
