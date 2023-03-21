@@ -6,7 +6,7 @@
   import type { StringDto } from "./dtos/StringDto";
   import Matchmaking from "./Matchmaking.svelte";
   import type { MatchmakingDto } from "./dtos/MatchmakingDto";
-  import { getUser, store } from "../../Auth";
+  import { API_URL, getUser, store } from "../../Auth";
   import ColorPicker from "./ColorPicker.svelte";
   import { APPSTATE } from "../../App.svelte";
   import { io, Socket } from "socket.io-client";
@@ -31,10 +31,6 @@
   export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
 
-  const SERVER_URL = `http://${import.meta.env.VITE_HOST}:${
-    import.meta.env.VITE_BACK_PORT
-  }`;
-
   export let gamePlaying: boolean;
   let connected: boolean = false;
   let loggedIn: boolean = false;
@@ -53,7 +49,7 @@
     _canvas: HTMLCanvasElement,
     _context: CanvasRenderingContext2D
   ) {
-    socket = io(SERVER_URL);
+    socket = io(API_URL);
     renderCanvas = _renderCanvas;
     canvas = _canvas;
     context = _context;

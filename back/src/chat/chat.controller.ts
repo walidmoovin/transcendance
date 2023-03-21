@@ -121,6 +121,9 @@ export class ChatController {
       @Profile42() profile: Profile
   ): Promise<void> {
     const channel = await this.channelService.getFullChannel(id)
+    if (await this.channelService.isOwner(channel.id, target.id)) {
+      throw new BadRequestException('The owner cannot be demoted')
+    }
     if (!(await this.channelService.isOwner(channel.id, +profile.id))) {
       throw new BadRequestException('You are not the owner of this channel')
     }

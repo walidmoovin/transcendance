@@ -1,3 +1,0 @@
-*.ts test=auto eol=lf
-*.svelte test=auto eol=lf
-*.sh test=auto eol=lf

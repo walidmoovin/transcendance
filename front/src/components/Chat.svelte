@@ -6,6 +6,7 @@
   import { APPSTATE } from "../App.svelte";
   import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
+
 </script>
 
 <script lang="ts">
@@ -41,9 +42,7 @@
   }
 
   onMount(async () => {
-    socket = io(
-      "http://" + (import.meta.env.VITE_HOST ?? "localhost") + ":3001"
-    );
+    socket = io(API_URL);
     socket.connect();
     await getCurrentChannel();
     if (!channel) setAppState(APPSTATE.CHANNELS);
@@ -129,7 +128,6 @@
       }
     }
   };
-
   //--------------------------------------------------------------------------------/
 
   const dispatch = createEventDispatcher();

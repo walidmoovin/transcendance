@@ -1,5 +1,12 @@
 <script lang="ts" context="module">
   import { content, show_popup } from './Alert/content'
+  import { onMount } from "svelte";
+  import { API_URL, store } from "../Auth";
+  import type User from "./Profile.svelte";
+  import { APPSTATE } from "../App.svelte";
+
+  export let appState: string;
+  export let setAppState: (newState: APPSTATE | string) => void;
 
   export interface ChannelsType {
     id: number;
@@ -16,9 +23,6 @@
     author: User;
     text: string;
   }
-  import { onMount } from "svelte";
-  import { API_URL, store } from "../Auth";
-  import type User from "./Profile.svelte";
 
   export async function formatChannelNames(channel: Array<ChannelsType>): Promise<void> {
     const res = await fetch(API_URL + "/users/all", {
@@ -60,6 +64,7 @@
       }
     }
   }
+
 </script>
 
 <script lang="ts">

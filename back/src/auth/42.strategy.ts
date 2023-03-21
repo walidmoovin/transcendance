@@ -11,13 +11,12 @@ import { User } from 'src/users/entity/user.entity'
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
   constructor (
-    private readonly configService: ConfigService,
     private readonly usersService: UsersService
   ) {
     super({
-      clientID: configService.get<string>('FT_OAUTH_CLIENT_ID'),
-      clientSecret: configService.get<string>('FT_OAUTH_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('FT_OAUTH_CALLBACK_URL'),
+      clientID: process.env.FT_OAUTH_CLIENT_ID,
+      clientSecret: process.env.FT_OAUTH_CLIENT_SECRET,
+      callbackURL: process.env.FT_OAUTH_CALLBACK_URL,
       passReqToCallback: true
     })
   }

@@ -84,7 +84,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     conUser.user = user.ftId;
     conUser.channel = channel.id;
     conUser.socket = socket.id;
-    const test = await this.connectedUserRepository.save(conUser);
+    await this.connectedUserRepository.save(conUser);
     await socket.join(channel.id.toString());
     this.server.to(socket.id).emit('messages', messages);
   }
