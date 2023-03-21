@@ -4,7 +4,7 @@ USER = gavaniwast
 all: clean dev
 
 dev:
-	NODE_ENV="development" docker-compose up --build
+	docker-compose up --build
 
 check:
 	NODE_ENV="check" docker-compose run back --build
