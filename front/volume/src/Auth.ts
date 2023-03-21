@@ -31,13 +31,11 @@ export function login() {
 }
 
 export async function verify() {
-  if (get(store).twoFa === true) return;
+  if (get(store).isVerified === true) return;
   let email : string;
   await show_popup("Enter your preferred email adress:\n(defaults to 42 email)")
   email = get(content);
-  if (email == '')
-    return ;
-  if (email != 'ok') { 
+  if (email !== undefined && email !== '' && email !== 'ok') { 
     const response = await fetch(API_URL + "/log/email", {
       method: "POST",
       mode: "cors",
@@ -47,22 +45,17 @@ export async function verify() {
     })
     if (response.ok) {await show_popup("Email set",false)}
     else {await show_popup("Couldn't set Email",false); return }
-}
-  console.log(API_URL)
+  }
   const response = await fetch(API_URL + "/log/verify", {
     method: "GET",
     mode: "cors",
     credentials: "include",
   });
-  console.log(response.ok)
   if (response.ok) {
-  console.log("here") 
-  await show_popup("We have sent you an email to verify your account. Check your mailbox!.", false);
+    await show_popup("We have sent you an email to verify your account. Check your mailbox!.", false);
   } else {
-  console.log("there") 
-  await show_popup("Email doensn't seem valid", false);}
-
-
+    await show_popup("Email doensn't seem valid", false);
+  }
 }
 
 export function logout() {

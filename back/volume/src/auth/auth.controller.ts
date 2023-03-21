@@ -66,7 +66,6 @@ export class AuthController {
 
   @Get('/verify')
   @UseGuards(AuthenticatedGuard)
-  @Redirect(`http://${frontHost}:${frontPort}`)
   async VerifyEmail (@Profile42() profile: Profile): Promise<void> {
     const ftId: number = profile.id
     const user = await this.usersService.findUser(ftId)

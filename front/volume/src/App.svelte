@@ -167,90 +167,92 @@
       >
     </div>
   {:else if $store.twoFA === true && $store.isVerified === false}
-  <div class="login-div">
-    <button class="login-button" type="button" style="width:100%;height:100%;font-size:xx-large;" on:click={verify}>Verify</button
-    >
-  </div>
+    <div class="login-div">
+      <button class="login-button" type="button" style="width:100%;height:100%;font-size:xx-large;" on:click={verify}>Verify</button
+      >
+    </div>
   {:else}
-    <Navbar 
-      {clickProfile}
-      {clickHistory}
-      {clickFriends}
-      {clickChannels}
-      {clickLeaderboard}
-      {failedGameLogIn}
-      {gamePlaying}
-    />
+    {#if !failedGameLogIn && !gamePlaying}
+      <Navbar
+        {clickProfile}
+        {clickHistory}
+        {clickFriends}
+        {clickChannels}
+        {clickLeaderboard}
+        {failedGameLogIn}
+        {gamePlaying}
+      />
 
-    {#if appState.includes(`${APPSTATE.CHANNELS}#`)}
-      {#key appState}
+      {#if appState.includes(`${APPSTATE.CHANNELS}#`)}
+        {#key appState}
+          <div
+            on:click={() => setAppState(APPSTATE.CHANNELS)}
+            on:keydown={() => setAppState(APPSTATE.CHANNELS)}
+          >
+            <Chat
+              {appState}
+              {setAppState}
+              bind:channel={selectedChannel}
+              on:view-profile={openIdProfile}
+              on:add-friend={addFriend}
+              on:invite-to-game={pong.inviteToGame}
+              on:send-message={openDirectChat}
+              on:return-home={resetAppState}
+            />
+          </div>
+        {/key}
+      {/if}
+      {#if appState.includes(APPSTATE.CHANNELS)}
         <div
-          on:click={() => setAppState(APPSTATE.CHANNELS)}
-          on:keydown={() => setAppState(APPSTATE.CHANNELS)}
+          class="{appState !== APPSTATE.CHANNELS ? 'hidden' : ''}"
+          on:click={resetAppState}
+          on:keydown={resetAppState}
         >
-          <Chat
-            {appState}
-            {setAppState}
-            bind:channel={selectedChannel}
-            on:view-profile={openIdProfile}
-            on:add-friend={addFriend}
-            on:invite-to-game={pong.inviteToGame}
-            on:send-message={openDirectChat}
-            on:return-home={resetAppState}
+          <Channels onSelectChannel={handleSelectChannel} />
+        </div>
+      {/if}
+      {#if appState === APPSTATE.LEADERBOARD}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
+          <Leaderboard />
+        </div>
+      {/if}
+      {#if appState === APPSTATE.FRIENDS}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
+          <Friends />
+        </div>
+      {/if}
+      {#if appState === APPSTATE.HISTORY}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
+          <MatchHistory />
+        </div>
+      {/if}
+      {#if appState === APPSTATE.HISTORY_ID}
+        <div
+          on:click={() => setAppState(APPSTATE.PROFILE)}
+          on:keydown={() => setAppState(APPSTATE.PROFILE)}
+        >
+          <MatchHistory username={profileUsername} />
+        </div>
+      {/if}
+      {#if appState === APPSTATE.PROFILE}
+        <div on:click={resetAppState} on:keydown={resetAppState}>
+          <Profile {resetGameConnection} {gamePlaying} bind:username={profileUsername} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
+        </div>
+      {/if}
+      {#if appState === APPSTATE.PROFILE_ID}
+        <div
+          on:click={() =>
+            setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
+          on:keydown={() =>
+            setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
+        >
+          <Profile
+            {gamePlaying}
+            bind:username={profileUsername}
+            on:view-history={() => setAppState(APPSTATE.HISTORY_ID)}
           />
         </div>
-      {/key}
-    {/if}
-    {#if appState.includes(APPSTATE.CHANNELS)}
-      <div
-        class="{appState !== APPSTATE.CHANNELS ? 'hidden' : ''}"
-        on:click={resetAppState}
-        on:keydown={resetAppState}
-      >
-        <Channels onSelectChannel={handleSelectChannel} />
-      </div>
-    {/if}
-    {#if appState === APPSTATE.LEADERBOARD}
-      <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Leaderboard />
-      </div>
-    {/if}
-    {#if appState === APPSTATE.FRIENDS}
-      <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Friends />
-      </div>
-    {/if}
-    {#if appState === APPSTATE.HISTORY}
-      <div on:click={resetAppState} on:keydown={resetAppState}>
-        <MatchHistory />
-      </div>
-    {/if}
-    {#if appState === APPSTATE.HISTORY_ID}
-      <div
-        on:click={() => setAppState(APPSTATE.PROFILE)}
-        on:keydown={() => setAppState(APPSTATE.PROFILE)}
-      >
-        <MatchHistory username={profileUsername} />
-      </div>
-    {/if}
-    {#if appState === APPSTATE.PROFILE}
-      <div on:click={resetAppState} on:keydown={resetAppState}>
-        <Profile {resetGameConnection} {gamePlaying} bind:username={profileUsername} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
-      </div>
-    {/if}
-    {#if appState === APPSTATE.PROFILE_ID}
-      <div
-        on:click={() =>
-          setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
-        on:keydown={() =>
-          setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
-      >
-        <Profile
-          {gamePlaying}
-          bind:username={profileUsername}
-          on:view-history={() => setAppState(APPSTATE.HISTORY_ID)}
-        />
-      </div>
+      {/if}
     {/if}
     <Pong bind:gamePlaying={gamePlaying} bind:this={pong} bind:failedGameLogIn={failedGameLogIn} {appState} {setAppState} bind:resetGameConnection={resetGameConnection} />
   {/if}
