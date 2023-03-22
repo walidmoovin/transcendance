@@ -325,32 +325,6 @@
 
   //--------------------------------------------------------------------------------/
 
-  const unbanUser = async (username: string) => {
-    let response = await fetch(API_URL + "/users/" + username + "/byname", {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (response.ok) {
-      const target = await response.json();
-      response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
-        credentials: "include",
-        method: "DELETE",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: target.ftId }),
-      });
-    }
-    if (response.ok) await show_popup("User unbanned", false);
-    else {
-      const error = await response.json();
-      await show_popup(error.message, false);
-    }
-  };
-
-  //--------------------------------------------------------------------------------/
-
   const kickUser = async (username: string) => {
     const response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",

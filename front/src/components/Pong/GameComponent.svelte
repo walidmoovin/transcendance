@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Socket } from "socket.io-client";
   import { onMount } from "svelte";
-    import { API_URL, getUser } from "../../Auth";
+  import { API_URL } from "../../Auth";
   import { GAME_EVENTS } from "./constants";
   import type { Game } from "./Game";
 

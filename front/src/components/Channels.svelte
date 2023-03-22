@@ -35,7 +35,7 @@
       mode: "cors",
     })
     if (res.ok) {
-      const users = await res.json()
+      const users: User[] = await res.json()
       if (users) {
         channel.forEach((channel) => {
           let channelName = channel.name;
@@ -47,7 +47,7 @@
             const secondID = parseInt(split[1]);
             let newChannelName = channelName;
 
-            users.forEach((user) => {
+            users.forEach((user: User) => {
               if (user.ftId === firstID) {
                 newChannelName = newChannelName.replace(
                   split[0],
