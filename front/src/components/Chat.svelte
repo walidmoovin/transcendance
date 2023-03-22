@@ -153,6 +153,62 @@
 
   //--------------------------------------------------------------------------------/
 
+  async function getDMs(username: string): Promise<Response | null> {
+	const res = await fetch(API_URL + "/channels/dms/" + username, {
+		credentials: "include",
+		mode: "cors",
+	})
+	if (res.ok)
+		return res;
+	else
+		return null;
+  }
+
+  async function openDirectChat() {
+    const DMUsername = selectedUser;
+    let DMChannel: Array<ChannelsType> = [];
+    const res = await getDMs(DMUsername)
+    if (res && res.ok) {
+      DMChannel = await res.json();
+      if (DMChannel.length != 0)
+        await formatChannelNames(DMChannel)
+        setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
+	  } else {
+      console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
+      fetch(API_URL + "/channels", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "none",
+          owner: $store.ftId,
+          password: "",
+          isPrivate: true,
+          isDM: true,
+          otherDMedUsername: DMUsername
+        }),
+      }).then(async () => {
+        const response = await getDMs(DMUsername)
+        if (response && response.ok) {
+            DMChannel = await response.json(); 
+            if (DMChannel.length != 0) {
+              await formatChannelNames(DMChannel)
+              setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
+            } else {
+              show_popup("Error: Couldn't create DM.", false)
+            }
+        } else {
+          show_popup("Error: Couldn't create DM.", false)
+        }
+      }).catch(() => {
+        show_popup("Error: Couldn't create DM.", false)
+      })
+    }
+  }
+
   const blockUser = async (username: string) => {
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
@@ -366,10 +422,6 @@
       socket.disconnect();
     }
   };
-  function onSendMessage() {
-    dispatch("send-message", selectedUser);
-    showProfileMenu = false;
-  }
 </script>
 
 <div class="overlay">
@@ -398,7 +450,7 @@
       >
         <ul>
           <li>
-            <button on:click={onSendMessage}> Send Message </button>
+            <button on:click={openDirectChat}> Send Message </button>
           </li>
           <li>
             <button on:click={() => dispatch("view-profile", selectedUser)}>

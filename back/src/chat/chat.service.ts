@@ -19,7 +19,7 @@ export class ChatService {
   ) {}
 
   async createChannel (channel: CreateChannelDto): Promise<Channel> {
-    const user: User | null = await this.usersService.findUser(channel.owner)
+    const user: User | null = await this.usersService.getFullUser(channel.owner)
     if (user == null) {
       throw new BadRequestException(`User #${channel.owner} not found`)
     }
@@ -29,14 +29,10 @@ export class ChatService {
       const otherUser: User | null = await this.usersService.findUserByName(
         channel.otherDMedUsername
       )
-      if (otherUser == null) {
-        throw new BadRequestException(
-          `User #${channel.otherDMedUsername} not found`
-        )
-      }
-      if (otherUser.id === user.id) {
-        throw new BadRequestException('Cannot DM yourself')
-      }
+      if (otherUser == null) throw new BadRequestException(`User #${channel.otherDMedUsername} not found`)
+      if (user.blocked.some((usr: User) => usr.ftId === otherUser.ftId)) 
+        throw new BadRequestException(`User ${otherUser.username} is blocked`)
+      if (otherUser.id === user.id) throw new BadRequestException('Cannot DM yourself')
 
       const channels = await this.getChannelsForUser(user.id)
       const dmAlreadyExists = channels.find((channel: Channel) => {
@@ -186,7 +182,7 @@ export class ChatService {
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-    return channel.admins.findIndex((user) => user.ftId === userId) !== -1
+    return channel.admins.some((user) => user.ftId === userId)
   }
 
   async isUser (id: number, userId: number): Promise<boolean> {
@@ -197,7 +193,7 @@ export class ChatService {
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-    return channel.users.findIndex((user) => user.ftId === userId) !== -1
+    return channel.users.some((user) => user.ftId === userId)
   }
 
   async isBanned (id: number, userId: number): Promise<boolean> {
@@ -207,7 +203,7 @@ export class ChatService {
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-    return channel.banned.findIndex((ban) => +ban[0] === userId) !== -1
+    return channel.banned.some((ban) => +ban[0] === userId)
   }
 
   async isMuted (id: number, userId: number): Promise<boolean> {
@@ -217,6 +213,6 @@ export class ChatService {
     if (channel === null) {
       throw new BadRequestException(`Channel #${id} not found`)
     }
-    return channel.muted.findIndex((mute) => +mute[0] === userId) !== -1
+    return channel.muted.some((mute) => +mute[0] === userId)
   }
 }
