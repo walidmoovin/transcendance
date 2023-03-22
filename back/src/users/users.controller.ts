@@ -200,7 +200,7 @@ export class UsersController {
   @Get()
   @UseGuards(AuthenticatedGuard)
   async getUser (@Profile42() profile: Profile): Promise<User | null> {
-    return await this.usersService.findUser(profile.id)
+    return await this.usersService.findUser(+profile.id)
   }
 
   @Post()
@@ -209,7 +209,7 @@ export class UsersController {
     @Body() payload: UserDto,
       @Profile42() profile: Profile
   ): Promise<User> {
-    const user = await this.usersService.findUser(profile.id)
+    const user = await this.usersService.findUser(+profile.id)
     if (user == null) throw new BadRequestException('User not found.')
     await this.usersService.update(user, payload)
     return user

@@ -22,8 +22,10 @@ export class CreateChannelDto {
     isPrivate: boolean
 
   @IsBoolean()
+  @IsOptional()
     isDM: boolean
 
   @IsString()
+  @IsOptional()
     otherDMedUsername: string
 }

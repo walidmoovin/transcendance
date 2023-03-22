@@ -20,12 +20,12 @@
   import type { UserDto } from "./dtos/user.dto";
 
   export let username: string = $store.username;
+  export let email: string = $store.email;
   export let gamePlaying: boolean;
   export let resetGameConnection: () => void = () => {};
 
   let edit: boolean = true;
   let user: Player = $store;
-  let newUsername: string = $store.username;
 
   let avatarForm: HTMLFormElement;
 
@@ -44,13 +44,10 @@
   });
 
   const dispatch = createEventDispatcher();
+
   async function handleSubmit() {
     if (gamePlaying) {
       popup.set(bind(Alert, { message: "Cannot change username while playing.", form: false }))
-      return;
-    }
-    if ($store.username === newUsername) {
-      popup.set(bind(Alert, { message: `Username is already set to ${newUsername}.`, form: false }))
       return;
     }
 
@@ -66,14 +63,20 @@
     const response = await fetch(API_URL + "/users", {
       headers: { "content-type": "application/json" },
       method: "POST",
-      body: JSON.stringify({ username: newUsername }),
+      body: JSON.stringify({ 
+        username: username,
+        email: email
+      }),
       credentials: "include",
     });
     if (response.ok) {
-      $store.username = newUsername;
-      username = newUsername;
-      popup.set(bind(Alert, { message: "Succefully changed username.", form: false }))
+      $store.username = username;
+      $store.email = email;
+      popup.set(bind(Alert, { message: "Succefully changed informations.", form: false }))
       resetGameConnection();
+    } else {
+      const error = await response.json();
+      popup.set(bind(Alert, { message: error.message, form: false}))
     }
   }
 
@@ -138,12 +141,13 @@
     </div>
     {#if edit}
       <form
-        id="username-form"
+        id="update-form"
         class="username"
         on:submit|preventDefault={handleSubmit}
       >
-        <input type="text" id="username" bind:value={newUsername} required/>
-        <button type="submit" class="username" form="username-form"
+        <input type="text" id="username" bind:value={username} required/>
+        <input type="text" id="email" bind:value={email} required/>
+        <button type="submit" class="username" form="update-form"
           >Change</button
         >
       </form>

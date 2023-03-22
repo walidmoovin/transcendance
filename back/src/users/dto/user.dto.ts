@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsPositive, IsOptional } from 'class-validator'
+import { IsString, IsNotEmpty, IsPositive, IsOptional, IsEmail, NotContains } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 import { Express } from 'express'
@@ -8,9 +8,13 @@ export class UserDto {
   @IsOptional()
   readonly ftId: number
 
-  @IsString()
   @IsNotEmpty()
+  @NotContains(' ')
   readonly username: string
+
+  @IsEmail()
+  @IsNotEmpty()
+  readonly email: string
 
   @IsOptional()
   readonly status: string

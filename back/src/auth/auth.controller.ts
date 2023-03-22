@@ -36,19 +36,6 @@ export class AuthController {
     private readonly usersService: UsersService
   ) {}
 
-  @Post('/email')
-  @UseGuards(AuthenticatedGuard)
-  async setEmail (
-    @Profile42() profile: Profile,
-      @Body() body: EmailDto
-  ): Promise<void> {
-    const email = body.email
-    const user = (await this.usersService.getFullUser(+profile.id))
-    user.email = email
-    console.log(`email sent to ${user.email}`)
-    await this.usersService.save(user)
-  }
-
   @Get('in')
   @UseGuards(FtOauthGuard)
   ftAuth (): void {}

@@ -110,10 +110,6 @@
         await show_popup("Channel name cannot contain #", false)
       return;
     }
-    if (channels.some((chan) => chan.name === name)) {
-        await show_popup("A channel with this name already exist", false)
-      return;
-    }
     if (name) {
       if (channelMode === 'protected'){
         await show_popup("Enter a password for the new channel:", true, true)

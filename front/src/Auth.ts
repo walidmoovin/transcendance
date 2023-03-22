@@ -32,32 +32,13 @@ export function login() {
 }
 
 export async function verify() {
-  if (get(store).isVerified === true) return;
-  let email : string;
-  await show_popup("Enter your preferred email adress:\n(defaults to 42 email)")
-  email = get(content);
-  if (email !== undefined && email !== '' && email !== 'ok') {
-    const body: EmailDto = { email }
-    const response = await fetch(API_URL + "/log/email", {
-      method: "POST",
-      mode: "cors",
-      headers: {"Content-Type": "application/json",}, 
-      credentials: "include",
-      body: JSON.stringify(body)
-    })
-    if (response.ok) {await show_popup("Email set",false)}
-    else {await show_popup("Couldn't set Email",false); return }
-  }
   const response = await fetch(API_URL + "/log/verify", {
     method: "GET",
     mode: "cors",
     credentials: "include",
   });
-  if (response.ok) {
-    await show_popup("We have sent you an email to verify your account. Check your mailbox!.", false);
-  } else {
-    await show_popup("Email doensn't seem valid", false);
-  }
+  if (response.ok)
+    await show_popup(`We have sent you an email to verify your account. email: ${get(store).email} If you can't acces this mailbox, you still can contact us at vaganiwast@gmail.com to start unlocking your account.`, false);
 }
 
 export function logout() {
