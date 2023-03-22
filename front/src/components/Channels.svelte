@@ -20,10 +20,13 @@
     muted: Array<User>;  
     isDM: boolean;
   }
-  export interface chatMessagesType {
+  export interface ChatMessageServer {
     id: number;
     author: User;
     text: string;
+  }
+  export interface ChatMessage extends ChatMessageServer {
+    hidden: boolean;
   }
 
   export async function formatChannelNames(channel: Array<ChannelsType>): Promise<void> {

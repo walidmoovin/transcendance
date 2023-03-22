@@ -48,10 +48,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket: socket.id
     });
     if (connect) {
+      console.log('socket %s has disconnected', socket.id)
       await this.connectedUserRepository.delete({ user: connect.user })
     }
-    socket.disconnect()
-    console.log('socket %s has disconnected', socket.id)
   }
 
   @SubscribeMessage('joinChannel')
@@ -90,15 +89,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leaveChannel')
-  async onLeaveChannel(socket: Socket): Promise<void> {
+  async onLeaveChannel(socket: Socket): Promise<boolean> {
+    console.log('socket %s has left channel', socket.id)
+
     const connect = await this.connectedUserRepository.findOneBy({
       socket: socket.id,
     });
-    if (connect == null) return;
+    if (connect == null) return false;
     const channel = await this.chatService.getFullChannel(connect.channel);
-    socket.disconnect();
     if (connect.user === channel.owner.ftId) {
-      this.server.in(channel.id.toString()).disconnectSockets();
+      this.server.in(channel.id.toString()).emit('kicked');
       await this.chatService.removeChannel(channel.id);
     } else {
       channel.users = channel.users.filter((usr: User) => usr.ftId !== connect.user);
@@ -106,6 +106,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.chatService.save(channel);
     }
     await this.connectedUserRepository.delete({ socket: socket.id });
+    return true;
   }
 
   @SubscribeMessage('addMessage')

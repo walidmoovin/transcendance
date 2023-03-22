@@ -4,19 +4,18 @@
   import { io, Socket } from "socket.io-client";
   import { show_popup, content } from "./Alert/content";
   import { APPSTATE } from "../App.svelte";
-  import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
+  import { formatChannelNames, type ChannelsType, type ChatMessage, type ChatMessageServer } from "./Channels.svelte";
   import type User from "./Profile.svelte";
   import type { CreateChannelDto } from "./dtos/create-channel.dto";
   import type { IdDto, MuteDto } from "./dtos/updateUser.dto";
   import type { ConnectionDto } from "./dtos/connection.dto";
   import type { CreateMessageDto } from "./dtos/create-message.dto";
   import type { kickUserDto } from "./dtos/kickUser.dto";
-
 </script>
 
 <script lang="ts">
   export let channel: ChannelsType;
-  export let messages: Array<chatMessagesType> = [];
+  export let messages: Array<ChatMessage> = [];
   export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
 
@@ -67,20 +66,27 @@
       };
       socket.emit("joinChannel", data);
     }
-    socket.on("newMessage", (msg: chatMessagesType) => {
-      console.log(msg);
-      if (blockedUsers.findIndex((user) => msg.author.ftId === user.ftId) === -1)
-        messages = [...messages, msg];
+
+    socket.on("newMessage", (serverMsg: ChatMessageServer) => {
+      console.log(serverMsg);
+      const newMsg: ChatMessage = {...serverMsg, hidden: false};
+      if (blockedUsers.some((user) => newMsg.author.ftId === user.ftId))
+        newMsg.hidden = true;
+      messages = [...messages, newMsg];
     });
 
-    socket.on("messages", (msgs: Array<chatMessagesType>) => {
-      messages = msgs;
+    socket.on("messages", (msgs: Array<ChatMessageServer>) => {
       getMembers().then(() => {
         console.log("You are joining channel: ", channel.name);
         console.log(`Blocked users: ${blockedUsers.map((user) => user.username)}`);
         console.log(`Chat members: ${chatMembers.map((user) => user.username)}`);
-        console.log(`Banned members: ${channel.banned.map((user) => user.username)}`);
-        console.log(`Muted users: ${channel.muted.map((user) => user.username)}`);
+        console.log(`Banned members: ${channel.banned.map((user) => user[0])}`);
+        console.log(`Muted users: ${channel.muted.map((user) => user[0])}`);
+
+        messages = msgs.map((msg) => {
+          const hidden = blockedUsers.some((user) => msg.author.ftId === user.ftId)
+          return {...msg, hidden: hidden};
+        });
       });
 
       usersInterval = setInterval(async () => {
@@ -145,7 +151,6 @@
   function openProfile(username: string) {
     showProfileMenu = true;
     selectedUser = username;
-    showChatMembers = false;
   }
   function closeProfileMenu() {
     showProfileMenu = false;
@@ -231,6 +236,14 @@
         credentials: "include",
         mode: "cors"
       });
+
+      messages = messages.map((message) => {
+        if (message.author.username === username) {
+          message.hidden = true;
+        }
+        return message;
+      });
+      closeProfileMenu();
     }
     if (response.ok) await show_popup("User blocked", false);
     else {
@@ -252,6 +265,13 @@
         credentials: "include",
         method: "DELETE",
         mode: "cors"
+      });
+
+      messages = messages.map((message) => {
+        if (message.author.username === username) {
+          message.hidden = false;
+        }
+        return message;
       });
     }
     if (response.ok) await show_popup("User unblocked", false);
@@ -442,9 +462,8 @@
   const leaveChannel = async () => {
     await show_popup('Press "Okay" to leave this channel?', false);
     if ($content == "ok") {
-      socket.emit("leaveChannel");
-      dispatch("return-home");
-      socket.disconnect();
+      await socket.emitWithAck("leaveChannel")
+      dispatch("return-home")
     }
   };
 </script>
@@ -454,7 +473,7 @@
     <div class="messages">
       {#each messages as message}
         <p class="message">
-          {#if !blockedUsers.filter((user) => user.username == message.author).length}
+          {#if !message.hidden}
             <span
               class="message-name"
               on:click={() => openProfile(message.author.username)}
@@ -623,8 +642,7 @@
     height: 16px;
   }
 
-  .profile-menu,
-  .chatMembers {
+  .profile-menu {
     position: absolute;
     background-color: #ffffff;
     border: 1px solid #dedede;

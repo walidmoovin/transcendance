@@ -74,7 +74,7 @@ export class UsersController {
     user.blocked = user.blocked.filter((usr: User) => {
       return usr.ftId !== id
     })
-    if (lenBefore === user.blocked.length) throw new BadRequestException('User not found')
+    if (lenBefore === user.blocked.length) throw new BadRequestException('User not blocked')
     await this.usersService.save(user)
   }
 

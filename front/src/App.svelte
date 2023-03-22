@@ -11,7 +11,6 @@
     MATCHMAKING = "/matchmaking",
     PROFILE_ID = "/profile_id",
   }
-
 </script>
 
 <script lang="ts">
@@ -22,13 +21,11 @@
   import MatchHistory from "./components/MatchHistory.svelte";
   import Friends, { addFriend } from "./components/Friends.svelte";
   import Chat from "./components/Chat.svelte";
-  import Channels, { formatChannelNames, type chatMessagesType } from "./components/Channels.svelte";
+  import Channels from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
-  import { popup, show_popup } from "./components/Alert/content";
+  import { popup } from "./components/Alert/content";
   import Pong from "./components/Pong/Pong.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
-  import { API_URL } from "./Auth";
-
   import { store, getUser, login, verify } from "./Auth";
 
   // Single Page Application config

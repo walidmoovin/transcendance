@@ -59,6 +59,7 @@ export class PongService {
     await this.resultsRepository.save(result)
     await this.updatePlayer(0, result, nameWhoWon)
     await this.updatePlayer(1, result, nameWhoWon)
+    await this.usersService.getLeaderboard()
   }
 
   async getHistory (

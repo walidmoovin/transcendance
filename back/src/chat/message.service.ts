@@ -41,6 +41,6 @@ export class MessageService {
     messages.forEach((msg) => {
       msg.author.socketKey = ''
     })
-    return messages.filter((m) => !blockeds.includes(m.author.ftId))
+    return messages
   }
 }
