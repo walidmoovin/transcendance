@@ -53,7 +53,7 @@
         ChannelId: channel.id,
       });
     } else {
-      await show_popup("Channel is protected, enter password:");
+      await show_popup("Channel is protected, enter password:", true, true);
       socket.emit("joinChannel", {
         UserId: $store.ftId,
         ChannelId: channel.id,

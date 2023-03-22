@@ -1,6 +1,7 @@
 <script lang="ts">
   export let message;
   export let form = true;
+  export let passwordInput = false;
   export let onCancel = () => {};
   export let onOkay = () => {};
   import { content, popup } from "./content";
@@ -31,12 +32,21 @@
 <div>
   <h2>{message}</h2>
   {#if form === true}
-    <input
-      required
-      type="text"
-      bind:value
-      on:keydown={(e) => e.which === 13 && _onOkay()}
-    />
+    {#if passwordInput === true}
+      <input
+        required
+        type="password"
+        bind:value
+        on:keydown={(e) => e.which === 13 && _onOkay()}
+      />
+    {:else}
+      <input
+        required
+        type="text"
+        bind:value
+        on:keydown={(e) => e.which === 13 && _onOkay()}
+      />
+    {/if}
   {/if}
 
   <div class="buttons">

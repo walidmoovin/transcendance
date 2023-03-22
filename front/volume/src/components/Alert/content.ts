@@ -5,10 +5,11 @@ export const popup = writable(null)
 import { bind } from 'svelte-simple-modal';
 
 let val;
-export async function show_popup(message, form = true) {
+export async function show_popup(message, form = true, passwordInput = false) {
     popup.set(bind(Alert__SvelteComponent_, {
         message,
-        form
+        form,
+        passwordInput
     }))
     await waitForCondition()
 }

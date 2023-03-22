@@ -114,7 +114,7 @@
     }
     if (name) {
       if (channelMode === 'protected'){
-        await show_popup("Enter a password for the new channel:")
+        await show_popup("Enter a password for the new channel:", true, true)
         password = $content
         if (password == "") {
           await show_popup("Password is required #", false)
@@ -201,7 +201,7 @@
   //--------------------------------------------------------------------------------/
 
   const changePassword = async (id: number) => {
-    await show_popup("Enter the new password for this channel (leave empty to remove password) :");
+    await show_popup("Enter the new password for this channel (leave empty to remove password) :", true, true);
     let string = $content 
     const response = await fetch(API_URL + "/channels/" + id + "/password", {
       credentials: "include",
