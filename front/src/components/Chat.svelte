@@ -6,6 +6,11 @@
   import { APPSTATE } from "../App.svelte";
   import { formatChannelNames, type ChannelsType, type chatMessagesType } from "./Channels.svelte";
   import type User from "./Profile.svelte";
+  import type { CreateChannelDto } from "./dtos/create-channel.dto";
+  import type { IdDto, MuteDto } from "./dtos/updateUser.dto";
+  import type { ConnectionDto } from "./dtos/connection.dto";
+  import type { CreateMessageDto } from "./dtos/create-message.dto";
+  import type { kickUserDto } from "./dtos/kickUser.dto";
 
 </script>
 
@@ -47,17 +52,20 @@
     await getCurrentChannel();
     if (!channel) setAppState(APPSTATE.CHANNELS);
     if (!channel.password) {
-      socket.emit("joinChannel", {
+      const data: ConnectionDto = {
         UserId: $store.ftId,
         ChannelId: channel.id,
-      });
+        pwd: "",
+      };
+      socket.emit("joinChannel", data);
     } else {
       await show_popup("Channel is protected, enter password:", true, true);
-      socket.emit("joinChannel", {
+      const data: ConnectionDto = {
         UserId: $store.ftId,
         ChannelId: channel.id,
         pwd: $content,
-      });
+      };
+      socket.emit("joinChannel", data);
     }
     socket.on("newMessage", (msg: chatMessagesType) => {
       console.log(msg);
@@ -116,11 +124,12 @@
 
   const sendMessage = () => {
     if (newText !== "") {
-      socket.emit("addMessage", {
+      const data: CreateMessageDto = {
         text: newText,
         UserId: $store.ftId,
         ChannelId: channel.id,
-      });
+      };
+      socket.emit("addMessage", data);
       newText = "";
       const messagesDiv = document.querySelector(".messages");
       if (messagesDiv) {
@@ -175,6 +184,14 @@
         setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
 	  } else {
       console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
+      const body: CreateChannelDto = {
+        name: "none",
+        owner: $store.ftId,
+        password: "",
+        isPrivate: true,
+        isDM: true,
+        otherDMedUsername: DMUsername
+      }
       fetch(API_URL + "/channels", {
         credentials: "include",
         method: "POST",
@@ -182,14 +199,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: "none",
-          owner: $store.ftId,
-          password: "",
-          isPrivate: true,
-          isDM: true,
-          otherDMedUsername: DMUsername
-        }),
+        body: JSON.stringify(body),
       }).then(async () => {
         const response = await getDMs(DMUsername)
         if (response && response.ok) {
@@ -266,6 +276,9 @@
       const duration = $content;
       if (duration == "") 
         return;
+      const body: MuteDto = {
+        data: [target.ftId, duration]
+      }
       response = await fetch(API_URL + "/channels/" + channel.id + "/ban", {
         credentials: "include",
         method: "POST",
@@ -273,11 +286,16 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: [target.ftId, duration] }),
+        body: JSON.stringify(body),
       });
       if (response.ok) {
         await show_popup(`User banned for: ${duration} seconds`, false);
-        socket.emit("kickUser", channel.id, $store.ftId, target.ftId);
+        const data: kickUserDto = {
+          chan: channel.id,
+          from: $store.ftId,
+          to: target.ftId,
+        };
+        socket.emit("kickUser", data);
       } else {
          const error = await response.json();
         await show_popup(error.message, false)
@@ -320,11 +338,12 @@
     });
     if (response.ok) {
       const target = await response.json();
-      socket.emit("kickUser", {
+      const data: kickUserDto = {
         chan: channel.id,
         from: $store.ftId,
         to: target.ftId,
-      });
+      };
+      socket.emit("kickUser", data);
     } else {
       const error = await response.json();
       await show_popup(error.message, false);
@@ -341,6 +360,9 @@
     });
     const target = await response.json();
     if (response.ok) {
+      const body: MuteDto = {
+        data: [target.ftId, +$content]
+      }
       response = await fetch(API_URL + "/channels/" + channel.id + "/mute", {
         credentials: "include",
         method: "POST",
@@ -348,7 +370,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: [target.ftId, +$content] }),
+        body: JSON.stringify(body),
       });
     }
     if (response.ok) await show_popup("User muted", false);
@@ -367,6 +389,9 @@
     });
     if (response.ok) {
       const target = await response.json();
+      const body: IdDto = {
+        id: target.ftId
+      }
       response = await fetch(API_URL + "/channels/" + channel.id + "/admin", {
         credentials: "include",
         method: "POST",
@@ -374,7 +399,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: target.ftId }),
+        body: JSON.stringify(body),
       });
     }
     if (response.ok) {

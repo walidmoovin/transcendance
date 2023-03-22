@@ -40,6 +40,7 @@ async function bootstrap (): Promise<void> {
   app.use(passport.session())
   app.enableCors(cors)
   app.useWebSocketAdapter(new IoAdapter(app))
+  app.useGlobalPipes(new ValidationPipe())
   await app.listen(port)
   logger.log(`Application listening on port ${port}`)
 }

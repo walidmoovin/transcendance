@@ -8,10 +8,6 @@ import {
 } from 'class-validator'
 
 export class CreateChannelDto {
-  @IsOptional()
-  @IsPositive()
-    id: number
-
   @IsString()
     name: string
 

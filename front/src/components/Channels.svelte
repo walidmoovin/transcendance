@@ -3,7 +3,9 @@
   import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
   import type User from "./Profile.svelte";
-  import { APPSTATE } from "../App.svelte";
+  import type { APPSTATE } from "../App.svelte";
+  import type { CreateChannelDto } from './dtos/create-channel.dto';
+  import type { IdDto, PasswordDto } from './dtos/updateUser.dto';
 
   export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
@@ -119,6 +121,14 @@
         }
       }
         name = "🚪 " + name;
+        const body: CreateChannelDto = {
+          name: name,
+          owner: $store.ftId,
+          password: password,
+          isPrivate: channelMode === "private",
+          isDM: false,
+          otherDMedUsername: "",
+        };
         const response = await fetch(API_URL + "/channels", {
         credentials: "include",
         method: "POST",
@@ -126,12 +136,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: name,
-          owner: $store.ftId,
-          password: password,
-          isPrivate: channelMode === "private",
-        }),
+        body: JSON.stringify(body),
       });
       if (!response.ok)  {
         const error = await response.json();
@@ -172,6 +177,9 @@
     if (response.ok) {
       const user = await response.json();
       console.log(user)
+      const body: IdDto = {
+        id: user.ftId
+      }
       const response2 = await fetch(API_URL + "/channels/" + id + "/invite", {
         credentials: "include",
         method: "POST",
@@ -179,9 +187,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id: user.ftId
-        }),
+        body: JSON.stringify(body),
       });
       if (response2.ok) {
         await show_popup("User invited", false)
@@ -199,7 +205,9 @@
 
   const changePassword = async (id: number) => {
     await show_popup("Enter the new password for this channel (leave empty to remove password) :", true, true);
-    let string = $content 
+    const body: PasswordDto = {
+      password: $content
+    }
     const response = await fetch(API_URL + "/channels/" + id + "/password", {
       credentials: "include",
       method: "POST",
@@ -207,9 +215,7 @@
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        password: string,
-      }),
+      body: JSON.stringify(body),
     });
     if (!response.ok) {
       const error = await response.json();

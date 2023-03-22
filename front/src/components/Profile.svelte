@@ -17,6 +17,7 @@
   import { API_URL, store, logout } from "../Auth";
   import Alert from "./Alert/Alert.svelte";
   import { popup } from "./Alert/content";
+  import type { UserDto } from "./dtos/user.dto";
 
   export let username: string = $store.username;
   export let gamePlaying: boolean;
@@ -53,7 +54,16 @@
       return;
     }
 
-    let response = await fetch(API_URL + "/users", {
+    const body: UserDto = {
+      username: newUsername,
+      ftId: $store.ftId,
+      status: $store.status,
+      authToken: $store.authToken,
+      avatar: $store.avatar,
+      isVerified: $store.isVerified
+    };
+    console.log("body:", body);
+    const response = await fetch(API_URL + "/users", {
       headers: { "content-type": "application/json" },
       method: "POST",
       body: JSON.stringify({ username: newUsername }),
