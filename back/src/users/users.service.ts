@@ -151,7 +151,7 @@ export class UsersService {
       }
     })
     if (user === null) throw new BadRequestException('User not found.')
-    if (user.friends.findIndex((friend) => friend.ftId === targetFtId) !== -1) {
+    if (user.friends.some((friend) => friend.ftId === targetFtId)) {
       return 'You are already friends.'
     }
     const target: User | null = await this.usersRepository.findOne({
@@ -165,14 +165,10 @@ export class UsersService {
     const id = user.followers.findIndex(
       (follower) => follower.ftId === targetFtId
     )
-    if (
-      target.followers.findIndex((follower) => follower.ftId === user.ftId) !==
-      -1
-    ) {
+    if (target.followers.some((follower) => follower.ftId === user.ftId)) {
       return 'Invitation already sent.'
     } else if (
-      user.followers.findIndex((follower) => follower.ftId === targetFtId) !==
-      -1
+      user.followers.some((follower) => follower.ftId === targetFtId)
     ) {
       user.friends.push(target)
       target.friends.push(user)

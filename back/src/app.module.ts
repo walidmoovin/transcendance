@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import * as Joi from 'joi'
 import { ScheduleModule } from '@nestjs/schedule'
 
 import { AuthModule } from './auth/auth.module'
@@ -13,9 +11,7 @@ import { UsersModule } from './users/users.module'
   imports: [
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: () => ({
         type: 'postgres',
         host: process.env.POSTGRES_HOST || 'localhost',
         port: (process.env.POSTGRES_PORT || 5432) as number,

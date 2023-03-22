@@ -68,63 +68,6 @@
     setAppState(APPSTATE.PROFILE_ID);
   }
   $: console.log("New profileUsername:", profileUsername)
-
-  async function getDMs(username: string): Promise<Response | null> {
-	const res = await fetch(API_URL + "/channels/dms/" + username, {
-		credentials: "include",
-		mode: "cors",
-	})
-	if (res.ok)
-		return res;
-	else
-		return null;
-  }
-
-  async function openDirectChat(event: CustomEvent<string>) {
-    const DMUsername = event.detail;
-    let DMChannel: Array<ChannelsType> = [];
-    const res = await getDMs(DMUsername)
-    if (res && res.ok) {
-      DMChannel = await res.json();
-      if (DMChannel.length != 0)
-        await formatChannelNames(DMChannel)
-        setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
-	  } else {
-      console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
-      fetch(API_URL + "/channels", {
-        credentials: "include",
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: "none",
-          owner: $store.ftId,
-          password: "",
-          isPrivate: true,
-          isDM: true,
-          otherDMedUsername: DMUsername
-        }),
-      }).then(async () => {
-        const response = await getDMs(DMUsername)
-        if (response && response.ok) {
-            DMChannel = await response.json(); 
-            if (DMChannel.length != 0) {
-              await formatChannelNames(DMChannel)
-              setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
-            } else {
-              show_popup("Error: Couldn't create DM.", false)
-            }
-        } else {
-          show_popup("Error: Couldn't create DM.", false)
-        }
-      }).catch(() => {
-        show_popup("Error: Couldn't create DM.", false)
-      })
-    }
-  }
-
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);
   }
@@ -196,7 +139,6 @@
               on:view-profile={openIdProfile}
               on:add-friend={addFriend}
               on:invite-to-game={pong.inviteToGame}
-              on:send-message={openDirectChat}
               on:return-home={resetAppState}
             />
           </div>

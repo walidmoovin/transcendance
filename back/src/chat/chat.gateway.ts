@@ -58,7 +58,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async onJoinChannel(socket: Socket, connect: ConnectionDto): Promise<void> {
     await this.connectedUserRepository.delete({ user: connect.UserId })
     const channel = await this.chatService.getFullChannel(connect.ChannelId);
-    if (channel.banned.findIndex((ban) => +ban[0] === +connect.UserId) !== -1) {
+    if (channel.banned.some((ban) => +ban[0] === +connect.UserId)) {
       this.server
         .to(socket.id)
         .emit('failedJoin', 'You are banned from this channel');
@@ -101,7 +101,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server.in(channel.id.toString()).disconnectSockets();
       await this.chatService.removeChannel(channel.id);
     } else {
-      channel.users = channel.users.filter((e) => e.ftId !== connect.user);
+      channel.users = channel.users.filter((usr: User) => usr.ftId !== connect.user);
+      channel.admins = channel.admins.filter((usr: User) => usr.ftId !== connect.user);
+      await this.chatService.save(channel);
     }
     await this.connectedUserRepository.delete({ socket: socket.id });
   }
@@ -131,7 +133,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     if (
       channel.owner.ftId !== kick.from &&
-      channel.admins.findIndex((usr) => +usr.ftId === kick.from) === -1
+      !channel.admins.some((usr) => +usr.ftId === kick.from)
     ) {
       throw new WsException('You do not have the required privileges')
     }
