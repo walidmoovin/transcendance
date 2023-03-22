@@ -12,13 +12,17 @@
   import { io, Socket } from "socket.io-client";
   import type { GameUpdate } from "./dtos/GameUpdate";
   import type { GameInfo } from "./dtos/GameInfo";
-  import { popup } from "../Alert/content";
+  import { popup, show_popup } from "../Alert/content";
   import Alert from "../Alert/Alert.svelte";
   import { bind } from 'svelte-simple-modal';
 
   export function inviteToGame(event: CustomEvent<string>) {
-    setAppState(APPSTATE.CREATE_GAME);
     invitedUsername = event.detail;
+    if ($store.username ===  invitedUsername) {
+      show_popup("You can't invite yourself to a game.", false);
+    } else {
+      setAppState(APPSTATE.CREATE_GAME);
+    }
   }
 
   export function resetGameConnection() {

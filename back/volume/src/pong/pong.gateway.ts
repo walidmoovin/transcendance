@@ -20,6 +20,7 @@ import { MatchmakingQueue } from './game/MatchmakingQueue'
 import { MatchmakingDtoValidated } from './dtos/MatchmakingDtoValidated'
 import { PongService } from './pong.service'
 import { UsersService } from 'src/users/users.service'
+import type User from 'src/users/entity/user.entity'
 
 @WebSocketGateway({
   cors: { origin: new RegExp(`^(http|ws)://${process.env.HOST ?? 'localhost'}(:\\d+)?$`) }
@@ -65,8 +66,33 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       @MessageBody('socketKey') socketKey: StringDtoValidated
   ): Promise<{ event: string, data: boolean }> {
     let succeeded: boolean = false
-    const user = await this.usersService.findUserByName(playerName.value)
-    // console.log(socketKey.value, user?.socketKey)
+    let user: User | null = null
+    try {
+      user = await this.usersService.findUserByName(playerName.value)
+    } catch (e) {
+      console.log('Failed to register player', playerName.value)
+    }
+
+    // Check that socket key is not already registered
+    for (const [socket, name] of this.socketToPlayerName) {
+      try {
+        const _user: User = await this.usersService.findUserByName(name)
+        if (_user.socketKey === socketKey.value) {
+          console.log('Failed to register player', playerName.value, '(socket key already registered)')
+        }
+      } catch (e) {
+        // User does not exist anymore, unregister it
+        console.log('Disconnected player', name)
+        this.socketToPlayerName.delete(socket)
+        const game: Game | undefined = this.games.playerGame(name)
+        if (game !== undefined) {
+          game.stop(name)
+        }
+        this.matchmakingQueue.removePlayer(name)
+        this.socketToPlayerName.delete(client)
+      }
+    }
+
     if (
       user !== null &&
       user.socketKey === socketKey.value &&

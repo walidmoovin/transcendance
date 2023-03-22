@@ -10,6 +10,7 @@
   import type { GameCreationDto } from "./dtos/GameCreationDto";
   import { store } from "../../Auth";
   import type { Socket } from "socket.io-client";
+  import { show_popup } from "../Alert/content";
 
   export let socket: Socket;
   export let invitedUsername: string;
@@ -19,6 +20,10 @@
   let initialBallSpeedY: number = DEFAULT_BALL_INITIAL_SPEED.y;
 
   function createGame() {
+    if ($store.username === invitedUsername) {
+      show_popup("You can't invite yourself to a game.", false);
+      return;
+    }
     const data: GameCreationDto = {
       playerNames: [$store.username, invitedUsername],
       map,
