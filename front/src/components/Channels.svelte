@@ -73,14 +73,6 @@
   let channelMode = "";
   const channelOptions = ["public", "private", "protected"];
 
-  const checkNamesChannel= (name : string) => {
-    channels.forEach((e) => {
-      if (e.name == name)
-        return false;
-    });
-    return true;
-  }
-
   const getChannels = async () => {
     const res = await fetch(API_URL + "/channels", {
       credentials: "include",
@@ -113,8 +105,8 @@
         await show_popup("Channel name cannot contain #", false)
       return;
     }
-    if (!checkNamesChannel(name)) {
-        await show_popup("User may not have access", false)
+    if (channels.some((chan) => chan.name === name)) {
+        await show_popup("A channel with this name already exist", false)
       return;
     }
     if (name) {
