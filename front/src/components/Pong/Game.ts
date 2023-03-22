@@ -7,8 +7,7 @@ import { Paddle } from "./Paddle";
 import { Player } from "./Player";
 import { Point, Rect } from "./utils";
 
-const FPS = import.meta.env.VITE_FRONT_FPS;
-
+const FPS = +import.meta.env.VITE_FRONT_FPS || 60;
 export class Game {
   renderCanvas: HTMLCanvasElement;
   canvas: HTMLCanvasElement;

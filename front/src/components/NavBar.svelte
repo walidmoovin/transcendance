@@ -1,9 +1,5 @@
 <script lang="ts">
-  let api =
-    "http://" +
-    import.meta.env.VITE_HOST +
-    ":" +
-    import.meta.env.VITE_BACK_PORT;
+  import { API_URL } from "../Auth";
 
   export let links = [
     { text: "Home" },
@@ -54,7 +50,7 @@
         {#if link.text === "Profile"}
           <li>
             <button on:click={clickProfile}>
-              <img src={api + "/users/avatar"} alt="avatar" />
+              <img src={API_URL + "/users/avatar"} alt="avatar" />
             </button>
           </li>
         {/if}

@@ -4,27 +4,27 @@ USER = gavaniwast
 all: clean dev
 
 prod:
-	sudo NODE_ENV="production" docker compose -f docker-compose.yml up --build
+	sudo docker-compose up --build
 
 dev:
-	sudo NODE_ENV="development" docker compose -f docker-compose.yml up --build
+	sudo docker-compose up --build
 
 check:
-	sudo NODE_ENV="check" docker compose -f docker-compose.yml run back --build
-	sudo NODE_ENV="check" docker compose -f docker-compose.yml run front --build
+	sudo NODE_ENV="check" docker-compose run back --build
+	sudo NODE_ENV="check" docker-compose run front --build
 	sudo docker compose -f docker-compose.yml down 
 
 debug:
-	sudo NODE_ENV="debug" BUILDKIT_PROGRESS=plain docker compose -f docker-compose.yml up --build
+	sudo NODE_ENV="debug" BUILDKIT_PROGRESS=plain docker-compose up --build
 
 stop:
-	sudo docker compose -f docker-compose.yml down
+	sudo docker-compose down
 
 clean: stop
 	sudo docker system prune -f
 
 fclean: stop
-	rm */volume/node_modules
+	sudo rm -rf */node_modules
 	sudo docker system prune -af --volumes
 
 re: fclean dev
