@@ -5,18 +5,17 @@
   import { show_popup, content } from "./Alert/content";
   import { APPSTATE } from "../App.svelte";
   import type User from "./Profile.svelte";
-  import type { ChannelsType, ChatMessage, ChatMessageServer } from "./Channels.svelte";
+  import { formatChannelNames, type ChannelsType, type ChatMessage, type ChatMessageServer } from "./Channels.svelte";
   import type { IdDto, MuteDto } from "./dtos/updateUser.dto";
   import type { ConnectionDto } from "./dtos/connection.dto";
   import type { CreateMessageDto } from "./dtos/create-message.dto";
   import type { kickUserDto } from "./dtos/kickUser.dto";
-
 </script>
 
 <script lang="ts">
-  
   export let channel: ChannelsType;
   export let messages: Array<ChatMessage> = [];
+  export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
 
   let socket: Socket;
@@ -25,10 +24,30 @@
   let blockedUsers: Array<User> = [];
   let chatMembers: Array<User> = [];
 
+  async function getCurrentChannel() {
+    const res = await fetch(API_URL + "/channels", {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (res.ok) {
+      const newChannels: Array<ChannelsType> = await res.json();
+      await formatChannelNames(newChannels);
+      newChannels.forEach((newChannel) => {
+        const urlSplit = appState.split("#", 2)
+        if (urlSplit.length > 1) {
+          const currentChannelName = appState.split("#", 2)[1];
+          if (newChannel.name === currentChannelName) {
+            channel = newChannel;
+          }
+        }
+      });
+    }
+  }
+
   onMount(async () => {
     socket = io(API_URL);
     socket.connect();
-    await getFullChannel();
+    await getCurrentChannel();
     if (!channel) setAppState(APPSTATE.CHANNELS);
     if (!channel.password) {
       const data: ConnectionDto = {
@@ -39,10 +58,15 @@
       socket.emit("joinChannel", data);
     } else {
       await show_popup("Channel is protected, enter password:", true, true);
+      const password = $content
+      if (password === "") {
+        setAppState(APPSTATE.CHANNELS);
+        return
+      }
       const data: ConnectionDto = {
         UserId: $store.ftId,
         ChannelId: channel.id,
-        pwd: $content,
+        pwd: password,
       };
       socket.emit("joinChannel", data);
     }
@@ -84,21 +108,11 @@
       setAppState(APPSTATE.HOME);
     })
 
-    console.log("Try to join channel: ", $store.ftId, channel.id, $content);
+    console.log("Try to join channel: ", $store.ftId, channel.id);
   });
 
   const dispatch = createEventDispatcher();
 
-  async function getFullChannel() {
-    const response = await fetch(API_URL + "/channels/" + channel.id, {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (response.ok)
-      channel = await response.json();
-    else
-      console.log("Error while refreshing channel");
-  }
   async function getMembers() {
     if (!channel) return;
     let res = await fetch(API_URL + "/users/blocked/", {
@@ -155,7 +169,7 @@
         "Enter a time for which the user will be banned from this channel"
       );
       const duration = $content;
-      if (duration == "") return;
+      if (duration === "") return
       const body: MuteDto = {
         data: [target.ftId, duration]
       }
@@ -208,6 +222,8 @@
 
   const muteUser = async (username: string) => {
     await show_popup("Enter mute duration in seconds");
+    const muteDuration = $content;
+    if (muteDuration === "") return;
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
@@ -215,7 +231,7 @@
     const target = await response.json();
     if (response.ok) {
       const body: MuteDto = {
-        data: [target.ftId, +$content]
+        data: [target.ftId, muteDuration]
       }
       response = await fetch(API_URL + "/channels/" + channel.id + "/mute", {
         credentials: "include",
@@ -355,11 +371,8 @@
               <button on:click={() => banUser(member.username)}> ban </button>
               <button on:click={() => kickUser(member.username)}> kick </button>
               <button on:click={() => muteUser(member.username)}> mute </button>
-              {#if channel.admins.some((usr) => usr.username == member.username)}
-                <button on:click={() => removeAdminUser(member.username)}> demote </button>
-              {:else}
-                <button on:click={() => adminUser(member.username)}> promote </button>
-              {/if}
+              <button on:click={() => removeAdminUser(member.username)}> demote </button>
+              <button on:click={() => adminUser(member.username)}> promote </button>
             </p>
           </li>
         {/each}

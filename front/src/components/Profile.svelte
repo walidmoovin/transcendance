@@ -155,7 +155,7 @@
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <h3>===| <mark>{username}'s Profile</mark> |===</h3>
     <div class="profile-header">
-      {#if edit}
+      {#if !edit}
         <img src={`${API_URL}/users/${user.ftId}/avatar`} alt="avatar" class="profile-img" />
       {:else}
         <form
@@ -184,7 +184,7 @@
     <div class="profile-body">
       {#if !edit}
         <p>
-          <button on:click={() => dispatch("send-message")}>Send PM</button>
+          <button on:click={() => dispatch("send-message", username)}>Send PM</button>
           <button on:click={() => dispatch("invite-to-game", username)}>
             Invite to Game
           </button>

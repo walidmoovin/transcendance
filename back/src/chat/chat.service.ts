@@ -26,12 +26,16 @@ export class ChatService {
 
     let newChannel: Channel
     if (channel.isDM) {
+      if (channel.otherDMedUsername === undefined || channel.otherDMedUsername === null) {
+        throw new BadRequestException('No other user specified')
+      }
       const otherUser: User | null = await this.usersService.findUserByName(
         channel.otherDMedUsername
       )
       if (otherUser == null) throw new BadRequestException(`User #${channel.otherDMedUsername} not found`)
-      if (user.blocked.some((usr: User) => usr.ftId === otherUser.ftId)) 
+      if (user.blocked.some((usr: User) => usr.ftId === otherUser.ftId)) {
         throw new BadRequestException(`User ${otherUser.username} is blocked`)
+      }
       if (otherUser.id === user.id) throw new BadRequestException('Cannot DM yourself')
 
       const channels = await this.getChannelsForUser(user.id)
@@ -55,7 +59,7 @@ export class ChatService {
       newChannel.isPrivate = channel.isPrivate
       newChannel.password = await this.hash(channel.password)
       newChannel.isDM = false
-      console.log("New channel: ", JSON.stringify(newChannel))
+      console.log('New channel: ', JSON.stringify(newChannel))
     }
     return await this.ChannelRepository.save(newChannel)
   }
@@ -74,10 +78,10 @@ export class ChatService {
 
   async hash(password: string): Promise<string> {
     if (!password) return ''
-      password = await bcrypt.hash(
-        password,
-        Number(process.env.HASH_SALT)
-      )
+    password = await bcrypt.hash(
+      password,
+      Number(process.env.HASH_SALT)
+    )
     return password
   }
 
@@ -159,7 +163,7 @@ export class ChatService {
     await this.ChannelRepository.save(channel)
   }
 
-  async removeChannel(channelId: number): Promise<void> {
+  async removeChannel (channelId: number): Promise<void> {
     await this.ChannelRepository.remove(await this.getFullChannel(channelId))
   }
 

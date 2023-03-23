@@ -2,9 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { API_URL, store } from "../Auth";
   import { show_popup } from "./Alert/content";
-  import type { APPSTATE } from "../App.svelte";
   import { createEventDispatcher } from "svelte";
-
 
   export interface Friend {
     username: string;
@@ -33,10 +31,8 @@
 </script>
 
 <script lang="ts">
-
   const dispatch = createEventDispatcher();
 
-  export let setAppState: (newState: APPSTATE | string) => void;
   let friends: Friend[] = [];
   let invits: Friend[] = [];
   let friendsInterval: ReturnType<typeof setInterval>;

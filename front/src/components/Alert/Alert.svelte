@@ -1,15 +1,23 @@
 <script lang="ts">
+  import { onMount, onDestroy } from "svelte";
+    import { get } from "svelte/store";
+  import { content, popup } from "./content";
+
   export let message: string;
   export let form = true;
   export let passwordInput = false;
   export let onCancel = () => {};
   export let onOkay = () => {};
-  import { content, popup } from "./content";
 
-  let value = '';
-  let onChange = () => {
+  let value = "";
+
+  onMount(() => {
     $content = "";
-  };
+  });
+
+  onDestroy(() => {
+    popup.set(null);
+  });
 
   function _onCancel() {
     onCancel();
@@ -19,14 +27,10 @@
 
   function _onOkay() {
     onOkay();
-    if (form)
-      $content = value;
-    else
-      $content = "ok"
+    if (form) $content = value;
+    else $content = "ok";
     popup.set(null);
   }
-
-  $: onChange();
 </script>
 
 <div>
@@ -64,8 +68,7 @@
   input {
     width: 100%;
     text-align: center;
-    word-wrap:break-word;
-
+    word-wrap: break-word;
   }
 
   .buttons {

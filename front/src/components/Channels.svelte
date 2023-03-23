@@ -1,15 +1,10 @@
 <script lang="ts" context="module">
-  import { content, show_popup } from './Alert/content'
-  import { onMount } from "svelte";
-  import { get } from "svelte/store"
+  import { content, popup, show_popup } from './Alert/content'
+  import { onMount, tick } from "svelte";
   import { API_URL, store } from "../Auth";
   import type User from "./Profile.svelte";
-  import { APPSTATE } from "../App.svelte";
   import type { CreateChannelDto } from './dtos/create-channel.dto';
   import type { IdDto, PasswordDto } from './dtos/updateUser.dto';
-
-  export let appState: string;
-  export let setAppState: (newState: APPSTATE | string) => void;
 
   export interface ChannelsType {
     id: number;
@@ -73,64 +68,15 @@
   }
 
   export async function getDMs(username: string): Promise<Response | null> {
-	const res = await fetch(API_URL + "/channels/dms/" + username, {
-		credentials: "include",
-		mode: "cors",
-	})
-	if (res.ok)
-		return res;
-	else
-		return null;
+    const res = await fetch(API_URL + "/channels/dms/" + username, {
+      credentials: "include",
+      mode: "cors",
+    })
+    if (res.ok)
+      return res;
+    else
+      return null;
   }
-
-  export async function openDirectChat(event: CustomEvent<string>) {
-    const DMUsername = event.detail;
-    let DMChannel: Array<ChannelsType> = [];
-    const res = await getDMs(DMUsername)
-    if (res && res.ok) {
-      DMChannel = await res.json();
-      if (DMChannel.length != 0)
-        await formatChannelNames(DMChannel)
-        setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
-	  } else {
-      console.log("Creating DMChannel: " + get(store).username + "&" + DMUsername)
-      const body: CreateChannelDto = {
-        name: "none",
-        owner: get(store).ftId,
-        password: "",
-        isPrivate: true,
-        isDM: true,
-        otherDMedUsername: DMUsername
-      }
-      fetch(API_URL + "/channels", {
-        credentials: "include",
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      }).then(async () => {
-        const response = await getDMs(DMUsername)
-        if (response && response.ok) {
-            DMChannel = await response.json(); 
-            if (DMChannel.length != 0) {
-              await formatChannelNames(DMChannel)
-              setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
-            } else {
-              show_popup("Error: Couldn't create DM.", false)
-            }
-        } else {
-          show_popup("Error: Couldn't create DM.", false)
-        }
-      }).catch(() => {
-        show_popup("Error: Couldn't create DM.", false)
-      })
-    }
-  }
-
-
-
 </script>
 
 <script lang="ts">
@@ -162,48 +108,49 @@
   export let onSelectChannel: (channel: ChannelsType) => void;
 
   const createChannel = async () => {
-    let name: string;
     let password = "";
     await show_popup("Enter a name for the new channel:")
-    name = $content;
-
+    const name: string = $content;
+    if (name === "") return;
     if (name.includes("#")) {
-        await show_popup("Channel name cannot contain #", false)
+      await show_popup("Channel name cannot contain #", false)
       return;
     }
-    if (name) {
-      if (channelMode === 'protected'){
-        await show_popup("Enter a password for the new channel:", true, true)
-        password = $content
-        if (password == "") {
-          await show_popup("Password is required #", false)
-          return ;
-        }
+    if (channels.some((chan) => chan.name === name)) {
+        await show_popup("A channel with this name already exist", false)
+      return;
+    }
+    if (channelMode === 'protected'){
+      await show_popup("Enter a password for the new channel:", true, true)
+      password = $content
+      if (password == "") {
+        await show_popup("Password is required #", false)
+        return ;
       }
-        name = "🚪 " + name;
-        const body: CreateChannelDto = {
-          name: name,
-          owner: $store.ftId,
-          password: password,
-          isPrivate: channelMode === "private",
-          isDM: false,
-          otherDMedUsername: "",
-        };
-        const response = await fetch(API_URL + "/channels", {
-        credentials: "include",
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok)  {
-        const error = await response.json();
-        await show_popup(error.message, false)
-      }
-      getChannels()
-    } else await show_popup("Channel name is required", false)
+    }
+    const editedName = "🚪 " + name;
+    const body: CreateChannelDto = {
+      name: editedName,
+      owner: $store.ftId,
+      password: password,
+      isPrivate: channelMode === "private",
+      isDM: false,
+      otherDMedUsername: "",
+    };
+    const response = await fetch(API_URL + "/channels", {
+      credentials: "include",
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok)  {
+      const error = await response.json();
+      await show_popup(error.message, false)
+    }
+    getChannels()
   };
 
   //--------------------------------------------------------------------------------/
@@ -228,8 +175,9 @@
 
   const inviteChannel = async (id: number) => {
     await show_popup("Enter the username of the user you want to invite");
-    let string = $content
-    const response = await fetch(API_URL + "/users/" + string + "/byname", {
+    const username = $content;
+    if (username === "") return;
+    const response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       method: "GET",
       mode: "cors",
@@ -265,8 +213,10 @@
 
   const changePassword = async (id: number) => {
     await show_popup("Enter the new password for this channel (leave empty to remove password) :", true, true);
+    const newPassword = $content;
+    if (newPassword === "") return;
     const body: PasswordDto = {
-      password: $content
+      password: newPassword
     }
     const response = await fetch(API_URL + "/channels/" + id + "/password", {
       credentials: "include",
@@ -280,8 +230,10 @@
     if (!response.ok) {
       const error = await response.json();
       await show_popup(error.message, false)
-    } else
+    } else {
       getChannels()
+      await show_popup("Password updated", false)
+    }
   };
 
   //--------------------------------------------------------------------------------/

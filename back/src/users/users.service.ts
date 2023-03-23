@@ -32,6 +32,7 @@ export class UsersService {
   // WARNING: socketKey isn't removed here. it must be done before
   // any return from it in a route.
   async findUserByName (username: string): Promise<User> {
+    if (username === undefined || username === null) throw new BadRequestException('No username specified.')
     const user = await this.usersRepository.findOne({
       where: { username },
       relations: { results: true }
@@ -132,8 +133,8 @@ export class UsersService {
       }
     })
     let r = 1
-    let ret: Array<User> = [] 
-    for (let usr of leaderboard.filter((user) => user.matchs !== 0)) {
+    const ret: User[] = []
+    for (const usr of leaderboard.filter((user) => user.matchs !== 0)) {
       usr.rank = r++
       await this.usersRepository.save(usr)
       ret.push(usr)

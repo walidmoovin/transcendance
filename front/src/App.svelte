@@ -21,33 +21,81 @@
   import MatchHistory from "./components/MatchHistory.svelte";
   import Friends, { addFriend } from "./components/Friends.svelte";
   import Chat from "./components/Chat.svelte";
-  import Channels, {openDirectChat} from "./components/Channels.svelte";
+  import Channels, { formatChannelNames, getDMs } from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
-  import { popup } from "./components/Alert/content";
+  import { popup, show_popup } from "./components/Alert/content";
   import Pong from "./components/Pong/Pong.svelte";
   import type { ChannelsType } from "./components/Channels.svelte";
-  import { store, getUser, login, verify } from "./Auth";
+  import { store, getUser, login, verify, API_URL } from "./Auth";
+  import { get } from "svelte/store";
+  import type { CreateChannelDto } from "./components/dtos/create-channel.dto";
+
+  async function openDirectChat(event: CustomEvent<string>) {
+    const DMUsername = event.detail;
+    let DMChannel: Array<ChannelsType> = [];
+    const res = await getDMs(DMUsername)
+    if (res && res.ok) {
+      DMChannel = await res.json();
+      if (DMChannel.length != 0)
+        await formatChannelNames(DMChannel)
+        setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
+	  } else {
+      console.log("Creating DMChannel: " + get(store).username + "&" + DMUsername)
+      const body: CreateChannelDto = {
+        name: "none",
+        owner: get(store).ftId,
+        password: "",
+        isPrivate: true,
+        isDM: true,
+        otherDMedUsername: DMUsername
+      }
+      fetch(API_URL + "/channels", {
+        credentials: "include",
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }).then(async () => {
+        const response = await getDMs(DMUsername)
+        if (response && response.ok) {
+            DMChannel = await response.json(); 
+            if (DMChannel.length != 0) {
+              await formatChannelNames(DMChannel)
+              setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
+            } else {
+              show_popup("Error: Couldn't create DM.", false)
+            }
+        } else {
+          show_popup("Error: Couldn't create DM.", false)
+        }
+      }).catch(() => {
+        show_popup("Error: Couldn't create DM.", false)
+      })
+    }
+  }
 
   // Single Page Application config
   let appState: string = APPSTATE.HOME;
-  history.replaceState({ appState: "" }, "", "/");
-  window.onpopstate = (e: PopStateEvent) => {
-    if (e.state) {
-      appState = e.state.appState;
-    }
-  };
+  
+  function setAppState(newState: APPSTATE | string) {
+    if (newState === appState) return;
+    history.pushState({ appState: newState, prevState: appState }, "", newState);
+    appState = newState;
+  }
 
   function resetAppState() {
     setAppState(APPSTATE.HOME);
   }
 
-  function setAppState(newState: APPSTATE | string) {
-  if (newState === appState) return;
-    history.pushState({ appState: newState, prevState: appState }, "", newState);
-    appState = newState;
-  }
-
   onMount(() => {
+    history.replaceState({ appState: "" }, "", "/");
+    window.onpopstate = (e: PopStateEvent) => {
+      if (e.state) {
+        appState = e.state.appState;
+      }
+    };
     getUser();
   });
   setInterval(() => {
@@ -94,7 +142,13 @@
 </script>
 
 <div>
-  <Modal show={$popup}>
+  <Modal show={$popup} transitionWindowProps={
+      {
+        duration: 200,
+        easing: (t) => t * (2 - t),
+      }
+    }
+  >
   {#if $store === null}
     <div class="login-div">
       <h3 class="test">Please log in with 42 api to access the website.</h3>
@@ -130,6 +184,7 @@
             on:keydown={() => setAppState(APPSTATE.CHANNELS)}
           >
             <Chat
+              {appState}
               {setAppState}
               bind:channel={selectedChannel}
               on:view-profile={openIdProfile}
@@ -157,7 +212,6 @@
       {#if appState == APPSTATE.FRIENDS}
         <div on:click={resetAppState} on:keydown={resetAppState}>
           <Friends 
-            {setAppState}
             on:view-profile={openIdProfile}
             on:invite-to-game={pong.inviteToGame}
           />
