@@ -52,6 +52,7 @@
     if (!channel.password) {
       const data: ConnectionDto = {
         UserId: $store.ftId,
+        socketKey: $store.socketKey,
         ChannelId: channel.id,
         pwd: "",
       };
@@ -65,6 +66,7 @@
       }
       const data: ConnectionDto = {
         UserId: $store.ftId,
+        socketKey: $store.socketKey,
         ChannelId: channel.id,
         pwd: password,
       };

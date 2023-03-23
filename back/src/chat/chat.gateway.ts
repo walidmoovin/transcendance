@@ -64,6 +64,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException('You are banned from this channel');
     }
     const user = await this.userService.getFullUser(connect.UserId);
+    if (connect.socketKey !== user.socketKey) {
+      this.server.to(socket.id).emit('failedJoin', 'Wrong socket key');
+      throw new WsException('Wrong socket key');
+    }
     user.socketKey = '';
     if (channel.password && channel.password !== '') {
       if (
@@ -89,13 +93,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leaveChannel')
-  async onLeaveChannel(socket: Socket): Promise<boolean> {
-    console.log('socket %s has left channel', socket.id)
-
+  async onLeaveChannel(socket: Socket): Promise<void> {
     const connect = await this.connectedUserRepository.findOneBy({
       socket: socket.id,
     });
-    if (connect == null) return false;
+    if (connect == null) throw new WsException('You must be connected to the channel');
     const channel = await this.chatService.getFullChannel(connect.channel);
     if (connect.user === channel.owner.ftId) {
       this.server.in(channel.id.toString()).emit('deleted');
@@ -106,11 +108,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.chatService.save(channel);
     }
     await this.connectedUserRepository.delete({ socket: socket.id });
-    return true;
+    console.log('socket %s has left channel', socket.id)
   }
 
   @SubscribeMessage('addMessage')
   async onAddMessage (socket: Socket, message: CreateMessageDto): Promise<void> {
+    const connect = await this.connectedUserRepository.findOneBy({
+      socket: socket.id,
+    });
+    if (connect == null) throw new WsException('You must be connected to the channel');
     let channel: Channel | null = null
     channel = await this.chatService.getChannel(message.ChannelId).catch(() => { return null })
     if (channel == null) {
@@ -128,6 +134,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('kickUser')
   async onKickUser(socket: Socket, kick: kickUserDto): Promise<void> {
+    let connect = (await this.connectedUserRepository.findOneBy({
+      socket: socket.id
+    }))
+    if (connect === null) 
+      throw new WsException('You must be connected to the channel')
     const channel = await this.chatService.getFullChannel(kick.chan);
     if (channel.owner.ftId === kick.to) {
       throw new WsException('You cannot kick the owner of a channel');
@@ -138,13 +149,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) {
       throw new WsException('You do not have the required privileges')
     }
-    const user = (await this.userService.findUser(kick.to)) as User
-    const connect = (await this.connectedUserRepository.findOneBy({
-      user: user.ftId
+    const target = (await this.userService.findUser(kick.to)) as User
+    connect = (await this.connectedUserRepository.findOneBy({
+      user: target.ftId
     }))
     if (connect !== null) {
-      console.log(`kicking ${user.username} from ${channel.name} with socket ${connect.socket}`)
+      console.log(`kicking ${target.username} from ${channel.name} with socket ${connect.socket}`)
       this.server.to(connect.socket).emit('kicked')
+    } else {
+      throw new WsException('Target is not connected to the channel')
     }
   }
 }
