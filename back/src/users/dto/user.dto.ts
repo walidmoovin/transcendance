@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsPositive, IsOptional, IsEmail, NotContains, MaxLength } from 'class-validator'
+import { IsNotEmpty, IsPositive, IsOptional, IsEmail, NotContains, MaxLength, IsAlphanumeric } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 import { Express } from 'express'
@@ -10,6 +10,7 @@ export class UserDto {
 
   @IsNotEmpty()
   @NotContains(' ')
+  @IsAlphanumeric()
   @MaxLength(15)
   readonly username: string
 

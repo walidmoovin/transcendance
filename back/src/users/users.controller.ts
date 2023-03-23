@@ -211,6 +211,11 @@ export class UsersController {
   ): Promise<User> {
     const user = await this.usersService.findUser(+profile.id)
     if (user == null) throw new BadRequestException('User not found.')
+    if (payload.username !== undefined) {
+      const user2: User | null = await this.usersService.findUserByName(payload.username).catch(() => null)
+      const user2ftId = user2?.ftId
+      if (user2 !== null && user2ftId !== +profile.id) throw new BadRequestException('Username already taken.')
+    }
     await this.usersService.update(user, payload)
     return user
   }

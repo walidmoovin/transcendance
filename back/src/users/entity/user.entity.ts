@@ -19,7 +19,7 @@ export class User {
   @Column({ unique: true })
     ftId: number
 
-  @Column({ unique: true, nullable: true })
+  @Column({ nullable: true })
     email: string
 
   @Column({ select: false, nullable: true })
