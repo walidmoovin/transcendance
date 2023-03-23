@@ -44,7 +44,7 @@
   function setAppState(newState: APPSTATE | string) {
   if (newState === appState) return;
     appState = newState;
-    history.pushState({ appState }, "", appState);
+    history.pushState({ appState: appState, prevState: window.location.pathname }, "", appState);
   }
 
   onMount(() => {
@@ -130,7 +130,6 @@
             on:keydown={() => setAppState(APPSTATE.CHANNELS)}
           >
             <Chat
-              {appState}
               {setAppState}
               bind:channel={selectedChannel}
               on:view-profile={openIdProfile}
@@ -155,9 +154,13 @@
           <Leaderboard />
         </div>
       {/if}
-      {#if appState === APPSTATE.FRIENDS}
+      {#if appState == APPSTATE.FRIENDS}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Friends />
+          <Friends 
+            {setAppState}
+            on:view-profile={openIdProfile}
+            on:invite-to-game={pong.inviteToGame}
+          />
         </div>
       {/if}
       {#if appState === APPSTATE.HISTORY}
@@ -180,10 +183,8 @@
       {/if}
       {#if appState === APPSTATE.PROFILE_ID}
         <div
-          on:click={() =>
-            setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
-          on:keydown={() =>
-            setAppState(APPSTATE.CHANNELS + "#" + selectedChannel.name)}
+          on:click={() => setAppState(history.state.prevState)}
+          on:keydown={() => setAppState(history.state.prevState)}
         >
           <Profile
             {gamePlaying}

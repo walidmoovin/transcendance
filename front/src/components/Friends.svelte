@@ -1,12 +1,19 @@
 <script lang="ts" context="module">
+  import { onMount, onDestroy } from "svelte";
+  import { API_URL, store } from "../Auth";
+  import { show_popup } from "./Alert/content";
+  import UsersMenu from "./UsersMenu.svelte";
+  import type { APPSTATE } from "../App.svelte";
+  import { createEventDispatcher } from "svelte";
+
   export interface Friend {
     username: string;
     status: "online" | "offline" | "in a game";
     ftId: number;
   }
+
   export async function addFriend(event: any) {
     console.log(typeof event);
-
     event.preventDefault();
     const username = event.target
       ? event.target.querySelector('input[type="text"]').value
@@ -26,13 +33,25 @@
 </script>
 
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
-  import { API_URL, store } from "../Auth";
-    import { show_popup } from "./Alert/content";
 
+  export let setAppState: (newState: APPSTATE | string) => void;
   let friends: Friend[] = [];
   let invits: Friend[] = [];
   let friendsInterval: ReturnType<typeof setInterval>;
+  const dispatch = createEventDispatcher();
+
+  onMount(() => {
+    getFriends();
+    getInvits();
+    friendsInterval = setInterval(async () => {
+      getFriends();
+      getInvits();
+    }, 5000);
+  });
+
+  onDestroy(() => {
+    clearInterval(friendsInterval);
+  });
 
   async function getFriends(): Promise<void> {
     let response = await fetch(API_URL + "/users/friends", {
@@ -49,29 +68,49 @@
     invits = await response.json();
   }
 
-  onMount(() => {
-    getFriends();
-    getInvits();
-    friendsInterval = setInterval(async () => {
-      getFriends();
-      getInvits();
-    }, 5000);
-  });
+  let showUserMenu = false;
+  let selectedUser: string | null = null;
+  function openUserMenu(username: string) {
+    showUserMenu = true;
+    selectedUser = username;
+  }
+  function closeUserMenu() {
+    showUserMenu = false;
+    selectedUser = "";
+  }
 
-  onDestroy(() => {
-    clearInterval(friendsInterval);
-  });
 </script>
 
 <div class="overlay">
   <div class="friends" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
+      {#if showUserMenu}
+        <UsersMenu 
+          {setAppState}
+          bind:username={selectedUser}
+          on:close={closeUserMenu}
+          on:view-profile={() => dispatch("view-profile", selectedUser)}
+          on:add-friend={addFriend}
+          on:invite-to-game={() => dispatch("invite-to-game", selectedUser)}
+        />
+      {/if}
+      <li>
+        <span class="message-name" 
+        on:click={() => openUserMenu($store.username)}
+        on:keydown={() => openUserMenu($store.username)}
+        style="cursor: pointer;"
+      >{$store.username} is {$store.status}</span> 
+      </li>
       <h2>{$store.username} friends:</h2>
       {#if friends.length > 0}
         <div class="friends-list">
           {#each friends as friend}
             <li>
-              <span>{friend.username} is {friend.status}</span>
+              <span class="message-name" 
+              on:click={() => openUserMenu(friend.username)}
+              on:keydown={() => openUserMenu(friend.username)}
+              style="cursor: pointer;"
+            >{friend.username} is {friend.status}</span> 
             </li>
           {/each}
         </div>
@@ -83,7 +122,11 @@
         <div class="invits-list">
           {#each invits as invit}
             <li>
-              <span>{invit.username} invited you to be friend.</span>
+              <span class="message-name" 
+              on:click={() => openUserMenu(invit.username)}
+              on:keydown={() => openUserMenu(invit.username)}
+              style="cursor: pointer;"
+            >{invit.username} invited you to be friend.</span>
             </li>
           {/each}
         </div>

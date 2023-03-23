@@ -4,19 +4,20 @@
   import { io, Socket } from "socket.io-client";
   import { show_popup, content } from "./Alert/content";
   import { APPSTATE } from "../App.svelte";
-  import { formatChannelNames, type ChannelsType, type ChatMessage, type ChatMessageServer } from "./Channels.svelte";
   import type User from "./Profile.svelte";
-  import type { CreateChannelDto } from "./dtos/create-channel.dto";
+  import type { ChannelsType, ChatMessage, ChatMessageServer } from "./Channels.svelte";
   import type { IdDto, MuteDto } from "./dtos/updateUser.dto";
   import type { ConnectionDto } from "./dtos/connection.dto";
   import type { CreateMessageDto } from "./dtos/create-message.dto";
   import type { kickUserDto } from "./dtos/kickUser.dto";
+  import UsersMenu from "./UsersMenu.svelte";
+
 </script>
 
 <script lang="ts">
+  
   export let channel: ChannelsType;
   export let messages: Array<ChatMessage> = [];
-  export let appState: string;
   export let setAppState: (newState: APPSTATE | string) => void;
 
   let socket: Socket;
@@ -25,30 +26,10 @@
   let blockedUsers: Array<User> = [];
   let chatMembers: Array<User> = [];
 
-  async function getCurrentChannel() {
-    const res = await fetch(API_URL + "/channels", {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (res.ok) {
-      const newChannels: Array<ChannelsType> = await res.json();
-      await formatChannelNames(newChannels);
-      newChannels.forEach((newChannel) => {
-        const urlSplit = appState.split("#", 2)
-        if (urlSplit.length > 1) {
-          const currentChannelName = appState.split("#", 2)[1];
-          if (newChannel.name === currentChannelName) {
-            channel = newChannel;
-          }
-        }
-      });
-    }
-  }
-
   onMount(async () => {
     socket = io(API_URL);
     socket.connect();
-    await getCurrentChannel();
+    await getFullChannel();
     if (!channel) setAppState(APPSTATE.CHANNELS);
     if (!channel.password) {
       const data: ConnectionDto = {
@@ -107,6 +88,18 @@
     console.log("Try to join channel: ", $store.ftId, channel.id, $content);
   });
 
+  const dispatch = createEventDispatcher();
+
+  async function getFullChannel() {
+    const response = await fetch(API_URL + "/channels/" + channel.id, {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (response.ok)
+      channel = await response.json();
+    else
+      console.log("Error while refreshing channel");
+  }
   async function getMembers() {
     if (!channel) return;
     let res = await fetch(API_URL + "/users/blocked/", {
@@ -145,18 +138,18 @@
   };
   //--------------------------------------------------------------------------------/
 
-  const dispatch = createEventDispatcher();
-  let showProfileMenu = false;
+
+  let showUserMenu = false;
   let selectedUser: string | null = null;
-  function openProfile(username: string) {
-    showProfileMenu = true;
+  function openUserMenu(username: string) {
+    showUserMenu = true;
     selectedUser = username;
   }
-  function closeProfileMenu() {
-    showProfileMenu = false;
+  function closeUserMenu() {
+    showUserMenu = false;
     selectedUser = "";
   }
-  onMount(closeProfileMenu);
+  onMount(closeUserMenu);
 
   //--------------------------------------------------------------------------------/
 
@@ -166,121 +159,6 @@
   }
 
   //--------------------------------------------------------------------------------/
-
-  async function getDMs(username: string): Promise<Response | null> {
-	const res = await fetch(API_URL + "/channels/dms/" + username, {
-		credentials: "include",
-		mode: "cors",
-	})
-	if (res.ok)
-		return res;
-	else
-		return null;
-  }
-
-  async function openDirectChat() {
-    const DMUsername = selectedUser;
-    let DMChannel: Array<ChannelsType> = [];
-    const res = await getDMs(DMUsername)
-    if (res && res.ok) {
-      DMChannel = await res.json();
-      if (DMChannel.length != 0)
-        await formatChannelNames(DMChannel)
-        setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
-	  } else {
-      console.log("Creating DMChannel: " + $store.username + "&" + DMUsername)
-      const body: CreateChannelDto = {
-        name: "none",
-        owner: $store.ftId,
-        password: "",
-        isPrivate: true,
-        isDM: true,
-        otherDMedUsername: DMUsername
-      }
-      fetch(API_URL + "/channels", {
-        credentials: "include",
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      }).then(async () => {
-        const response = await getDMs(DMUsername)
-        if (response && response.ok) {
-            DMChannel = await response.json(); 
-            if (DMChannel.length != 0) {
-              await formatChannelNames(DMChannel)
-              setAppState(APPSTATE.CHANNELS + "#" + DMChannel[0].name)
-            } else {
-              show_popup("Error: Couldn't create DM.", false)
-            }
-        } else {
-          show_popup("Error: Couldn't create DM.", false)
-        }
-      }).catch(() => {
-        show_popup("Error: Couldn't create DM.", false)
-      })
-    }
-  }
-
-  const blockUser = async (username: string) => {
-    let response = await fetch(API_URL + "/users/" + username + "/byname", {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (response.ok) {
-      const target = await response.json();
-      response = await fetch(API_URL + "/users/block/" + target.ftId, {
-        method: "GET",
-        credentials: "include",
-        mode: "cors"
-      });
-
-      messages = messages.map((message) => {
-        if (message.author.username === username) {
-          message.hidden = true;
-        }
-        return message;
-      });
-      closeProfileMenu();
-    }
-    if (response.ok) await show_popup("User blocked", false);
-    else {
-      const error = await response.json();
-      await show_popup(error.message, false);
-    }
-  };
-
-  //--------------------------------------------------------------------------------/
-
-  const unblockUser = async (username: string) => {
-    let response = await fetch(API_URL + "/users/" + username + "/byname", {
-      credentials: "include",
-      mode: "cors",
-    });
-    if (response.ok) {
-      const target = await response.json();
-      response = await fetch(API_URL + "/users/block/" + target.ftId, {
-        credentials: "include",
-        method: "DELETE",
-        mode: "cors"
-      });
-
-      messages = messages.map((message) => {
-        if (message.author.username === username) {
-          message.hidden = false;
-        }
-        return message;
-      });
-    }
-    if (response.ok) await show_popup("User unblocked", false);
-    else {
-      const error = await response.json();
-      await show_popup(error.message, false);
-    }
-  };
-
   //--------------------------------------------------------------------------------/
 
   const banUser = async (username: string) => {
@@ -294,8 +172,7 @@
         "Enter a time for which the user will be banned from this channel"
       );
       const duration = $content;
-      if (duration == "") 
-        return;
+      if (duration == "") return;
       const body: MuteDto = {
         data: [target.ftId, duration]
       }
@@ -404,8 +281,6 @@
     }
   };
 
-  //--------------------------------------------------------------------------------/
-
   const removeAdminUser = async (username: string) => {
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
@@ -440,6 +315,16 @@
       dispatch("return-home")
     }
   };
+
+  const updateHiddens = (event: CustomEvent<string>) => {
+    const username = event.detail;
+    messages = messages.map((message) => {
+      if (message.author.username === username) {
+        message.hidden = !message.hidden;
+      }
+      return message;
+    });
+  }
 </script>
 
 <div class="overlay">
@@ -450,8 +335,8 @@
           {#if !message.hidden}
             <span
               class="message-name"
-              on:click={() => openProfile(message.author.username)}
-              on:keydown={() => openProfile(message.author.username)}
+              on:click={() => openUserMenu(message.author.username)}
+              on:keydown={() => openUserMenu(message.author.username)}
               style="cursor: pointer;"
             >
               {message.author.username}
@@ -460,40 +345,17 @@
         </p>
       {/each}
     </div>
-    {#if showProfileMenu}
-      <div
-        class="profile-menu"
-        on:click|stopPropagation
-        on:keydown|stopPropagation
-      >
-        <ul>
-          <li>
-            <button on:click={openDirectChat}> Send Message </button>
-          </li>
-          <li>
-            <button on:click={() => dispatch("view-profile", selectedUser)}>
-              View Profile
-            </button>
-          </li>
-          <li>
-            <button on:click={() => dispatch("add-friend", selectedUser)}>
-              Add Friend
-            </button>
-          </li>
-          <li>
-            <button on:click={() => dispatch("invite-to-game", selectedUser)}>
-              Invite to Game
-            </button>
-          </li>
-          <li>
-            <button on:click={() => blockUser(selectedUser)}>
-              Block User
-            </button>
-          </li>
-          <li><button on:click={closeProfileMenu}> Close </button></li>
-        </ul>
-      </div>
-    {/if}
+    {#if showUserMenu}
+      <UsersMenu 
+        {setAppState}
+        bind:username={selectedUser}
+        on:updateHiddens={updateHiddens}
+        on:close={closeUserMenu}
+        on:view-profile={() => dispatch("view-profile", selectedUser)}
+        on:add-friend={() => dispatch("add-friend", selectedUser)}
+        on:invite-to-game={() => dispatch("invite-to-game", selectedUser)}
+      />
+   {/if}
     <form on:submit|preventDefault={sendMessage}>
       <input type="text" placeholder="Type a message..." bind:value={newText} />
       <button style="background:#dedede; margin:auto">
@@ -517,18 +379,15 @@
           <li>
             <p>
               {member.username}
+              <button on:click={() => dispatch("view-profile", member.username)}> profile </button>
               <button on:click={() => banUser(member.username)}> ban </button>
               <button on:click={() => kickUser(member.username)}> kick </button>
               <button on:click={() => muteUser(member.username)}> mute </button>
-              <button on:click={() => adminUser(member.username)}>
-                promote
-              </button>
-              <button on:click={() => removeAdminUser(member.username)}>
-                demote
-              </button>
-              <button on:click={() => unblockUser(member.username)}>
-                unblock
-              </button>
+              {#if channel.admins.some((usr) => usr.username == member.username)}
+                <button on:click={() => removeAdminUser(member.username)}> demote </button>
+              {:else}
+                <button on:click={() => adminUser(member.username)}> promote </button>
+              {/if}
             </p>
           </li>
         {/each}
@@ -614,17 +473,6 @@
   img {
     width: 16px;
     height: 16px;
-  }
-
-  .profile-menu {
-    position: absolute;
-    background-color: #ffffff;
-    border: 1px solid #dedede;
-    border-radius: 5px;
-    padding: 1rem;
-    max-height: 70%;
-    overflow-y: auto;
-    z-index: 1;
   }
 
   ul {

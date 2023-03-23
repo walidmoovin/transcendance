@@ -18,7 +18,7 @@ import { CreateChannelDto } from './dto/create-channel.dto'
 import { IdDto, PasswordDto, MuteDto } from './dto/updateUser.dto'
 
 import type User from 'src/users/entity/user.entity'
-import type Channel from './entity/channel.entity'
+import Channel from './entity/channel.entity'
 import { Profile42 } from 'src/auth/42.decorator'
 import { Profile } from 'passport-42'
 import { IsNumberString, IsPositive } from 'class-validator'
@@ -219,6 +219,18 @@ export class ChatController {
     if (channel.isDM) throw new BadRequestException('You cannot set a password on a DM channel')
     channel.password = await this.channelService.hash(data.password)
     this.channelService.update(channel)
+  }
+
+  @Get(':id')
+  async getChannel (@Param('id', ParseIntPipe) id: number): Promise<Channel> {
+    const chan = await this.channelService.getFullChannel(id)
+    if (chan == null) {
+      throw new NotFoundException(`Channel #${id} not found`)
+    }
+    chan.users.forEach((u) => (u.socketKey = ''))
+    chan.admins.forEach((u) => (u.socketKey = ''))
+    chan.owner.socketKey = ''
+    return chan
   }
 
   @Get()

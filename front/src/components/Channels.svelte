@@ -16,8 +16,9 @@
     isPrivate: boolean;
     password: string;
     owner: User;
-    banned: Array<User>;
-    muted: Array<User>;  
+    admins: Array<User>;
+    banned: Array<Array<number>>;
+    muted: Array<Array<number>>;  
     isDM: boolean;
   }
   export interface ChatMessageServer {
