@@ -93,11 +93,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leaveChannel')
-  async onLeaveChannel(socket: Socket): Promise<void> {
+  async onLeaveChannel(socket: Socket): Promise<boolean> {
     const connect = await this.connectedUserRepository.findOneBy({
       socket: socket.id,
     });
-    if (connect == null) throw new WsException('You must be connected to the channel');
+    if (connect == null) return false;
     const channel = await this.chatService.getFullChannel(connect.channel);
     if (connect.user === channel.owner.ftId) {
       this.server.in(channel.id.toString()).emit('deleted');
@@ -109,6 +109,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     await this.connectedUserRepository.delete({ socket: socket.id });
     console.log('socket %s has left channel', socket.id)
+    return true;
   }
 
   @SubscribeMessage('addMessage')

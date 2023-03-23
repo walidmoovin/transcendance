@@ -38,7 +38,10 @@
       let res = await fetch(API_URL + "/users/" + userId, {
         mode: "cors",
       });
-      if (res.ok) user = await res.json();
+      if (res.ok) {
+        user = await res.json();
+        username = user.username;
+      }
     }
   }
   async function getBlockeds() {
@@ -107,35 +110,44 @@
     dispatch("close")
   };
 
-  async function handleSubmit() {
-    if (gamePlaying) {
-      await show_popup("Cannot change username while playing.", false)
-      return;
-    }
+  async function handleSubmitUsername() {
+    if (gamePlaying) return await show_popup("Cannot change username while playing.", false)
+    if (username === $store.username) return await show_popup(`Username already set to ${username}.`, false)
+    if (username.includes(" ")) return await show_popup("Username cannot contain spaces.", false)
 
-    const body: UserDto = {
-      username: username,
-      ftId: $store.ftId,
-      status: $store.status,
-      authToken: $store.authToken,
-      avatar: $store.avatar,
-      isVerified: $store.isVerified
-    };
-    console.log("body:", body);
     const response = await fetch(API_URL + "/users", {
       headers: { "content-type": "application/json" },
       method: "POST",
       body: JSON.stringify({ 
         username: username,
-        email: email
+        email: $store.email
       }),
       credentials: "include",
     });
     if (response.ok) {
       $store.username = username;
-      $store.email = email;
-      await show_popup("Succefully changed informations.", false)
+      await show_popup("Successfully changed username.", false)
       resetGameConnection();
+    } else {
+      const error = await response.json();
+      await show_popup(error.message, false)
+    }
+  }
+
+  async function handleSubmitEmail() {
+    console.log($store.username)
+    const response = await fetch(API_URL + "/users", {
+      headers: { "content-type": "application/json" },
+      method: "POST",
+      body: JSON.stringify({ 
+        username: $store.username,
+        email: email
+      }),
+      credentials: "include",
+    });
+    if (response.ok) {
+      $store.email = email;
+      await show_popup("Successfully changed email.", false)
     } else {
       const error = await response.json();
       await show_popup(error.message, false)
@@ -152,7 +164,7 @@
       credentials: "include",
     });
     if (response.ok) {
-      await show_popup("Succefully " + (user.twoFA ? "enabled" : "disabled") + " 2FA", false)
+      await show_popup("Successfully " + (user.twoFA ? "enabled" : "disabled") + " 2FA", false)
     }
   }
 </script>
@@ -215,20 +227,29 @@
           >View History</button
         >
       </p>
+      <p>Rank: {user.rank}</p>
       <p>Wins: {user.wins}</p>
       <p>Looses: {user.looses}</p>
       <p>Winrate: {user.winrate.toFixed(2)}%</p>
-      <p>Rank: {user.rank}</p>
     </div>
     {#if edit}
       <form
-        id="update-form"
+        id="update-form-username"
         class="username"
-        on:submit|preventDefault={handleSubmit}
+        on:submit|preventDefault={handleSubmitUsername}
       >
         <input type="text" id="username" bind:value={username} required/>
+        <button type="submit" class="username" form="update-form-username"
+          >Change</button
+        >
+      </form>
+      <form
+        id="update-form-email"
+        class="username"
+        on:submit|preventDefault={handleSubmitEmail}
+      >
         <input type="text" id="email" bind:value={email} required/>
-        <button type="submit" class="username" form="update-form"
+        <button type="submit" class="username" form="update-form-email"
           >Change</button
         >
       </form>
@@ -266,7 +287,7 @@
     max-width: 80%;
     max-height: 80vh;
     overflow: auto;
-    width: 375px;
+    width: 500px;
     color: #e8e6e3;
   }
 
