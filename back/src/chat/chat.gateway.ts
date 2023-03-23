@@ -98,7 +98,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (connect == null) return false;
     const channel = await this.chatService.getFullChannel(connect.channel);
     if (connect.user === channel.owner.ftId) {
-      this.server.in(channel.id.toString()).emit('kicked');
+      this.server.in(channel.id.toString()).emit('deleted');
       await this.chatService.removeChannel(channel.id);
     } else {
       channel.users = channel.users.filter((usr: User) => usr.ftId !== connect.user);
@@ -114,8 +114,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let channel: Channel | null = null
     channel = await this.chatService.getChannel(message.ChannelId).catch(() => { return null })
     if (channel == null) {
-      this.server.to(socket.id).emit('kicked')
-      throw new WsException('Channel has been removed by owner');
+      this.server.to(socket.id).emit('deleted')
+      throw new WsException('Channel has been deleted');
     }
     if (await this.chatService.isMuted(channel.id, message.UserId)) {
       throw new WsException('You are muted');

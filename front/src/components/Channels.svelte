@@ -242,8 +242,8 @@
 <div class="overlay">
   <div class="channels" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
+      <h2 >Channels <button class="refresh"  on:click={() => getChannels()}>🔄</button> </h2>
       {#if channels.length > 0}
-        <h2 >Channels <button class="refresh"  on:click={() => getChannels()}>🔄</button> </h2>
         {#each channels as channel}
           <li>
             <span>{channel.name} : {channel.id}</span>

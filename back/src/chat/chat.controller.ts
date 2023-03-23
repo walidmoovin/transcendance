@@ -18,10 +18,9 @@ import { CreateChannelDto } from './dto/create-channel.dto'
 import { IdDto, PasswordDto, MuteDto } from './dto/updateUser.dto'
 
 import type User from 'src/users/entity/user.entity'
-import Channel from './entity/channel.entity'
+import type Channel from './entity/channel.entity'
 import { Profile42 } from 'src/auth/42.decorator'
 import { Profile } from 'passport-42'
-import { IsNumberString, IsPositive } from 'class-validator'
 
 @Controller('channels')
 @UseGuards(AuthenticatedGuard)
@@ -145,7 +144,7 @@ export class ChatController {
     const channel = await this.channelService.getFullChannel(id)
     const user: User | null = await this.usersService.findUser(+target.data[0])
     if (isNaN(+target.data[1])) {
-      throw new BadRequestException(`Invalid duration ${+target.data[1]}`)
+      throw new BadRequestException('Invalid duration')
     }
     if (user == null) {
       throw new NotFoundException(`User #${+target.data[0]} not found`)
@@ -174,7 +173,7 @@ export class ChatController {
     const channel = await this.channelService.getFullChannel(id)
     const user: User | null = await this.usersService.findUser(+mute.data[0])
     if (isNaN(+mute.data[1])) {
-      throw new BadRequestException(`Invalid duration ${+mute.data[1]}`)
+      throw new BadRequestException('Invalid duration')
     }
     if (user == null) {
       throw new NotFoundException(`User #${+mute.data[0]} not found`)

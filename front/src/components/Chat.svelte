@@ -108,6 +108,11 @@
       setAppState(APPSTATE.HOME);
     })
 
+    socket.on("deleted", () => {
+      show_popup(`Channel has been deleted`, false);
+      setAppState(APPSTATE.HOME);
+    })
+
     console.log("Try to join channel: ", $store.ftId, channel.id);
   });
 
@@ -170,6 +175,7 @@
       );
       const duration = $content;
       if (duration === "") return
+      if (isNaN(Number(duration)) || Number(duration) < 0) return await show_popup("Invalid duration", false);
       const body: MuteDto = {
         data: [target.ftId, duration]
       }
@@ -191,7 +197,7 @@
         };
         socket.emit("kickUser", data);
       } else {
-         const error = await response.json();
+        const error = await response.json();
         await show_popup(error.message, false)
       } 
     }
@@ -224,6 +230,7 @@
     await show_popup("Enter mute duration in seconds");
     const muteDuration = $content;
     if (muteDuration === "") return;
+    if (isNaN(Number(muteDuration)) || Number(muteDuration) < 0) return await show_popup("Invalid duration", false);
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
       mode: "cors",
@@ -371,8 +378,8 @@
               <button on:click={() => banUser(member.username)}> ban </button>
               <button on:click={() => kickUser(member.username)}> kick </button>
               <button on:click={() => muteUser(member.username)}> mute </button>
-              <button on:click={() => removeAdminUser(member.username)}> demote </button>
               <button on:click={() => adminUser(member.username)}> promote </button>
+              <button on:click={() => removeAdminUser(member.username)}> demote </button>
             </p>
           </li>
         {/each}

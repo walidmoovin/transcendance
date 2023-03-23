@@ -101,7 +101,7 @@
         gamePlaying = true;
       } else {
         gamePlaying = false;
-        popup.set(bind(Alert, { message: "Failed to invite user. Is he currently connected to the game?", form: false }))
+        show_popup("Failed to invite user. Is he currently connected to the game?", false)
       }
     });
     socket.on(GAME_EVENTS.MATCHMAKING, (data: MatchmakingDto) => {

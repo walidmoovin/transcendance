@@ -1,4 +1,5 @@
-import { IsEmail, IsNumber, IsString } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsArray, IsEmail, IsNumber, IsPositive, IsString } from 'class-validator'
 
 export class IdDto {
   @IsNumber()
@@ -11,7 +12,11 @@ export class PasswordDto {
 }
 
 export class MuteDto {
-  data: number[]
+  @Type(() => Number)
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsPositive({ each: true })
+    data: number[]
 }
 
 export class EmailDto {

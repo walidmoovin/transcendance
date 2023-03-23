@@ -100,7 +100,7 @@
 
   async function handleSubmit() {
     if (gamePlaying) {
-      popup.set(bind(Alert, { message: "Cannot change username while playing.", form: false }))
+      await show_popup("Cannot change username while playing.", false)
       return;
     }
 
@@ -125,11 +125,11 @@
     if (response.ok) {
       $store.username = username;
       $store.email = email;
-      popup.set(bind(Alert, { message: "Succefully changed informations.", form: false }))
+      await show_popup("Succefully changed informations.", false)
       resetGameConnection();
     } else {
       const error = await response.json();
-      popup.set(bind(Alert, { message: error.message, form: false}))
+      await show_popup(error.message, false)
     }
   }
 
@@ -143,17 +143,14 @@
       credentials: "include",
     });
     if (response.ok) {
-      popup.set(bind(Alert, {
-        message: "Succefully " + (user.twoFA ? "enabled" : "disabled") + " 2FA",
-        form : false
-      }))
+      await show_popup("Succefully " + (user.twoFA ? "enabled" : "disabled") + " 2FA", false)
     }
   }
 </script>
 
 <div class="overlay">
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
-    <h3>===| <mark>{username}'s Profile</mark> |===</h3>
+    <h3>===| <mark>{username}</mark> |===</h3>
     <div class="profile-header">
       {#if !edit}
         <img src={`${API_URL}/users/${user.ftId}/avatar`} alt="avatar" class="profile-img" />

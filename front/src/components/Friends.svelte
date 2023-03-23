@@ -36,7 +36,6 @@
   let friends: Friend[] = [];
   let invits: Friend[] = [];
   let friendsInterval: ReturnType<typeof setInterval>;
-  let blockedUsers: Array<Friend> = [];
 
   onMount(() => {
     getFriends();
@@ -68,27 +67,11 @@
 
   let showUserMenu = false;
   let selectedUser: string | null = null;
-  function openUserMenu(username: string) {
-    showUserMenu = true;
-    selectedUser = username;
-  }
-  function closeUserMenu() {
-    showUserMenu = false;
-    selectedUser = "";
-  }
-
 </script>
 
 <div class="overlay">
   <div class="friends" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
-      <li>
-        <span class="message-name" 
-          on:click={() => dispatch("view-profile", $store.username)}
-          on:keydown={() => dispatch("view-profile", $store.username)}
-        style="cursor: pointer;"
-      >{$store.username} is {$store.status}</span> 
-      </li>
       <h2>{$store.username} friends:</h2>
       {#if friends.length > 0}
         <div class="friends-list">

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-    import { get } from "svelte/store";
   import { content, popup } from "./content";
 
   export let message: string;
