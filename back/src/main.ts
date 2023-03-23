@@ -1,4 +1,4 @@
-import { InternalServerErrorException, Logger, ValidationPipe } from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import * as session from 'express-session'
@@ -45,5 +45,5 @@ async function bootstrap (): Promise<void> {
   logger.log(`Application listening on port ${port}`)
 }
 bootstrap().catch((e) => {
-  throw new InternalServerErrorException(e)
+  console.log('Error!')
 })
