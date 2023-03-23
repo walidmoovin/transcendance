@@ -10,7 +10,6 @@
   import type { ConnectionDto } from "./dtos/connection.dto";
   import type { CreateMessageDto } from "./dtos/create-message.dto";
   import type { kickUserDto } from "./dtos/kickUser.dto";
-  import UsersMenu from "./UsersMenu.svelte";
 
 </script>
 
@@ -138,27 +137,11 @@
   };
   //--------------------------------------------------------------------------------/
 
-
-  let showUserMenu = false;
-  let selectedUser: string | null = null;
-  function openUserMenu(username: string) {
-    showUserMenu = true;
-    selectedUser = username;
-  }
-  function closeUserMenu() {
-    showUserMenu = false;
-    selectedUser = "";
-  }
-  onMount(closeUserMenu);
-
-  //--------------------------------------------------------------------------------/
-
   let showChatMembers = false;
   function toggleChatMembers() {
     showChatMembers = !showChatMembers;
   }
 
-  //--------------------------------------------------------------------------------/
   //--------------------------------------------------------------------------------/
 
   const banUser = async (username: string) => {
@@ -335,8 +318,8 @@
           {#if !message.hidden}
             <span
               class="message-name"
-              on:click={() => openUserMenu(message.author.username)}
-              on:keydown={() => openUserMenu(message.author.username)}
+              on:click={() => dispatch("view-profile", message.author.username)}
+              on:keydown={() => dispatch("view-profile", message.author.username)}
               style="cursor: pointer;"
             >
               {message.author.username}
@@ -345,17 +328,6 @@
         </p>
       {/each}
     </div>
-    {#if showUserMenu}
-      <UsersMenu 
-        {setAppState}
-        bind:username={selectedUser}
-        on:updateHiddens={updateHiddens}
-        on:close={closeUserMenu}
-        on:view-profile={() => dispatch("view-profile", selectedUser)}
-        on:add-friend={() => dispatch("add-friend", selectedUser)}
-        on:invite-to-game={() => dispatch("invite-to-game", selectedUser)}
-      />
-   {/if}
     <form on:submit|preventDefault={sendMessage}>
       <input type="text" placeholder="Type a message..." bind:value={newText} />
       <button style="background:#dedede; margin:auto">

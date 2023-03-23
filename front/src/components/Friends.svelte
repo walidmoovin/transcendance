@@ -2,9 +2,9 @@
   import { onMount, onDestroy } from "svelte";
   import { API_URL, store } from "../Auth";
   import { show_popup } from "./Alert/content";
-  import UsersMenu from "./UsersMenu.svelte";
   import type { APPSTATE } from "../App.svelte";
   import { createEventDispatcher } from "svelte";
+
 
   export interface Friend {
     username: string;
@@ -34,11 +34,13 @@
 
 <script lang="ts">
 
+  const dispatch = createEventDispatcher();
+
   export let setAppState: (newState: APPSTATE | string) => void;
   let friends: Friend[] = [];
   let invits: Friend[] = [];
   let friendsInterval: ReturnType<typeof setInterval>;
-  const dispatch = createEventDispatcher();
+  let blockedUsers: Array<Friend> = [];
 
   onMount(() => {
     getFriends();
@@ -84,20 +86,10 @@
 <div class="overlay">
   <div class="friends" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
-      {#if showUserMenu}
-        <UsersMenu 
-          {setAppState}
-          bind:username={selectedUser}
-          on:close={closeUserMenu}
-          on:view-profile={() => dispatch("view-profile", selectedUser)}
-          on:add-friend={addFriend}
-          on:invite-to-game={() => dispatch("invite-to-game", selectedUser)}
-        />
-      {/if}
       <li>
         <span class="message-name" 
-        on:click={() => openUserMenu($store.username)}
-        on:keydown={() => openUserMenu($store.username)}
+          on:click={() => dispatch("view-profile", $store.username)}
+          on:keydown={() => dispatch("view-profile", $store.username)}
         style="cursor: pointer;"
       >{$store.username} is {$store.status}</span> 
       </li>
@@ -107,8 +99,8 @@
           {#each friends as friend}
             <li>
               <span class="message-name" 
-              on:click={() => openUserMenu(friend.username)}
-              on:keydown={() => openUserMenu(friend.username)}
+              on:click={() => dispatch("view-profile", friend.username)}
+              on:keydown={() => dispatch("view-profile", friend.username)}
               style="cursor: pointer;"
             >{friend.username} is {friend.status}</span> 
             </li>
@@ -123,8 +115,8 @@
           {#each invits as invit}
             <li>
               <span class="message-name" 
-              on:click={() => openUserMenu(invit.username)}
-              on:keydown={() => openUserMenu(invit.username)}
+              on:click={() => dispatch("view-profile", invit.username)}
+              on:keydown={() => dispatch("view-profile", invit.username)}
               style="cursor: pointer;"
             >{invit.username} invited you to be friend.</span>
             </li>

@@ -21,7 +21,7 @@
   import MatchHistory from "./components/MatchHistory.svelte";
   import Friends, { addFriend } from "./components/Friends.svelte";
   import Chat from "./components/Chat.svelte";
-  import Channels from "./components/Channels.svelte";
+  import Channels, {openDirectChat} from "./components/Channels.svelte";
   import Leaderboard from "./components/Leaderboard.svelte";
   import { popup } from "./components/Alert/content";
   import Pong from "./components/Pong/Pong.svelte";
@@ -43,8 +43,8 @@
 
   function setAppState(newState: APPSTATE | string) {
   if (newState === appState) return;
+    history.pushState({ appState: newState, prevState: appState }, "", newState);
     appState = newState;
-    history.pushState({ appState: appState, prevState: window.location.pathname }, "", appState);
   }
 
   onMount(() => {
@@ -189,7 +189,10 @@
           <Profile
             {gamePlaying}
             bind:username={profileUsername}
+            on:send-message={openDirectChat}
             on:view-history={() => setAppState(APPSTATE.HISTORY_ID)}
+            on:add-friend={addFriend}
+            on:invite-to-game={pong.inviteToGame}
           />
         </div>
       {/if}

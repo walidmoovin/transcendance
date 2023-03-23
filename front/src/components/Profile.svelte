@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   export interface Player {
     username: string;
+    blocked: Array<Player>
     wins: number;
     looses: number;
     matchs: number;
@@ -18,6 +19,7 @@
   import Alert from "./Alert/Alert.svelte";
   import { popup } from "./Alert/content";
   import type { UserDto } from "./dtos/user.dto";
+  import { show_popup } from "./Alert/content";
 
   export let username: string = $store.username;
   export let email: string = $store.email;
@@ -26,8 +28,54 @@
 
   let edit: boolean = true;
   let user: Player = $store;
-
+  let blockedUsers: Array<Player> = [];
   let avatarForm: HTMLFormElement;
+  export const blockUser = async (username: string) => {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/users/block/" + target.ftId, {
+        method: "GET",
+        credentials: "include",
+        mode: "cors"
+      });
+      dispatch("update-hiddens", username)
+    }
+    if (response.ok) await show_popup("User blocked", false);
+    else {
+      const error = await response.json();
+      await show_popup(error.message, false);
+    }
+    dispatch("close")
+  };
+
+  //--------------------------------------------------------------------------------/
+
+  export const unblockUser = async (username: string) => {
+    let response = await fetch(API_URL + "/users/" + username + "/byname", {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (response.ok) {
+      const target = await response.json();
+      response = await fetch(API_URL + "/users/block/" + target.ftId, {
+        credentials: "include",
+        method: "DELETE",
+        mode: "cors"
+      });
+      dispatch("update-hiddens", username)
+    }
+    if (response.ok) await show_popup("User unblocked", false);
+    else {
+      const error = await response.json();
+      await show_popup(error.message, false);
+    }
+    dispatch("close")
+  };
+
 
   async function getUser() {
     if (username !== $store.username) {
@@ -36,6 +84,11 @@
         mode: "cors",
       });
       user = await res.json();
+      res = await fetch(API_URL + "/users/blocked/", {
+        credentials: "include",
+        mode: "cors",
+      });
+      if (res.ok) blockedUsers = await res.json();
     }
   }
 
@@ -52,7 +105,7 @@
     }
 
     const body: UserDto = {
-      username: newUsername,
+      username: username,
       ftId: $store.ftId,
       status: $store.status,
       authToken: $store.authToken,
@@ -102,7 +155,7 @@
   <div class="profile" on:click|stopPropagation on:keydown|stopPropagation>
     <h3>===| <mark>{username}'s Profile</mark> |===</h3>
     <div class="profile-header">
-      {#if !edit}
+      {#if edit}
         <img src={`${API_URL}/users/${user.ftId}/avatar`} alt="avatar" class="profile-img" />
       {:else}
         <form
@@ -129,6 +182,28 @@
       {/if}
     </div>
     <div class="profile-body">
+      {#if !edit}
+        <p>
+          <button on:click={() => dispatch("send-message")}>Send PM</button>
+          <button on:click={() => dispatch("invite-to-game", username)}>
+            Invite to Game
+          </button>
+        </p>
+        <p>
+          <button on:click={() => dispatch("add-friend", username)}>
+            Add Friend
+          </button>
+        {#if blockedUsers.some((usr) => usr.username === username)}
+          <button on:click={() => unblockUser(username)}>
+            Unblock User
+          </button>
+        {:else}
+          <button on:click={() => blockUser(username)}>
+            Block User
+          </button>
+        {/if}
+        </p>
+      {/if}
       <p>
         <button on:click={() => dispatch("view-history")}
           >View History</button
