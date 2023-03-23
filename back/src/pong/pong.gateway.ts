@@ -150,6 +150,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.socketToPlayerName.get(key) ===
           realGameCreationDto.playerNames[0]
       )
+      const player1game: Game | undefined = this.games.playerGame(
+        realGameCreationDto.playerNames[0]
+      )
       const player2Socket: Socket | undefined = Array.from(
         this.socketToPlayerName.keys()
       ).find(
@@ -157,10 +160,15 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.socketToPlayerName.get(key) ===
           realGameCreationDto.playerNames[1]
       )
+      const player2game: Game | undefined = this.games.playerGame(
+        realGameCreationDto.playerNames[1]
+      )
 
       if (
         player1Socket !== undefined &&
         player2Socket !== undefined &&
+        player1game === undefined &&
+        player2game === undefined &&
         (client.id === player1Socket.id || client.id === player2Socket.id) &&
         player1Socket.id !== player2Socket.id
       ) {

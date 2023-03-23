@@ -191,13 +191,13 @@
         body: JSON.stringify(body),
       });
       if (response.ok) {
-        await show_popup(`User banned for: ${duration} seconds`, false);
         const data: kickUserDto = {
           chan: channel.id,
           from: $store.ftId,
           to: target.ftId,
         };
         socket.emit("kickUser", data);
+        await show_popup(`User banned for: ${duration} seconds`, false);
       } else {
         const error = await response.json();
         await show_popup(error.message, false)

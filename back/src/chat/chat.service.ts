@@ -105,22 +105,14 @@ export class ChatService {
     return rooms
   }
 
-  @Cron('*/6 * * * * *')
-  async updateMutelists (): Promise<void> {
-    const channels = await this.ChannelRepository.find({})
-    channels.forEach((channel) => {
-      channel.muted = channel.muted.filter((data) => {
-        return Date.now() - data[1] < 0
-      })
-      void this.update(channel)
-    })
-  }
-
-  @Cron('*/6 * * * * *')
+  @Cron('*/10 * * * * *')
   async updateBanlists (): Promise<void> {
     const channels = await this.ChannelRepository.find({})
     for (const channel of channels) {
       channel.banned = channel.banned.filter((data) => {
+        return Date.now() - data[1] < 0
+      })
+      channel.muted = channel.muted.filter((data) => {
         return Date.now() - data[1] < 0
       })
       void this.update(channel)
