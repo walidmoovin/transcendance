@@ -12,23 +12,33 @@
 <script lang="ts">
   import InfiniteScroll from "./infiniteScroll.svelte";
   import { onMount } from "svelte";
+    import { APPSTATE } from "../App.svelte";
 
-  export let username: string = "Global";
+  export let appState: string = APPSTATE.HISTORY
+  let username = "";
   let page: number = 1;
   let data: Array<Match> = [];
   let newBatch: Array<Match> = [];
 
+  onMount(() => {
+    fetchData();
+  });
+
+  $: data = [...data, ...newBatch];
+
   async function fetchData() {
     let response: Response;
-    if (username === "Global") {
+    if (appState === APPSTATE.HISTORY) {
       response = await fetch(`${API_URL}/results/global?page=${page}`, {
         credentials: "include",
         mode: "cors",
       });
     } else {
-      response = await fetch(`${API_URL}/users/${username}/byname`);
+      let userId = appState.split("#")[1];
+      response = await fetch(`${API_URL}/users/${userId}`);
       if (response.ok) {
         let user = await response.json();
+        username = user.username;
         response = await fetch(`${API_URL}/results/${user.ftId}?page=${page}`, {
           credentials: "include",
           mode: "cors",
@@ -53,23 +63,22 @@
     }
   }
 
-  onMount(() => {
-    fetchData();
-  });
-
-  $: data = [...data, ...newBatch];
 </script>
 
 <div class="overlay">
   <div class="history" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
-      {#if data.length > 0}
-        <table>
-          <thead>
-            <tr>
-              <th colspan="3">{username}'s last matchs</th>
-            </tr>
-          </thead>
+      <table>
+        <thead>
+          <tr>
+            {#if username === ""}
+              <th colspan="3">Global history</th>
+            {:else}
+              <th colspan="3">History of {username}</th>
+            {/if}
+          </tr>
+        </thead>
+        {#if data.length > 0}
           <tbody>
             <tr>
               <td>Date</td>
@@ -89,10 +98,10 @@
               </tr>
             {/each}
           </tbody>
-        </table>
       {:else}
         <p>No matches to display</p>
       {/if}
+        </table>
     </div>
     <InfiniteScroll
       hasMore={newBatch.length > 0}

@@ -14,22 +14,49 @@
 
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { bind } from 'svelte-simple-modal';
   import { API_URL, store, logout } from "../Auth";
-  import Alert from "./Alert/Alert.svelte";
-  import { popup } from "./Alert/content";
   import type { UserDto } from "./dtos/user.dto";
   import { show_popup } from "./Alert/content";
+  import { APPSTATE } from "../App.svelte";
 
-  export let username: string = $store.username;
-  export let email: string = $store.email;
   export let gamePlaying: boolean;
   export let resetGameConnection: () => void = () => {};
+  export let appState: string = APPSTATE.PROFILE;
 
   let edit: boolean = true;
   let user: Player = $store;
+  let userId: string = $store.ftId;
+  let username: string = $store.username;
+  let email: string = $store.email;
   let blockedUsers: Array<Player> = [];
   let avatarForm: HTMLFormElement;
+
+  async function getUser() {
+    if ( appState !== APPSTATE.PROFILE) {
+      edit = false;
+      userId = appState.split("#")[1]
+      let res = await fetch(API_URL + "/users/" + userId, {
+        mode: "cors",
+      });
+      if (res.ok) user = await res.json();
+    }
+  }
+  async function getBlockeds() {
+    let res = await fetch(API_URL + "/users/blocked/", {
+      credentials: "include",
+      mode: "cors",
+    });
+    if (res.ok) blockedUsers = await res.json();
+  }
+
+  onMount(() => {
+    getUser();
+    getBlockeds();
+  });
+
+  const dispatch = createEventDispatcher();
+
+  //--------------------------------------------------------------------------------//
   export const blockUser = async (username: string) => {
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
       credentials: "include",
@@ -42,17 +69,18 @@
         credentials: "include",
         mode: "cors"
       });
-      dispatch("update-hiddens", username)
-    }
-    if (response.ok) await show_popup("User blocked", false);
-    else {
+      if (response.ok) {
+        blockedUsers.push(target);
+        await show_popup("User blocked", false);
+      } else {
+        const error = await response.json();
+        await show_popup(error.message, false);
+      }
+    } else {
       const error = await response.json();
       await show_popup(error.message, false);
     }
-    dispatch("close")
   };
-
-  //--------------------------------------------------------------------------------/
 
   export const unblockUser = async (username: string) => {
     let response = await fetch(API_URL + "/users/" + username + "/byname", {
@@ -68,35 +96,16 @@
       });
       dispatch("update-hiddens", username)
     }
-    if (response.ok) await show_popup("User unblocked", false);
+    if (response.ok) {
+      await show_popup("User unblocked", false);
+      blockedUsers = blockedUsers.filter((user) => user.username !== username);
+    }
     else {
       const error = await response.json();
       await show_popup(error.message, false);
     }
     dispatch("close")
   };
-
-
-  async function getUser() {
-    if (username !== $store.username) {
-      edit = false;
-      let res = await fetch(API_URL + "/users/" + username + "/byname", {
-        mode: "cors",
-      });
-      user = await res.json();
-      res = await fetch(API_URL + "/users/blocked/", {
-        credentials: "include",
-        mode: "cors",
-      });
-      if (res.ok) blockedUsers = await res.json();
-    }
-  }
-
-  onMount(() => {
-    getUser();
-  });
-
-  const dispatch = createEventDispatcher();
 
   async function handleSubmit() {
     if (gamePlaying) {
@@ -202,7 +211,7 @@
         </p>
       {/if}
       <p>
-        <button on:click={() => dispatch("view-history")}
+        <button on:click={() => dispatch("view-history", user.ftId)}
           >View History</button
         >
       </p>

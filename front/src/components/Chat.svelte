@@ -341,8 +341,8 @@
           {#if !message.hidden}
             <span
               class="message-name"
-              on:click={() => dispatch("view-profile", message.author.username)}
-              on:keydown={() => dispatch("view-profile", message.author.username)}
+              on:click={() => dispatch("view-profile", message.author.ftId)}
+              on:keydown={() => dispatch("view-profile", message.author.ftId)}
               style="cursor: pointer;"
             >
               {message.author.username}
@@ -374,7 +374,7 @@
           <li>
             <p>
               {member.username}
-              <button on:click={() => dispatch("view-profile", member.username)}> profile </button>
+              <button on:click={() => dispatch("view-profile", member.ftId)}> profile </button>
               <button on:click={() => banUser(member.username)}> ban </button>
               <button on:click={() => kickUser(member.username)}> kick </button>
               <button on:click={() => muteUser(member.username)}> mute </button>

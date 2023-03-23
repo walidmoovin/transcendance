@@ -3,13 +3,11 @@
     HOME = "/",
     PROFILE = "/profile",
     HISTORY = "/history",
-    HISTORY_ID = "/history_id",
     FRIENDS = "/friends",
     CHANNELS = "/channels",
     LEADERBOARD = "/leaderboard",
     CREATE_GAME = "/create-game",
     MATCHMAKING = "/matchmaking",
-    PROFILE_ID = "/profile_id",
   }
 </script>
 
@@ -90,7 +88,10 @@
   }
 
   onMount(() => {
-    history.replaceState({ appState: "" }, "", "/");
+    if (window.location.pathname === "/profile")
+      history.replaceState({ appState: APPSTATE.PROFILE }, "", APPSTATE.PROFILE);
+    else
+      history.replaceState({ appState: "" }, "", "/");
     window.onpopstate = (e: PopStateEvent) => {
       if (e.state) {
         appState = e.state.appState;
@@ -103,16 +104,17 @@
   }, 15000);
 
   function clickProfile() {
-    profileUsername = $store.username
     setAppState(APPSTATE.PROFILE);
   }
 
-  let profileUsername: string = $store?.username ?? "";
   async function openIdProfile(event: CustomEvent<string>) {
-    profileUsername = event.detail;
-    setAppState(APPSTATE.PROFILE_ID);
+    setAppState(APPSTATE.PROFILE + "#" + event.detail);
   }
-  $: console.log("New profileUsername:", profileUsername)
+  
+  async function openIdHistory(event: CustomEvent<string>) {
+    setAppState(APPSTATE.HISTORY + "#" + event.detail);
+  }
+
   async function clickHistory() {
     setAppState(APPSTATE.HISTORY);
   }
@@ -176,8 +178,7 @@
         {failedGameLogIn}
         {gamePlaying}
       />
-
-      {#if appState.includes(`${APPSTATE.CHANNELS}#`)}
+      {#if appState.includes(`${APPSTATE.CHANNELS}#`)} 
         {#key appState}
           <div
             on:click={() => setAppState(APPSTATE.CHANNELS)}
@@ -195,8 +196,8 @@
           </div>
         {/key}
       {/if}
-      {#if appState.includes(APPSTATE.CHANNELS)}
-        <div
+      {#if appState.includes(APPSTATE.CHANNELS)} 
+         <div
           class="{appState !== APPSTATE.CHANNELS ? 'hidden' : ''}"
           on:click={resetAppState}
           on:keydown={resetAppState}
@@ -219,32 +220,32 @@
       {/if}
       {#if appState === APPSTATE.HISTORY}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <MatchHistory />
+          <MatchHistory {appState} />
         </div>
       {/if}
-      {#if appState === APPSTATE.HISTORY_ID}
+      {#if appState.includes(`${APPSTATE.HISTORY}#`)}
         <div
           on:click={() => setAppState(APPSTATE.PROFILE)}
           on:keydown={() => setAppState(APPSTATE.PROFILE)}
         >
-          <MatchHistory username={profileUsername} />
+          <MatchHistory {appState} />
         </div>
       {/if}
       {#if appState === APPSTATE.PROFILE}
         <div on:click={resetAppState} on:keydown={resetAppState}>
-          <Profile {resetGameConnection} {gamePlaying} bind:username={profileUsername} on:view-history={() => setAppState(APPSTATE.HISTORY_ID)} />
+          <Profile {appState} {resetGameConnection} {gamePlaying} on:view-history={openIdHistory} />
         </div>
       {/if}
-      {#if appState === APPSTATE.PROFILE_ID}
+      {#if appState.includes(`${APPSTATE.PROFILE}#`)}
         <div
           on:click={() => setAppState(history.state.prevState)}
           on:keydown={() => setAppState(history.state.prevState)}
         >
           <Profile
+            {appState}
             {gamePlaying}
-            bind:username={profileUsername}
             on:send-message={openDirectChat}
-            on:view-history={() => setAppState(APPSTATE.HISTORY_ID)}
+            on:view-history={openIdHistory}
             on:add-friend={addFriend}
             on:invite-to-game={pong.inviteToGame}
           />

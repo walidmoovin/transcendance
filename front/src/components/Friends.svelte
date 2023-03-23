@@ -78,8 +78,8 @@
           {#each friends as friend}
             <li>
               <span class="message-name" 
-              on:click={() => dispatch("view-profile", friend.username)}
-              on:keydown={() => dispatch("view-profile", friend.username)}
+              on:click={() => dispatch("view-profile", friend.ftId)}
+              on:keydown={() => dispatch("view-profile", friend.ftId)}
               style="cursor: pointer;"
             >{friend.username} is {friend.status}</span> 
             </li>
@@ -94,8 +94,8 @@
           {#each invits as invit}
             <li>
               <span class="message-name" 
-              on:click={() => dispatch("view-profile", invit.username)}
-              on:keydown={() => dispatch("view-profile", invit.username)}
+              on:click={() => dispatch("view-profile", invit.ftId)}
+              on:keydown={() => dispatch("view-profile", invit.ftId)}
               style="cursor: pointer;"
             >{invit.username} invited you to be friend.</span>
             </li>

@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
-  import { content, popup, show_popup } from './Alert/content'
-  import { onMount, tick } from "svelte";
+  import { content, show_popup } from './Alert/content'
+  import { onMount } from "svelte";
   import { API_URL, store } from "../Auth";
   import type User from "./Profile.svelte";
   import type { CreateChannelDto } from './dtos/create-channel.dto';

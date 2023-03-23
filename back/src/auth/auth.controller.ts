@@ -42,7 +42,7 @@ export class AuthController {
 
   @Get('inReturn')
   @UseGuards(FtOauthGuard)
-  @Redirect(`http://${frontHost}:${frontPort}`)
+  @Redirect(`http://${frontHost}:${frontPort}/profile`)
   ftAuthCallback (
     @Res({ passthrough: true }) response: Response,
       @Req() request: Request
