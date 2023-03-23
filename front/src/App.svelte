@@ -88,8 +88,10 @@
   }
 
   onMount(() => {
-    if (window.location.pathname === "/profile")
+    if (window.location.pathname === "/profile") {
       appState = APPSTATE.PROFILE;
+      history.replaceState({ appState: "/profile" }, "", "/profile");
+    }
     else
       history.replaceState({ appState: "" }, "", "/");
     window.onpopstate = (e: PopStateEvent) => {
