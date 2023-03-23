@@ -7,7 +7,8 @@ import {
   Req,
   Post,
   Body,
-  BadRequestException
+  BadRequestException,
+  Param
 } from '@nestjs/common'
 import { Response, Request } from 'express'
 
@@ -60,10 +61,10 @@ export class AuthController {
     await this.authService.sendConfirmationEmail(user)
   }
 
-  @Post('/verify')
+  @Get('/verify/:code')
   @Redirect(`http://${frontHost}:${frontPort}`)
-  async Verify (@Body() body: any): Promise<void> {
-    await this.authService.verifyAccount(body.code)
+  async Verify (@Param("code") code: string): Promise<void> {
+    await this.authService.verifyAccount(code)
   }
 
   @Get('profile')

@@ -72,7 +72,7 @@
 <div class="overlay">
   <div class="friends" on:click|stopPropagation on:keydown|stopPropagation>
     <div>
-      <h2>{$store.username} friends:</h2>
+      <h2>Friends:</h2>
       {#if friends.length > 0}
         <div class="friends-list">
           {#each friends as friend}
@@ -88,7 +88,7 @@
       {:else}
         <p>No friends to display</p>
       {/if}
-      <h2>{$store.username} invits:</h2>
+      <h2>Invitations:</h2>
       {#if invits.length > 0}
         <div class="invits-list">
           {#each invits as invit}
