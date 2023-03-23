@@ -74,6 +74,7 @@
       });
       if (response.ok) {
         blockedUsers.push(target);
+        blockedUsers = blockedUsers
         await show_popup("User blocked", false);
       } else {
         const error = await response.json();
