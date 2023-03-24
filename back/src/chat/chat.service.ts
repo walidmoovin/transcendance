@@ -70,7 +70,7 @@ export class ChatService {
     newDM.password = ''
     newDM.owner = user
     newDM.users = [user, otherUser]
-    newDM.admins = []
+    newDM.admins = [user]
     newDM.name = `${user.ftId}&${otherUser.ftId}`
     newDM.isDM = true
     return newDM
